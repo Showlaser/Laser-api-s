@@ -1,5 +1,5 @@
 ﻿using Auth_API.Interfaces.Dal;
-using Auth_API.Models.Dto;
+using Auth_API.Models.Dto.Spotify;
 using Moq;
 
 namespace Auth_API.Tests.MockedDals

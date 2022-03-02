@@ -1,4 +1,6 @@
-﻿namespace Auth_API.Models.Dto
+﻿using Auth_API.Models.Dto.Spotify;
+
+namespace Auth_API.Models.Dto.User
 {
     public class UserDto
     {

@@ -1,8 +1,9 @@
 ﻿using Auth_API.Logic;
-using Auth_API.Models.Dto;
+using Auth_API.Models.Dto.Spotify;
 using Auth_API.Tests.MockedLogics;
 using Auth_API.Tests.TestModels;
 using NUnit.Framework;
+using System.Security;
 
 namespace Auth_API.Tests.LogicTest
 {
@@ -20,9 +21,22 @@ namespace Auth_API.Tests.LogicTest
         }
 
         [Test]
-        public void RefreshAccessTokenTest()
+        public async Task RefreshAccessTokenTest()
         {
-            _spotifyLogic.RefreshAccessToken(_accountData.AccessToken);
+            string newAccessToken = await _spotifyLogic.RefreshAccessToken(_accountData.UserUuid);
+            Assert.IsNotNull(newAccessToken);
+        }
+
+        [Test]
+        public async Task RefreshAccessTokenKeyNotFoundExceptionTest()
+        {
+            Assert.ThrowsAsync<KeyNotFoundException>(async () => await _spotifyLogic.RefreshAccessToken(_accountData.UserUuid));
+        }
+
+        [Test]
+        public async Task RefreshAccessTokenSecurityExceptionTest()
+        {
+            Assert.ThrowsAsync<SecurityException>(async () => await _spotifyLogic.RefreshAccessToken(Guid.Parse("e2e177fb-e560-42f3-8d4d-07a5c14acf4b")));
         }
     }
 }

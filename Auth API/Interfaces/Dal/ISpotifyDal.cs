@@ -1,4 +1,4 @@
-﻿using Auth_API.Models.Dto;
+﻿using Auth_API.Models.Dto.Spotify;
 
 namespace Auth_API.Interfaces.Dal
 {
@@ -14,9 +14,9 @@ namespace Auth_API.Interfaces.Dal
         /// Finds the spotify account data by user uuid
         /// </summary>
         /// <param name="userUuid">The uuid of the user</param>
-        /// <returns>The found spotify account data which contains the useruuid</returns>
+        /// <returns>The found spotify account data which contains the useruuid null if nothing is found</returns>
         Task<SpotifyAccountDataDto> Find(Guid userUuid);
-        
+
         /// <summary>
         /// Removes the spotify account data by user uuid
         /// </summary>

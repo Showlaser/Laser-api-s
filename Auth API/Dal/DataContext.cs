@@ -1,4 +1,5 @@
-﻿using Auth_API.Models.Dto;
+﻿using Auth_API.Models.Dto.Spotify;
+using Auth_API.Models.Dto.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace Auth_API.Dal
@@ -16,6 +17,11 @@ namespace Auth_API.Dal
                 entity.HasOne(e => e.SpotifyAccountData)
                     .WithOne()
                     .HasForeignKey<SpotifyAccountDataDto>(e => e.UserUuid);
+            });
+
+            modelBuilder.Entity<RefreshTokenDto>(entity =>
+            {
+                entity.HasKey(rt => rt.Uuid);
             });
         }
     }

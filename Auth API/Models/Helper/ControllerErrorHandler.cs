@@ -1,4 +1,6 @@
-﻿namespace Auth_API.Models.Helper
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Auth_API.Models.Helper
 {
     public class ControllerErrorHandler
     {

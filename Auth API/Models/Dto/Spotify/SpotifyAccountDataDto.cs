@@ -1,4 +1,4 @@
-﻿namespace Auth_API.Models.Dto
+﻿namespace Auth_API.Models.Dto.Spotify
 {
     public class SpotifyAccountDataDto
     {
