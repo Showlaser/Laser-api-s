@@ -1,0 +1,42 @@
+version: '3.4'
+
+services:
+  authapi:
+    image: ${DOCKER_REGISTRY-}authapi
+    build:
+      context: .
+      dockerfile: Auth API/Dockerfile
+    ports:
+        - "5001:80"
+    environment:
+        JWTSECRET: hwef9hewihsidhfkfdafew
+        ARGON2SECRET: jwoi320djkg40-8u92huyashdfkj
+        SERVER: mariadb
+        DATABASE: auth
+        PORT: 3306
+        USERNAME: root
+        PASSWORD: qwerty
+        SPOTIFYCLIENTID: b63c814d37454bb4bb47667cc2a854e0
+        SPOTIFYCLIENTSECRET: 3461856b314c49408ee37ecd6d3c9413
+
+  mariadb:
+    container_name: mariadb
+    image: mariadb:latest
+    ports:
+      - 3306:3306
+    restart: always
+    volumes:
+      - ~/apps/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: qwerty
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    ports:
+      - 8000:80
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mariadb
+    depends_on:
+      - mariadb

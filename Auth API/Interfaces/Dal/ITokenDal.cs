@@ -1,21 +1,21 @@
-﻿using Auth_API.Models.Dto.Spotify;
+﻿using Auth_API.Models.Dto.User;
 
 namespace Auth_API.Interfaces.Dal
 {
-    public interface ISpotifyDal
+    public interface ITokenDal
     {
         /// <summary>
         /// Adds the account data to the database
         /// </summary>
         /// <param name="account">The account to add</param>
-        Task Add(SpotifyAccountDataDto account);
+        Task Add(UserTokensDto account);
 
         /// <summary>
         /// Finds the spotify account data by user uuid
         /// </summary>
         /// <param name="userUuid">The uuid of the user</param>
         /// <returns>The found spotify account data which contains the useruuid null if nothing is found</returns>
-        Task<SpotifyAccountDataDto> Find(Guid userUuid);
+        Task<UserTokensDto?> Find(Guid userUuid);
 
         /// <summary>
         /// Removes the spotify account data by user uuid

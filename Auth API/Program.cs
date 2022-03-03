@@ -1,4 +1,6 @@
 using Auth_API.Dal;
+using Auth_API.Interfaces.Dal;
+using Auth_API.Logic;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using System.Data;
@@ -8,28 +10,35 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<UserLogic>();
+builder.Services.AddScoped<TokenLogic>();
+builder.Services.AddScoped<IUserDal, UserDal>();
+builder.Services.AddScoped<ITokenDal, TokenDal>();
 
 string connectionString = GetConnectionString();
-if (string.IsNullOrEmpty(connectionString))
-{
-    throw new NoNullAllowedException("Connectionstring is empty set it using the CONNECTIONSTRING environment variable");
-}
-
 builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOptions
     .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-WebApplication? app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseCors(builder =>
+{
+    builder.WithOrigins("http://localhost:3000")
+        .AllowCredentials();
+});
 
 app.UseAuthorization();
-
 app.MapControllers();
+CreateDatabaseIfNotExist(app);
 
 app.Run();
 
 static string GetConnectionString()
 {
+    // Uncomment string below when creating migrations
+    //return $"database=auth;keepalive=5;server=127.0.0.1;port=3306;user id=root;password=qwerty;connectiontimeout=5";
+
     IDictionary variables = Environment.GetEnvironmentVariables();
     string? server = variables["SERVER"]?.ToString();
     string? database = variables["DATABASE"]?.ToString();
@@ -44,4 +53,17 @@ static string GetConnectionString()
     }
 
     return $"database={database};keepalive=5;server={server};port={port};user id={username};password={password};connectiontimeout=5";
+}
+
+/// <summary>
+/// Creates and database if it does not exists
+/// </summary>
+/// <param name="app">IApplicationBuilder object</param>
+static void CreateDatabaseIfNotExist(IApplicationBuilder app)
+{
+    IServiceScope serviceScope = app.ApplicationServices
+        .GetRequiredService<IServiceScopeFactory>()
+        .CreateScope();
+    DataContext context = serviceScope.ServiceProvider.GetService<DataContext>();
+    context.Database.Migrate();
 }

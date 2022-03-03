@@ -7,33 +7,31 @@ using System.Security.Claims;
 
 namespace Auth_API.Controllers
 {
+    [AuthorizedAction]
     [Route("spotify")]
     [ApiController]
     public class SpotifyController : ControllerBase
     {
-        private readonly SpotifyLogic _spotifyLogic;
+        private readonly TokenLogic _tokenLogic;
 
-        public SpotifyController(SpotifyLogic spotifyLogic)
+        public SpotifyController(TokenLogic tokenLogic)
         {
-            _spotifyLogic = spotifyLogic;
+            _tokenLogic = tokenLogic;
         }
 
         [HttpPost]
-        public async Task<string> RefreshAccessToken()
+        public async Task<string?> RefreshAccessToken()
         {
-            async Task<string> Action()
+            async Task<string?> Action()
             {
-                string bearer = Request.Headers[HeaderNames.Authorization]
+                string jwt = Request.Headers[HeaderNames.Authorization]
                     .ToString()
                     .Replace("Bearer ", "");
-                if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                {
-                    throw new SecurityException("Jwt not valid");
-                }
+                List<Claim> claims = JwtLogic.GetJwtClaims(jwt);
 
-                string claimValue = identity.FindFirst("userUuid")?.Value ?? throw new SecurityException("Invalid claim");
+                string claimValue = claims.Find(c => c.Type == "uuid")?.Value ?? throw new SecurityException("Invalid claim");
                 Guid userUuid = Guid.Parse(claimValue);
-                return await _spotifyLogic.RefreshAccessToken(userUuid);
+                return await _tokenLogic.RefreshSpotifyAccessToken(userUuid);
             }
 
             ControllerErrorHandler controllerErrorHandler = new();

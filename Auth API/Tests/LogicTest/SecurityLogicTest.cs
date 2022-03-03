@@ -37,12 +37,18 @@ namespace Auth_API.Tests.LogicTest
         }
 
         [Test]
+        public void SaltTest()
+        {
+            List<byte> salt = SecurityLogic.GetSalt().ToList();
+            Assert.IsTrue(salt.Count(b => b != 0) > 50);
+        }
+
+        [Test]
         public void ValidatePasswordTest()
         {
             string password = "123";
             string hash = SecurityLogic.HashPassword(password, _salt);
-            bool passwordValid = SecurityLogic.ValidatePassword(hash, _salt, password);
-            Assert.IsTrue(passwordValid);
+            Assert.DoesNotThrow(() => SecurityLogic.ValidatePassword(hash, _salt, password));
         }
     }
 }

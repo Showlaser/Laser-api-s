@@ -1,6 +1,10 @@
-﻿using Isopoh.Cryptography.Argon2;
+﻿using Auth_API.Models.Dto.User;
+using Isopoh.Cryptography.Argon2;
 using Isopoh.Cryptography.SecureArray;
 using System.Data;
+using System.Net;
+using System.Security;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Auth_API.Logic
@@ -38,6 +42,29 @@ namespace Auth_API.Logic
             return config;
         }
 
+        public static UserTokensDto GenerateRefreshToken(Guid userUuid, IPAddress clientIp)
+        {
+            RandomNumberGenerator rng = RandomNumberGenerator.Create();
+            byte[] randomBytes = new byte[64];
+            rng.GetBytes(randomBytes);
+            return new UserTokensDto
+            {
+                Uuid = Guid.NewGuid(),
+                UserUuid = userUuid,
+                ClientIp = clientIp,
+                RefreshToken = Encoding.UTF8.GetString(randomBytes),
+                RefreshTokenExpireDate = DateTime.Now.AddDays(7)
+            };
+        }
+
+        public static byte[] GetSalt()
+        {
+            byte[] salt = new byte[64];
+            RandomNumberGenerator rng = RandomNumberGenerator.Create();
+            rng.GetBytes(salt);
+            return salt;
+        }
+
         public static string HashPassword(string password, byte[] salt)
         {
             Argon2Config config = GetArgon2Config(password, salt);
@@ -46,10 +73,14 @@ namespace Auth_API.Logic
             return config.EncodeString(hashA.Buffer);
         }
 
-        public static bool ValidatePassword(string hash, byte[] salt, string password)
+        public static void ValidatePassword(string hash, byte[] salt, string password)
         {
             Argon2Config config = GetArgon2Config(password, salt);
-            return Argon2.Verify(hash, config);
+            bool passwordValid = Argon2.Verify(hash, config);
+            if (!passwordValid)
+            {
+                throw new SecurityException();
+            }
         }
     }
 }

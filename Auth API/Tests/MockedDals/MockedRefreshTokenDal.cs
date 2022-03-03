@@ -7,15 +7,15 @@ namespace Auth_API.Tests.MockedDals
 {
     public class MockedRefreshTokenDal
     {
-        public readonly IRefreshTokenDal RefreshTokenDal;
+        public readonly ITokenDal TokenDal;
 
         public MockedRefreshTokenDal()
         {
             TestRefreshTokenDto refreshToken = new();
-            RefreshTokenDto token = refreshToken.RefreshToken;
-            Mock<IRefreshTokenDal> mockedRefreshTokenDal = new();
+            UserTokensDto token = refreshToken.RefreshToken;
+            Mock<ITokenDal> mockedRefreshTokenDal = new();
             mockedRefreshTokenDal.Setup(rtd => rtd.Find(token.UserUuid)).ReturnsAsync(token);
-            RefreshTokenDal = mockedRefreshTokenDal.Object;
+            TokenDal = mockedRefreshTokenDal.Object;
         }
     }
 }
