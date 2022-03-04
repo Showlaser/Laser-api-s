@@ -3,6 +3,8 @@ version: '3.4'
 services:
   authapi:
     image: ${DOCKER_REGISTRY-}authapi
+    depends_on:
+        - mariadb
     build:
       context: .
       dockerfile: Auth API/Dockerfile

@@ -1,7 +1,7 @@
 ﻿using Auth_API.Logic;
 using Auth_API.Tests.MockedDals;
 
-namespace Auth_API.Tests.MockedLogics
+namespace Auth_API.Tests.UnitTests.MockedLogics
 {
     public class MockedUserLogic
     {

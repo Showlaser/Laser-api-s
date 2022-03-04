@@ -3,7 +3,7 @@ using NUnit.Framework;
 using System.Data;
 using System.Security.Cryptography;
 
-namespace Auth_API.Tests.LogicTest
+namespace Auth_API.Tests.UnitTests.LogicTest
 {
     [TestFixture]
     public class SecurityLogicTest
@@ -12,7 +12,7 @@ namespace Auth_API.Tests.LogicTest
 
         public SecurityLogicTest()
         {
-            Environment.SetEnvironmentVariable("ARGON2SECRET", "hhjwe093892349jsdfwe");
+            TestHelper.SetEnvironmentVariables();
             RandomNumberGenerator rng = RandomNumberGenerator.Create();
             byte[] salt = new byte[64];
             rng.GetBytes(salt);

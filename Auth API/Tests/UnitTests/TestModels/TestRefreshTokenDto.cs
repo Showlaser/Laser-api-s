@@ -1,4 +1,5 @@
 ﻿using Auth_API.Models.Dto.User;
+using Auth_API.Tests.UnitTests.TestModels;
 using System.Net;
 
 namespace Auth_API.Tests.TestModels

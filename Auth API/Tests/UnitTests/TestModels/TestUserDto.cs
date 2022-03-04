@@ -1,6 +1,7 @@
 ﻿using Auth_API.Models.Dto.User;
+using Auth_API.Tests.TestModels;
 
-namespace Auth_API.Tests.TestModels
+namespace Auth_API.Tests.UnitTests.TestModels
 {
     public class TestUserDto
     {

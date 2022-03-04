@@ -1,5 +1,6 @@
 ﻿using Auth_API.Logic;
 using Auth_API.Tests.TestModels;
+using Auth_API.Tests.UnitTests;
 using NUnit.Framework;
 using System.Security.Claims;
 
@@ -13,7 +14,7 @@ namespace Auth_API.Tests.LogicTest
         public JwtLogicTest()
         {
             _testRefreshToken = new TestRefreshTokenDto();
-            Environment.SetEnvironmentVariable("JWTSECRET", "fwhefwiufhawgh98g43hg98ahdfjig");
+            TestHelper.SetEnvironmentVariables();
         }
 
         [Test]

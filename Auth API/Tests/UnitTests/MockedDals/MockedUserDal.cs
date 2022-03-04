@@ -1,5 +1,6 @@
 ﻿using Auth_API.Interfaces.Dal;
 using Auth_API.Tests.TestModels;
+using Auth_API.Tests.UnitTests.TestModels;
 using Moq;
 
 namespace Auth_API.Tests.MockedDals

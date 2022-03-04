@@ -1,0 +1,31 @@
+name: CI laser api
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Start dependencies (docker-compose)
+        run: |
+          docker-compose up -d
+      - name: Wait for Mariadb Server container
+        uses: jakejarvis/wait-action@master
+        with:
+          time: "10s"
+      - name: Test
+        run: dotnet test --no-build --verbosity normal

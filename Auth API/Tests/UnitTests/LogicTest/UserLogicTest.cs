@@ -1,8 +1,10 @@
 ﻿using Auth_API.Logic;
 using Auth_API.Models.Dto.User;
 using Auth_API.Models.ToFrontend;
-using Auth_API.Tests.MockedLogics;
 using Auth_API.Tests.TestModels;
+using Auth_API.Tests.UnitTests;
+using Auth_API.Tests.UnitTests.MockedLogics;
+using Auth_API.Tests.UnitTests.TestModels;
 using NUnit.Framework;
 using System.Net;
 using System.Security;
@@ -18,8 +20,7 @@ namespace Auth_API.Tests.LogicTest
         public UserLogicTest()
         {
             _userLogic = new MockedUserLogic().UserLogic;
-            Environment.SetEnvironmentVariable("ARGON2SECRET", "hhjwe093892349jsdfwe");
-            Environment.SetEnvironmentVariable("JWTSECRET", "fwhefwiufhawgh98g43hg98ahdfjig");
+            TestHelper.SetEnvironmentVariables();
         }
 
         [Test]
@@ -57,7 +58,7 @@ namespace Auth_API.Tests.LogicTest
         public async Task RefreshTokenTest()
         {
             UserTokensViewmodel tokens = await GetTokens();
-            tokens.RefreshToken = @"r?p>L????p~???\u0017\b7Mr?n???E?+\\?k\u0015O??|?'?\u00108?,?4X?????\u0014?n??(\u00118????D?";
+            tokens.RefreshToken = new TestRefreshTokenDto().RefreshToken.RefreshToken;
             UserTokensViewmodel token = await _userLogic.RefreshToken(new UserTokensViewmodel
             {
                 Jwt = tokens.Jwt,
