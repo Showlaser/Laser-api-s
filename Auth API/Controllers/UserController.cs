@@ -94,7 +94,10 @@ namespace Auth_API.Controllers
         {
             async Task Action()
             {
+                UserDto userData = ControllerHelper.GetUserModelFromJwtClaims(this);
                 UserDto userDto = user.Adapt<UserDto>();
+                userDto.Uuid = userData.Uuid;
+
                 await _userLogic.Update(userDto, "123");
             }
 
