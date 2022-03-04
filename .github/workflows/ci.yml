@@ -19,7 +19,7 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore Auth-API.sln
       - name: Build
-        run: dotnet build --no-restore
+        run: dotnet build Auth-API.sln --no-restore
       - name: Start dependencies (docker-compose)
         run: |
           docker-compose up -d
