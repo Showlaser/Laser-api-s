@@ -11,14 +11,12 @@ namespace Auth_API.Tests.IntegrationTests
     [TestClass]
     public class UserControllerTest
     {
-        private AuthFactory _factory;
+        private readonly AuthFactory _factory = new();
         private readonly CookieContainerHandler _handler = new();
 
         [TestInitialize]
         public void Setup()
         {
-            DbFixture fixture = new();
-            _factory = new AuthFactory(fixture);
             TestHelper.SetEnvironmentVariables();
             AddTestUser().Wait();
             GetAuthorizationTokens().Wait();

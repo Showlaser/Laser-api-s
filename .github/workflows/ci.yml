@@ -26,6 +26,6 @@ jobs:
       - name: Wait for Mariadb Server container
         uses: jakejarvis/wait-action@master
         with:
-          time: "10s"
+          time: "2s"
       - name: Test
         run: dotnet test Auth-API.sln --no-build --verbosity normal
