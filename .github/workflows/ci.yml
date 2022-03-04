@@ -28,4 +28,4 @@ jobs:
         with:
           time: "10s"
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test Auth-API.sln --no-build --verbosity normal
