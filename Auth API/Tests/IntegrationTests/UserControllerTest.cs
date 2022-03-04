@@ -2,20 +2,19 @@
 using Auth_API.Models.FromFrontend.User;
 using Auth_API.Tests.IntegrationTests.Factories;
 using Auth_API.Tests.IntegrationTests.TestModels;
-using Auth_API.Tests.UnitTests;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 
 namespace Auth_API.Tests.IntegrationTests
 {
-    [TestFixture]
-    internal class UserControllerTest
+    [TestClass]
+    public class UserControllerTest
     {
         private AuthFactory _factory;
         private readonly CookieContainerHandler _handler = new();
 
-        [SetUp]
+        [TestInitialize]
         public void Setup()
         {
             DbFixture fixture = new();
@@ -67,21 +66,13 @@ namespace Auth_API.Tests.IntegrationTests
             }
         }
 
-        [Test]
+        [TestMethod]
         public async Task UpdateUserTest()
         {
-            try
-            {
-                HttpClient client = _factory.CreateDefaultClient(_handler);
-                User user = new TestUser().User;
-                HttpResponseMessage putResponse = await client.PutAsync("user", new JsonContent<User>(user));
-                putResponse.EnsureSuccessStatusCode();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            HttpClient client = _factory.CreateDefaultClient(_handler);
+            User user = new TestUser().User;
+            HttpResponseMessage putResponse = await client.PutAsync("user", new JsonContent<User>(user));
+            putResponse.EnsureSuccessStatusCode();
         }
     }
 }

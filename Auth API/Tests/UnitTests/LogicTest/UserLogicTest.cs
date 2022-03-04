@@ -2,16 +2,15 @@
 using Auth_API.Models.Dto.User;
 using Auth_API.Models.ToFrontend;
 using Auth_API.Tests.TestModels;
-using Auth_API.Tests.UnitTests;
 using Auth_API.Tests.UnitTests.MockedLogics;
 using Auth_API.Tests.UnitTests.TestModels;
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using System.Security;
 
-namespace Auth_API.Tests.LogicTest
+namespace Auth_API.Tests.UnitTests.LogicTest
 {
-    [TestFixture]
+    [TestClass]
     public class UserLogicTest
     {
         private readonly UserLogic _userLogic;
@@ -23,13 +22,13 @@ namespace Auth_API.Tests.LogicTest
             TestHelper.SetEnvironmentVariables();
         }
 
-        [Test]
-        public void AddUserTest()
+        [TestMethod]
+        public async Task AddUserTest()
         {
-            Assert.DoesNotThrowAsync(async () => await _userLogic.Add(_testUser.UserDto));
+            await _userLogic.Add(_testUser.UserDto);
         }
 
-        [Test]
+        [TestMethod]
         public async Task LoginTest()
         {
             UserTokensViewmodel tokens = await _userLogic.Login(new UserDto
@@ -42,19 +41,19 @@ namespace Auth_API.Tests.LogicTest
             Assert.IsTrue(tokens.RefreshToken.Length > 25);
         }
 
-        [Test]
+        [TestMethod]
         public void LoginWrongPasswordTest()
         {
-            Assert.ThrowsAsync<SecurityException>(async () => await _userLogic.Login(_testUser.UserDto, IPAddress.Parse("127.0.0.1")));
+            Assert.ThrowsExceptionAsync<SecurityException>(async () => await _userLogic.Login(_testUser.UserDto, IPAddress.Parse("127.0.0.1")));
         }
 
-        [Test]
-        public void RemoveUserTest()
+        [TestMethod]
+        public async Task RemoveUserTest()
         {
-            Assert.DoesNotThrowAsync(async () => await _userLogic.Remove(_testUser.UserDto));
+            await _userLogic.Remove(_testUser.UserDto);
         }
 
-        [Test]
+        [TestMethod]
         public async Task RefreshTokenTest()
         {
             UserTokensViewmodel tokens = await GetTokens();
@@ -69,22 +68,22 @@ namespace Auth_API.Tests.LogicTest
             Assert.IsTrue(token.Jwt.Length > 25);
         }
 
-        [Test]
+        [TestMethod]
         public async Task RefreshTokenWrongIpTest()
         {
             UserTokensViewmodel tokens = await GetTokens(IPAddress.Parse("127.0.0.2"));
-            Assert.ThrowsAsync<SecurityException>(async () => await _userLogic.RefreshToken(new UserTokensViewmodel
+            await Assert.ThrowsExceptionAsync<SecurityException>(async () => await _userLogic.RefreshToken(new UserTokensViewmodel
             {
                 Jwt = tokens.Jwt,
                 RefreshToken = tokens.RefreshToken
             }, IPAddress.Parse("127.0.0.1")));
         }
 
-        [Test]
+        [TestMethod]
         public async Task RefreshTokenWrongRefreshTokenTest()
         {
             UserTokensViewmodel tokens = await GetTokens();
-            Assert.ThrowsAsync<SecurityException>(async () => await _userLogic.RefreshToken(new UserTokensViewmodel
+            await Assert.ThrowsExceptionAsync<SecurityException>(async () => await _userLogic.RefreshToken(new UserTokensViewmodel
             {
                 Jwt = tokens.Jwt,
                 RefreshToken = tokens.RefreshToken

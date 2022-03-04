@@ -1,12 +1,11 @@
 ﻿using Auth_API.Logic;
 using Auth_API.Tests.TestModels;
-using Auth_API.Tests.UnitTests;
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Security.Claims;
 
 namespace Auth_API.Tests.LogicTest
 {
-    [TestFixture]
+    [TestClass]
     public class JwtLogicTest
     {
         private readonly TestRefreshTokenDto _testRefreshToken;
@@ -17,7 +16,7 @@ namespace Auth_API.Tests.LogicTest
             TestHelper.SetEnvironmentVariables();
         }
 
-        [Test]
+        [TestMethod]
         public void GenerateJwtTest()
         {
             string jwt = JwtLogic.GenerateJwtToken(_testRefreshToken.RefreshToken.UserUuid);
@@ -25,7 +24,7 @@ namespace Auth_API.Tests.LogicTest
             Assert.IsTrue(jwt.Length > 25);
         }
 
-        [Test]
+        [TestMethod]
         public void GetJwtClaimsTest()
         {
             string jwt = JwtLogic.GenerateJwtToken(_testRefreshToken.RefreshToken.UserUuid);
@@ -33,14 +32,14 @@ namespace Auth_API.Tests.LogicTest
             Assert.IsTrue(claims.Any());
         }
 
-        [Test]
+        [TestMethod]
         public void GetEmptyJwtClaimsTest()
         {
             IEnumerable<Claim> claims = JwtLogic.GetJwtClaims("");
             Assert.IsFalse(claims.Any());
         }
 
-        [Test]
+        [TestMethod]
         public void ValidateJwtToken()
         {
             string jwt = JwtLogic.GenerateJwtToken(_testRefreshToken.RefreshToken.UserUuid);
@@ -48,7 +47,7 @@ namespace Auth_API.Tests.LogicTest
             Assert.IsTrue(jwtValid);
         }
 
-        [Test]
+        [TestMethod]
         public void ValidateEmptyJwtToken()
         {
             bool jwtValid = JwtLogic.ValidateJwtToken("");

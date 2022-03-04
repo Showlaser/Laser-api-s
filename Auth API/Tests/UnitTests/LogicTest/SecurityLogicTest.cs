@@ -1,11 +1,11 @@
 ﻿using Auth_API.Logic;
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
 using System.Security.Cryptography;
 
 namespace Auth_API.Tests.UnitTests.LogicTest
 {
-    [TestFixture]
+    [TestClass]
     public class SecurityLogicTest
     {
         private readonly byte[] _salt;
@@ -19,7 +19,7 @@ namespace Auth_API.Tests.UnitTests.LogicTest
             _salt = salt;
         }
 
-        [Test]
+        [TestMethod]
         public void HashPasswordTest()
         {
             RandomNumberGenerator rng = RandomNumberGenerator.Create();
@@ -30,25 +30,25 @@ namespace Auth_API.Tests.UnitTests.LogicTest
             Assert.IsTrue(password.Length > 5);
         }
 
-        [Test]
+        [TestMethod]
         public void HashEmptyPasswordTest()
         {
-            Assert.Throws<NoNullAllowedException>(() => SecurityLogic.HashPassword("", Array.Empty<byte>()));
+            Assert.ThrowsException<NoNullAllowedException>(() => SecurityLogic.HashPassword("", Array.Empty<byte>()));
         }
 
-        [Test]
+        [TestMethod]
         public void SaltTest()
         {
             List<byte> salt = SecurityLogic.GetSalt().ToList();
             Assert.IsTrue(salt.Count(b => b != 0) > 50);
         }
 
-        [Test]
+        [TestMethod]
         public void ValidatePasswordTest()
         {
             string password = "123";
             string hash = SecurityLogic.HashPassword(password, _salt);
-            Assert.DoesNotThrow(() => SecurityLogic.ValidatePassword(hash, _salt, password));
+            SecurityLogic.ValidatePassword(hash, _salt, password);
         }
     }
 }

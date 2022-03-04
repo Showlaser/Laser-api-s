@@ -1,4 +1,4 @@
-﻿namespace Auth_API.Tests.UnitTests
+﻿namespace Auth_API.Tests
 {
     public static class TestHelper
     {
@@ -6,7 +6,6 @@
         {
             Environment.SetEnvironmentVariable("ARGON2SECRET", "hhjwe093892349jsdfwe");
             Environment.SetEnvironmentVariable("JWTSECRET", "fwhefwiufhawgh98g43hg98ahdfjig");
-
         }
     }
 }
