@@ -1,13 +1,11 @@
-﻿using Auth_API.Models.Dto.Spotify;
-
-namespace Auth_API.Models.Dto.User
+﻿namespace Auth_API.Models.Dto.User
 {
     public class UserDto
     {
         public Guid Uuid { get; set; }
-        public string UserName { get; set; }
-        public string Password { get; set; }
-        public string Salt { get; set; }
-        public SpotifyAccountDataDto SpotifyAccountData { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public byte[] Salt { get; set; } = Array.Empty<byte>();
+        public UserTokensDto? SpotifyAccountData { get; set; }
     }
 }

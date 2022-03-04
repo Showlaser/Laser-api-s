@@ -11,11 +11,18 @@ namespace Auth_API.Interfaces.Dal
         Task Add(UserDto user);
 
         /// <summary>
-        /// Finds the user in the database by uuid or username
+        /// Finds the user in the database by uuid
         /// </summary>
-        /// <param name="user">The user model with the properties to find the user</param>
+        /// <param name="userUuid">The uuid of the user</param>
         /// <returns>The found user, null if nothing is found</returns>
-        Task<UserDto> Find(UserDto user);
+        Task<UserDto?> Find(Guid userUuid);
+
+        /// <summary>
+        /// Finds the user in the database by username
+        /// </summary>
+        /// <param name="username">The username of the user</param>
+        /// <returns>The found user, null if nothing is found</returns>
+        Task<UserDto?> Find(string username);
 
         /// <summary>
         /// Updates the user

@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Data;
+using System.Security;
 
 namespace Auth_API.Models.Helper
 {
@@ -6,9 +8,9 @@ namespace Auth_API.Models.Helper
     {
         public int StatusCode { get; private set; }
 
-        public async Task<T> Execute<T>(Task<T> task)
+        public async Task<T?> Execute<T>(Task<T> task)
         {
-            T result = default;
+            T? result = default;
             try
             {
                 result = await task.WaitAsync(CancellationToken.None);
@@ -25,6 +27,14 @@ namespace Auth_API.Models.Helper
             catch (DbUpdateException)
             {
                 StatusCode = StatusCodes.Status304NotModified;
+            }
+            catch (DuplicateNameException)
+            {
+                StatusCode = StatusCodes.Status409Conflict;
+            }
+            catch (SecurityException)
+            {
+                StatusCode = StatusCodes.Status401Unauthorized;
             }
             catch (Exception exception)
             {
@@ -54,6 +64,14 @@ namespace Auth_API.Models.Helper
             {
                 Console.WriteLine(exception);
                 StatusCode = StatusCodes.Status304NotModified;
+            }
+            catch (DuplicateNameException)
+            {
+                StatusCode = StatusCodes.Status409Conflict;
+            }
+            catch (SecurityException)
+            {
+                StatusCode = StatusCodes.Status401Unauthorized;
             }
             catch (Exception exception)
             {
