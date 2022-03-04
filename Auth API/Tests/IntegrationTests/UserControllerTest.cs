@@ -27,13 +27,7 @@ namespace Auth_API.Tests.IntegrationTests
             HttpClient client = _factory.CreateDefaultClient();
             User user = new TestUser().User;
 
-            FormUrlEncodedContent formContent = new(new[]
-            {
-                new KeyValuePair<string, string>("username", user.UserName),
-                new KeyValuePair<string, string>("password", user.Password)
-            });
-
-            await client.PostAsync("user", formContent);
+            await client.PostAsync("user", new JsonContent<User>(user));
         }
 
         private async Task<Guid> GetTestUserUuid()
