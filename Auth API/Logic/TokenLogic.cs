@@ -33,7 +33,6 @@ namespace Auth_API.Logic
             });
 
             accountData.RefreshToken = response.RefreshToken;
-            accountData.AccessToken = response.AccessToken;
 
             await _tokenDal.Remove(userUuid);
             await _tokenDal.Add(accountData);

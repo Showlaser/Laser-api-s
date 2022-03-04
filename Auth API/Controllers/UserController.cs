@@ -2,8 +2,10 @@
 using Auth_API.Models.Dto.User;
 using Auth_API.Models.FromFrontend.User;
 using Auth_API.Models.Helper;
+using Auth_API.Models.ToFrontend;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Auth_API.Controllers
 {
@@ -32,28 +34,58 @@ namespace Auth_API.Controllers
             return StatusCode(controllerErrorHandler.StatusCode);
         }
 
-        [HttpPost("login")]
-        public async Task<ActionResult> Login([FromForm] User user)
+        [AuthorizedAction]
+        [HttpPost("refresh-token")]
+        public async Task<ActionResult> RefreshToken()
         {
-            async Task<string> Action()
+            async Task<UserTokensViewmodel> Action()
             {
-                UserDto userDto = user.Adapt<UserDto>();
-                return await _userLogic.Login(userDto);
+                IPAddress? ip = Request.HttpContext.Connection.RemoteIpAddress;
+                UserTokensViewmodel tokens = ControllerHelper.GetUserTokens(this);
+                return await _userLogic.RefreshToken(tokens, ip);
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
-            string? jwt = await controllerErrorHandler.Execute(Action());
-            //TODO set cookie secure on true
+            UserTokensViewmodel? tokens = await controllerErrorHandler.Execute(Action());
+            //TODO set cookie secure on true in production
             CookieOptions cookieOptions = new()
             {
                 HttpOnly = true,
                 Secure = false,
                 Path = "/",
-                Expires = DateTime.Now.AddDays(7)
+                Expires = DateTime.Now.AddDays(31)
             };
 
-            Response.Cookies.Append("jwt", jwt, cookieOptions);
+            Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
+            Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
             return Ok();
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult> Login([FromForm] User user)
+        {
+            async Task<ActionResult> Action()
+            {
+                IPAddress? ip = Request.HttpContext.Connection.RemoteIpAddress;
+                UserDto userDto = user.Adapt<UserDto>();
+
+                UserTokensViewmodel tokens = await _userLogic.Login(userDto, ip);
+                //TODO set cookie secure on true in production
+                CookieOptions cookieOptions = new()
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    Path = "/",
+                    Expires = DateTime.Now.AddDays(7)
+                };
+
+                Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
+                Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
+                return Ok();
+            }
+
+            ControllerErrorHandler controllerErrorHandler = new();
+            return await controllerErrorHandler.Execute(Action());
         }
 
         [AuthorizedAction]

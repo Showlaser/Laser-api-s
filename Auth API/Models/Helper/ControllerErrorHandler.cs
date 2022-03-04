@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Security;
 
 namespace Auth_API.Models.Helper
 {
@@ -30,6 +31,10 @@ namespace Auth_API.Models.Helper
             catch (DuplicateNameException)
             {
                 StatusCode = StatusCodes.Status409Conflict;
+            }
+            catch (SecurityException)
+            {
+                StatusCode = StatusCodes.Status401Unauthorized;
             }
             catch (Exception exception)
             {
@@ -63,6 +68,10 @@ namespace Auth_API.Models.Helper
             catch (DuplicateNameException)
             {
                 StatusCode = StatusCodes.Status409Conflict;
+            }
+            catch (SecurityException)
+            {
+                StatusCode = StatusCodes.Status401Unauthorized;
             }
             catch (Exception exception)
             {

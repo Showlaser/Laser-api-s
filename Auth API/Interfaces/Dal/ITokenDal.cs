@@ -11,14 +11,14 @@ namespace Auth_API.Interfaces.Dal
         Task Add(UserTokensDto account);
 
         /// <summary>
-        /// Finds the spotify account data by user uuid
+        /// Finds the token data by user uuid
         /// </summary>
         /// <param name="userUuid">The uuid of the user</param>
         /// <returns>The found spotify account data which contains the useruuid null if nothing is found</returns>
         Task<UserTokensDto?> Find(Guid userUuid);
 
         /// <summary>
-        /// Removes the spotify account data by user uuid
+        /// Removes the token data by user uuid
         /// </summary>
         /// <param name="userUuid">The uuid of the user</param>
         Task Remove(Guid userUuid);

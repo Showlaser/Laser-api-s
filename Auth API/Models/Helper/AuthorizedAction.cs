@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Net.Http.Headers;
 
 namespace Auth_API.Models.Helper
 {
@@ -18,10 +17,7 @@ namespace Auth_API.Models.Helper
                 return;
             }
 
-            string jwt = context.HttpContext.Request.Headers[HeaderNames.Authorization]
-                .ToString()
-                .Replace("Bearer ", "");
-
+            string jwt = context.HttpContext.Request.Cookies["jwt"].Replace("Bearer ", "");
             if (string.IsNullOrEmpty(jwt))
             {
                 context.Result = new UnauthorizedResult();

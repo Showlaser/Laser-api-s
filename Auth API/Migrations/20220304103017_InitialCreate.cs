@@ -13,22 +13,6 @@ namespace Auth_API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "RefreshTokenDto",
-                columns: table => new
-                {
-                    Uuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    UserUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    RefreshToken = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ExpirationDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RefreshTokenDto", x => x.Uuid);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
@@ -46,21 +30,24 @@ namespace Auth_API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Spotify",
+                name: "RefreshToken",
                 columns: table => new
                 {
                     Uuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     UserUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    AccessToken = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
                     RefreshToken = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    RefreshTokenExpireDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ClientIp = table.Column<string>(type: "varchar(45)", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    SpotifyRefreshToken = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Spotify", x => x.Uuid);
+                    table.PrimaryKey("PK_RefreshToken", x => x.Uuid);
                     table.ForeignKey(
-                        name: "FK_Spotify_User_UserUuid",
+                        name: "FK_RefreshToken_User_UserUuid",
                         column: x => x.UserUuid,
                         principalTable: "User",
                         principalColumn: "Uuid",
@@ -69,8 +56,8 @@ namespace Auth_API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Spotify_UserUuid",
-                table: "Spotify",
+                name: "IX_RefreshToken_UserUuid",
+                table: "RefreshToken",
                 column: "UserUuid",
                 unique: true);
         }
@@ -78,10 +65,7 @@ namespace Auth_API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "RefreshTokenDto");
-
-            migrationBuilder.DropTable(
-                name: "Spotify");
+                name: "RefreshToken");
 
             migrationBuilder.DropTable(
                 name: "User");

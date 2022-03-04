@@ -64,6 +64,6 @@ static void CreateDatabaseIfNotExist(IApplicationBuilder app)
     IServiceScope serviceScope = app.ApplicationServices
         .GetRequiredService<IServiceScopeFactory>()
         .CreateScope();
-    DataContext context = serviceScope.ServiceProvider.GetService<DataContext>();
+    DataContext? context = serviceScope.ServiceProvider.GetService<DataContext>();
     context.Database.Migrate();
 }

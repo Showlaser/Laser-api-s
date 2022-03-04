@@ -26,8 +26,11 @@ namespace Auth_API.Dal
 
         public async Task Remove(Guid userUuid)
         {
-            UserTokensDto spotifyDb = await _context.RefreshToken.SingleOrDefaultAsync(s => s.UserUuid == userUuid)
-                ?? throw new KeyNotFoundException();
+            UserTokensDto spotifyDb = await _context.RefreshToken.SingleOrDefaultAsync(s => s.UserUuid == userUuid);
+            if (spotifyDb == null)
+            {
+                return;
+            }
             _context.RefreshToken.Remove(spotifyDb);
             await _context.SaveChangesAsync();
         }

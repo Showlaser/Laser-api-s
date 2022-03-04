@@ -19,52 +19,6 @@ namespace Auth_API.Migrations
                 .HasAnnotation("ProductVersion", "6.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("Auth_API.Models.Dto.Spotify.UserTokensDto", b =>
-                {
-                    b.Property<Guid>("Uuid")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("AccessToken")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("RefreshToken")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid>("UserUuid")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("Uuid");
-
-                    b.HasIndex("UserUuid")
-                        .IsUnique();
-
-                    b.ToTable("Spotify");
-                });
-
-            modelBuilder.Entity("Auth_API.Models.Dto.User.RefreshTokenDto", b =>
-                {
-                    b.Property<Guid>("Uuid")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("RefreshToken")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid>("UserUuid")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("Uuid");
-
-                    b.ToTable("RefreshTokenDto");
-                });
-
             modelBuilder.Entity("Auth_API.Models.Dto.User.UserDto", b =>
                 {
                     b.Property<Guid>("Uuid")
@@ -88,11 +42,42 @@ namespace Auth_API.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("Auth_API.Models.Dto.Spotify.UserTokensDto", b =>
+            modelBuilder.Entity("Auth_API.Models.Dto.User.UserTokensDto", b =>
+                {
+                    b.Property<Guid>("Uuid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ClientIp")
+                        .HasColumnType("varchar(45)");
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("RefreshTokenExpireDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("SpotifyRefreshToken")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("UserUuid")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Uuid");
+
+                    b.HasIndex("UserUuid")
+                        .IsUnique();
+
+                    b.ToTable("RefreshToken");
+                });
+
+            modelBuilder.Entity("Auth_API.Models.Dto.User.UserTokensDto", b =>
                 {
                     b.HasOne("Auth_API.Models.Dto.User.UserDto", null)
                         .WithOne("SpotifyAccountData")
-                        .HasForeignKey("Auth_API.Models.Dto.Spotify.UserTokensDto", "UserUuid")
+                        .HasForeignKey("Auth_API.Models.Dto.User.UserTokensDto", "UserUuid")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

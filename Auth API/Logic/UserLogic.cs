@@ -1,7 +1,10 @@
 ﻿using Auth_API.Interfaces.Dal;
 using Auth_API.Models.Dto.User;
+using Auth_API.Models.ToFrontend;
 using System.Data;
+using System.Net;
 using System.Security;
+using System.Security.Claims;
 
 namespace Auth_API.Logic
 {
@@ -44,11 +47,49 @@ namespace Auth_API.Logic
             await _userDal.Add(user);
         }
 
-        public async Task<string> Login(UserDto user)
+        public async Task<UserTokensViewmodel> Login(UserDto user, IPAddress? ipAddress)
         {
             UserDto dbUser = await _userDal.Find(user.UserName) ?? throw new SecurityException();
             SecurityLogic.ValidatePassword(dbUser.Password, dbUser.Salt, user.Password);
-            return JwtLogic.GenerateJwtToken(dbUser.Uuid);
+            UserTokensDto userTokensDto = SecurityLogic.GenerateRefreshToken(dbUser.Uuid, ipAddress);
+            UserTokensViewmodel tokens = new()
+            {
+                Jwt = JwtLogic.GenerateJwtToken(dbUser.Uuid),
+                RefreshToken = userTokensDto.RefreshToken
+            };
+
+            await _tokenDal.Remove(dbUser.Uuid);
+            await _tokenDal.Add(userTokensDto);
+            return new UserTokensViewmodel
+            {
+                Jwt = tokens.Jwt,
+                RefreshToken = tokens.RefreshToken
+            };
+        }
+
+        public async Task<UserTokensViewmodel> RefreshToken(UserTokensViewmodel tokens, IPAddress ipAddress)
+        {
+            Claim userUuidClaim = JwtLogic.GetJwtClaims(tokens.Jwt).Single(c => c.Type == "uuid");
+            Guid userUuid = Guid.Parse(userUuidClaim.Value);
+            UserTokensDto dbTokens = await _tokenDal.Find(userUuid) ?? throw new SecurityException();
+
+            bool refreshTokenValid = dbTokens.RefreshToken == tokens.RefreshToken &&
+                               dbTokens.RefreshTokenExpireDate > DateTime.Now &&
+                               Equals(dbTokens.ClientIp, ipAddress);
+            if (!refreshTokenValid)
+            {
+                throw new SecurityException();
+            }
+
+            UserTokensDto newTokens = SecurityLogic.GenerateRefreshToken(userUuid, ipAddress);
+            await _tokenDal.Remove(userUuid);
+            await _tokenDal.Add(newTokens);
+
+            return new UserTokensViewmodel
+            {
+                Jwt = JwtLogic.GenerateJwtToken(userUuid),
+                RefreshToken = newTokens.RefreshToken,
+            };
         }
 
         public async Task Update(UserDto user, string providedPassword)

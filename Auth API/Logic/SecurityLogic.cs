@@ -42,7 +42,7 @@ namespace Auth_API.Logic
             return config;
         }
 
-        public static UserTokensDto GenerateRefreshToken(Guid userUuid, IPAddress clientIp)
+        public static UserTokensDto GenerateRefreshToken(Guid userUuid, IPAddress? clientIp)
         {
             RandomNumberGenerator rng = RandomNumberGenerator.Create();
             byte[] randomBytes = new byte[64];
@@ -52,8 +52,8 @@ namespace Auth_API.Logic
                 Uuid = Guid.NewGuid(),
                 UserUuid = userUuid,
                 ClientIp = clientIp,
-                RefreshToken = Encoding.UTF8.GetString(randomBytes),
-                RefreshTokenExpireDate = DateTime.Now.AddDays(7)
+                RefreshToken = Convert.ToBase64String(randomBytes),
+                RefreshTokenExpireDate = DateTime.Now.AddDays(7),
             };
         }
 

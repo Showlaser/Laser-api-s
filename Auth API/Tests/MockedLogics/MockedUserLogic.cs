@@ -10,7 +10,8 @@ namespace Auth_API.Tests.MockedLogics
         public MockedUserLogic()
         {
             MockedUserDal userDal = new();
-            UserLogic userLogic = new(userDal.UserDal);
+            MockedTokenDal tokenDal = new();
+            UserLogic userLogic = new(userDal.UserDal, tokenDal.TokenDal);
             UserLogic = userLogic;
         }
     }

@@ -1,5 +1,5 @@
 ﻿using Auth_API.Interfaces.Dal;
-using Auth_API.Models.Dto.User;
+using Auth_API.Tests.TestModels;
 using Moq;
 
 namespace Auth_API.Tests.MockedDals
@@ -10,9 +10,9 @@ namespace Auth_API.Tests.MockedDals
 
         public MockedTokenDal()
         {
-            UserTokensDto accountDataDto = new();
+            TestRefreshTokenDto accountDataDto = new();
             Mock<ITokenDal> mockedTokenDal = new();
-            mockedTokenDal.Setup(msd => msd.Find(accountDataDto.UserUuid)).ReturnsAsync(accountDataDto);
+            mockedTokenDal.Setup(msd => msd.Find(accountDataDto.RefreshToken.UserUuid)).ReturnsAsync(accountDataDto.RefreshToken);
             TokenDal = mockedTokenDal.Object;
         }
     }
