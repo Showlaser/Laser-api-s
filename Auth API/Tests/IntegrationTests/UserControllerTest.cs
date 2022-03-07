@@ -1,5 +1,4 @@
-﻿using Auth_API.Dal;
-using Auth_API.Models.FromFrontend.User;
+﻿using Auth_API.Models.FromFrontend.User;
 using Auth_API.Tests.IntegrationTests.Factories;
 using Auth_API.Tests.IntegrationTests.TestModels;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;
@@ -28,13 +27,6 @@ namespace Auth_API.Tests.IntegrationTests
             User user = new TestUser().User;
 
             await client.PostAsync("user", new JsonContent<User>(user));
-        }
-
-        private async Task<Guid> GetTestUserUuid()
-        {
-            User user = new TestUser().User;
-            UserDal userDal = _factory.Services.GetService<UserDal>();
-            return (await userDal.Find(user.UserName)).Uuid;
         }
 
         private async Task GetAuthorizationTokens()

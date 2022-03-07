@@ -11,6 +11,8 @@
             Environment.SetEnvironmentVariable("PORT", "3306");
             Environment.SetEnvironmentVariable("USERNAME", "root");
             Environment.SetEnvironmentVariable("PASSWORD", "qwerty");
+            Environment.SetEnvironmentVariable("SPOTIFYCLIENTID", "123");
+            Environment.SetEnvironmentVariable("SPOTIFYCLIENTSECRET", "123");
         }
     }
 }

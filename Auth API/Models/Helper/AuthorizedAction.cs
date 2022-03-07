@@ -17,7 +17,7 @@ namespace Auth_API.Models.Helper
                 return;
             }
 
-            string jwt = context.HttpContext.Request.Cookies["jwt"].Replace("Bearer ", "");
+            string? jwt = context.HttpContext.Request.Cookies["jwt"]?.Replace("Bearer ", "");
             if (string.IsNullOrEmpty(jwt))
             {
                 context.Result = new UnauthorizedResult();

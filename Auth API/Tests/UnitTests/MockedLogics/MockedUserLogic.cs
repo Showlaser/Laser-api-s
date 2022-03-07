@@ -1,5 +1,6 @@
 ﻿using Auth_API.Logic;
 using Auth_API.Tests.MockedDals;
+using Auth_API.Tests.UnitTests.MockedDals;
 
 namespace Auth_API.Tests.UnitTests.MockedLogics
 {
@@ -10,8 +11,8 @@ namespace Auth_API.Tests.UnitTests.MockedLogics
         public MockedUserLogic()
         {
             MockedUserDal userDal = new();
-            MockedTokenDal tokenDal = new();
-            UserLogic userLogic = new(userDal.UserDal, tokenDal.TokenDal);
+            MockedUserTokenDal userTokenDal = new();
+            UserLogic userLogic = new(userDal.UserDal, userTokenDal.UserTokenDal);
             UserLogic = userLogic;
         }
     }

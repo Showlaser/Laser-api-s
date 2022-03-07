@@ -5,6 +5,7 @@ using Auth_API.Models.Helper;
 using Auth_API.Models.ToFrontend;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 using System.Net;
 
 namespace Auth_API.Controllers
@@ -34,19 +35,18 @@ namespace Auth_API.Controllers
             return StatusCode(controllerErrorHandler.StatusCode);
         }
 
-        [AuthorizedAction]
         [HttpPost("refresh-token")]
         public async Task<ActionResult> RefreshToken()
         {
             async Task<UserTokensViewmodel> Action()
             {
-                IPAddress? ip = Request.HttpContext.Connection.RemoteIpAddress;
+                IPAddress ip = Request.HttpContext.Connection.RemoteIpAddress ?? throw new NoNullAllowedException();
                 UserTokensViewmodel tokens = ControllerHelper.GetUserTokens(this);
                 return await _userLogic.RefreshToken(tokens, ip);
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
-            UserTokensViewmodel? tokens = await controllerErrorHandler.Execute(Action());
+            UserTokensViewmodel tokens = await controllerErrorHandler.Execute(Action()) ?? throw new NoNullAllowedException();
             //TODO set cookie secure on true in production
             CookieOptions cookieOptions = new()
             {
@@ -62,7 +62,7 @@ namespace Auth_API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult> Login([FromForm] User user)
+        public async Task<ActionResult?> Login([FromBody] User user)
         {
             async Task<ActionResult> Action()
             {

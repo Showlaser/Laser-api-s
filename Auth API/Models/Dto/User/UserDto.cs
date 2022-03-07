@@ -6,6 +6,5 @@
         public string UserName { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public byte[] Salt { get; set; } = Array.Empty<byte>();
-        public UserTokensDto? SpotifyAccountData { get; set; }
     }
 }

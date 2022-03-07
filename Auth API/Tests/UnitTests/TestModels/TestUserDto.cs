@@ -1,5 +1,4 @@
 ﻿using Auth_API.Models.Dto.User;
-using Auth_API.Tests.TestModels;
 
 namespace Auth_API.Tests.UnitTests.TestModels
 {
@@ -11,7 +10,6 @@ namespace Auth_API.Tests.UnitTests.TestModels
             UserName = "TestUser",
             Password = "$argon2i$v=19$m=32768,t=10,p=5$p54p6MBmr+tV05Nr9Uly8ElJ5Sr7+Ga2EhTZZcO3O1UyLPCFQzLIkGyFPKKenTAyAtg1KDB9gRqxC2uWOstUYg$HclRmE06yFmsMbICIxSnyplzROiOil0ZsfoC1fU60T8", // 123 plaintext
             Salt = new byte[64],
-            SpotifyAccountData = new TestSpotifyAccountDataDto().UserTokensDto
         };
     }
 }

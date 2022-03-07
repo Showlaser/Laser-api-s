@@ -1,7 +1,6 @@
 ﻿using Auth_API.Logic;
 using Auth_API.Models.Dto.User;
 using Auth_API.Models.ToFrontend;
-using Auth_API.Tests.TestModels;
 using Auth_API.Tests.UnitTests.MockedLogics;
 using Auth_API.Tests.UnitTests.TestModels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

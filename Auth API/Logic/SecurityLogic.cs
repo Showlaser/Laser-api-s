@@ -1,4 +1,4 @@
-﻿using Auth_API.Models.Dto.User;
+﻿using Auth_API.Models.Dto.Tokens;
 using Isopoh.Cryptography.Argon2;
 using Isopoh.Cryptography.SecureArray;
 using System.Data;
@@ -6,6 +6,7 @@ using System.Net;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Auth_API.Logic
 {
@@ -21,6 +22,31 @@ namespace Auth_API.Logic
             Threads = Environment.ProcessorCount, // higher than "Lanes" doesn't help (or hurt)
             HashLength = 32 // >= 4
         };
+
+        public static string GenerateCodeChallenge(string codeVerifier)
+        {
+            using SHA256? sha256 = SHA256.Create();
+            byte[]? hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
+            string? b64Hash = Convert.ToBase64String(hash);
+            string? code = Regex.Replace(b64Hash, "\\+", "-");
+            code = Regex.Replace(code, "\\/", "_");
+            code = Regex.Replace(code, "=+$", "");
+            return code;
+        }
+
+        public static string GenerateNonce()
+        {
+            const string chars = "abcdefghijklmnopqrstuvwxyz123456789";
+            Random random = new();
+            char[] nonce = new char[128];
+            for (int i = 0; i < nonce.Length; i++)
+            {
+                nonce[i] = chars[random.Next(chars.Length)];
+            }
+
+            return new string(nonce);
+        }
+
 
         private static Argon2Config GetArgon2Config(string password, byte[] salt)
         {

@@ -13,7 +13,8 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<UserLogic>();
 builder.Services.AddScoped<TokenLogic>();
 builder.Services.AddScoped<IUserDal, UserDal>();
-builder.Services.AddScoped<ITokenDal, TokenDal>();
+builder.Services.AddScoped<IUserTokenDal, UserTokenDal>();
+builder.Services.AddScoped<ISpotifyTokenDal, SpotifyTokenDal>();
 
 string connectionString = GetConnectionString();
 builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOptions
@@ -25,7 +26,9 @@ WebApplication app = builder.Build();
 app.UseCors(builder =>
 {
     builder.WithOrigins("http://localhost:3000")
-        .AllowCredentials();
+        .AllowCredentials()
+        .AllowAnyHeader()
+        .AllowAnyMethod();
 });
 
 app.UseAuthorization();

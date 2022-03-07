@@ -1,5 +1,5 @@
 ﻿using Auth_API.Logic;
-using Auth_API.Tests.TestModels;
+using Auth_API.Tests.UnitTests.TestModels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Security.Claims;
 

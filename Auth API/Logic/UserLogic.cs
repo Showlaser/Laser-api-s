@@ -1,4 +1,5 @@
 ﻿using Auth_API.Interfaces.Dal;
+using Auth_API.Models.Dto.Tokens;
 using Auth_API.Models.Dto.User;
 using Auth_API.Models.ToFrontend;
 using System.Data;
@@ -11,12 +12,12 @@ namespace Auth_API.Logic
     public class UserLogic
     {
         private readonly IUserDal _userDal;
-        private readonly ITokenDal _tokenDal;
+        private readonly IUserTokenDal _userTokenDal;
 
-        public UserLogic(IUserDal userDal, ITokenDal tokenDal)
+        public UserLogic(IUserDal userDal, IUserTokenDal userTokenDal)
         {
             _userDal = userDal;
-            _tokenDal = tokenDal;
+            _userTokenDal = userTokenDal;
         }
 
         /// <summary>
@@ -58,8 +59,8 @@ namespace Auth_API.Logic
                 RefreshToken = userTokensDto.RefreshToken
             };
 
-            await _tokenDal.Remove(dbUser.Uuid);
-            await _tokenDal.Add(userTokensDto);
+            await _userTokenDal.Remove(dbUser.Uuid);
+            await _userTokenDal.Add(userTokensDto);
             return new UserTokensViewmodel
             {
                 Jwt = tokens.Jwt,
@@ -71,7 +72,7 @@ namespace Auth_API.Logic
         {
             Claim userUuidClaim = JwtLogic.GetJwtClaims(tokens.Jwt).Single(c => c.Type == "uuid");
             Guid userUuid = Guid.Parse(userUuidClaim.Value);
-            UserTokensDto dbTokens = await _tokenDal.Find(userUuid) ?? throw new SecurityException();
+            UserTokensDto dbTokens = await _userTokenDal.Find(userUuid) ?? throw new SecurityException();
 
             bool refreshTokenValid = dbTokens.RefreshToken == tokens.RefreshToken &&
                                dbTokens.RefreshTokenExpireDate > DateTime.Now &&
@@ -82,8 +83,8 @@ namespace Auth_API.Logic
             }
 
             UserTokensDto newTokens = SecurityLogic.GenerateRefreshToken(userUuid, ipAddress);
-            await _tokenDal.Remove(userUuid);
-            await _tokenDal.Add(newTokens);
+            await _userTokenDal.Remove(userUuid);
+            await _userTokenDal.Add(newTokens);
 
             return new UserTokensViewmodel
             {

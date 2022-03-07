@@ -2,6 +2,7 @@
 using Auth_API.Models.Dto.User;
 using Auth_API.Models.ToFrontend;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 using System.Security.Claims;
 
 namespace Auth_API.Models.Helper
@@ -12,14 +13,14 @@ namespace Auth_API.Models.Helper
         {
             return new UserTokensViewmodel
             {
-                Jwt = controllerBase.ControllerContext.HttpContext.Request.Cookies["jwt"].Replace("Bearer ", ""),
+                Jwt = controllerBase.ControllerContext.HttpContext.Request.Cookies["jwt"]?.Replace("Bearer ", ""),
                 RefreshToken = controllerBase.ControllerContext.HttpContext.Request.Cookies["refreshToken"]
             };
         }
 
         public static UserDto GetUserModelFromJwtClaims(ControllerBase controllerBase)
         {
-            string jwt = controllerBase.ControllerContext.HttpContext.Request.Cookies["jwt"].Replace("Bearer ", "");
+            string jwt = controllerBase.ControllerContext.HttpContext.Request.Cookies["jwt"]?.Replace("Bearer ", "") ?? throw new NoNullAllowedException();
             Claim userUuidClaim = JwtLogic.GetJwtClaims(jwt).Single(c => c.Type == "uuid");
             Guid userUuid = Guid.Parse(userUuidClaim.Value);
             return new UserDto

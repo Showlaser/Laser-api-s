@@ -1,43 +1,106 @@
 ﻿using Auth_API.Interfaces.Dal;
-using Auth_API.Models.Dto.User;
-using IdentityModel.Client;
+using Auth_API.Models.Dto.Tokens;
+using Auth_API.Models.ToFrontend;
 using System.Data;
+using System.Security;
+using System.Text;
 
 namespace Auth_API.Logic
 {
     public class TokenLogic
     {
-        private readonly ITokenDal _tokenDal;
+        private readonly IUserTokenDal _userTokenDal;
+        private readonly ISpotifyTokenDal _spotifyTokenDal;
+        private readonly string _clientSecret = string.Empty;
+        private readonly string _clientId = string.Empty;
+        private const string AuthEndpoint = "https://accounts.spotify.com/authorize";
+        private const string RedirectUrl = "http://localhost:3000/laser-settings";
+        private readonly string[] _scopes = { "user-read-currently-playing", "user-read-playback-state", "user-modify-playback-state" };
+        private readonly HttpClient _client = new();
 
-        public TokenLogic(ITokenDal tokenDal)
+        public TokenLogic(IUserTokenDal userTokenDal, ISpotifyTokenDal spotifyTokenDal)
         {
-            _tokenDal = tokenDal;
+            _userTokenDal = userTokenDal;
+            _spotifyTokenDal = spotifyTokenDal;
+            _clientId = Environment.GetEnvironmentVariable("SPOTIFYCLIENTID") ?? throw new NoNullAllowedException(
+                "Environment variable SPOTIFYCLIENTID was empty. Set it using the SPOTIFYCLIENTID environment variable");
+            _clientSecret = Environment.GetEnvironmentVariable("SPOTIFYCLIENTSECRET") ?? throw new NoNullAllowedException(
+                "Environment variable SPOTIFYCLIENTSECRET was empty. Set it using the SPOTIFYCLIENTSECRET environment variable");
         }
 
-        public async Task<string?> RefreshSpotifyAccessToken(Guid userUuid)
+        public async Task<string> GrandAccessToSpotify(Guid userUuid)
         {
-            string clientId = Environment.GetEnvironmentVariable("SPOTIFYCLIENTID") ?? throw new NoNullAllowedException(
-                "Environment variable SPOTIFYCLIENTID was empty. Set it using the SPOTIFYCLIENTID environment variable");
-            string clientSecret = Environment.GetEnvironmentVariable("SPOTIFYCLIENTSECRET") ?? throw new NoNullAllowedException(
-                "Environment variable SPOTIFYCLIENTSECRET was empty. Set it using the SPOTIFYCLIENTSECRET environment variable");
+            string codeVerifier = SecurityLogic.GenerateNonce();
+            string codeChallenge = SecurityLogic.GenerateCodeChallenge(codeVerifier);
 
-            UserTokensDto accountData = await _tokenDal.Find(userUuid) ?? throw new KeyNotFoundException();
-            HttpClient client = new();
-            TokenResponse response = await client.RequestRefreshTokenAsync(new RefreshTokenRequest
+            SpotifyTokensDto tokens = new()
             {
-                Address = "https://accounts.spotify.com/authorize",
-                ClientId = clientId,
-                ClientSecret = clientSecret,
-                GrantType = "refresh_token",
-                RefreshToken = accountData.RefreshToken
-            });
+                Uuid = Guid.NewGuid(),
+                UserUuid = userUuid,
+                CodeVerifier = codeVerifier
+            };
 
-            accountData.RefreshToken = response.RefreshToken;
+            await _spotifyTokenDal.Remove(userUuid);
+            await _spotifyTokenDal.Add(tokens);
 
-            await _tokenDal.Remove(userUuid);
-            await _tokenDal.Add(accountData);
+            return new string($"{AuthEndpoint}?response_type=code&client_id={_clientId}&redirect_uri={RedirectUrl}" +
+                              $"&scope={string.Join("%20", _scopes)}&code_challenge={codeChallenge}&code_challenge_method=S256");
+        }
 
-            return response.AccessToken;
+        public async Task<string?> GetAccessToken(string code, Guid userUuid)
+        {
+            SpotifyTokensDto dbTokens = await _spotifyTokenDal.Find(userUuid) ?? throw new SecurityException();
+            Dictionary<string, string> parameters = new()
+            {
+                { "client_id", _clientId },
+                { "grant_type", "authorization_code" },
+                { "code", code },
+                { "redirect_uri", RedirectUrl },
+                { "code_verifier", dbTokens.CodeVerifier },
+            };
+
+            byte[] clientDataBytes = Encoding.UTF8.GetBytes($"{_clientId}:{_clientSecret}");
+            string clientDataBase64 = Convert.ToBase64String(clientDataBytes);
+
+            _client.DefaultRequestHeaders.Add("Authorization", $"Basic {clientDataBase64}");
+            FormUrlEncodedContent urlEncodedParameters = new(parameters);
+            HttpRequestMessage req = new(HttpMethod.Post, "https://accounts.spotify.com/api/token") { Content = urlEncodedParameters };
+
+            req.Content = urlEncodedParameters;
+            HttpResponseMessage response = await _client.SendAsync(req);
+            SpotifyTokensViewmodel? tokens = await response.Content.ReadFromJsonAsync<SpotifyTokensViewmodel>();
+
+            await UpdateSpotifyRefreshToken(userUuid, tokens?.refresh_token);
+            return tokens?.access_token;
+        }
+
+        public async Task<string?> RefreshSpotifyAccessToken(string refreshToken, Guid userUuid)
+        {
+            Dictionary<string, string> parameters = new()
+            {
+                { "client_id", _clientId },
+                { "grant_type", "refresh_token" },
+                { "refresh_token", refreshToken },
+            };
+
+            FormUrlEncodedContent urlEncodedParameters = new(parameters);
+            HttpRequestMessage req = new(HttpMethod.Post, "https://accounts.spotify.com/api/token") { Content = urlEncodedParameters };
+
+            req.Content = urlEncodedParameters;
+            HttpResponseMessage response = await _client.SendAsync(req);
+            SpotifyTokensViewmodel? tokens = await response.Content.ReadFromJsonAsync<SpotifyTokensViewmodel>();
+
+            await UpdateSpotifyRefreshToken(userUuid, tokens?.refresh_token);
+            return tokens?.access_token;
+        }
+
+        private async Task UpdateSpotifyRefreshToken(Guid userUuid, string? refreshToken)
+        {
+            SpotifyTokensDto dbTokens = await _spotifyTokenDal.Find(userUuid) ?? throw new SecurityException();
+            dbTokens.SpotifyRefreshToken = refreshToken;
+
+            await _spotifyTokenDal.Remove(userUuid);
+            await _spotifyTokenDal.Add(dbTokens);
         }
     }
 }

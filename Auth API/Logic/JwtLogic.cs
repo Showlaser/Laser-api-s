@@ -34,17 +34,17 @@ namespace Auth_API.Logic
 
         public static List<Claim> GetJwtClaims(string jwt)
         {
-            JwtSecurityToken securityToken = ValidateJwt(jwt);
+            JwtSecurityToken securityToken = ValidateJwt(jwt, false);
             return securityToken.Claims.ToList();
         }
 
         public static bool ValidateJwtToken(string jwt)
         {
-            JwtSecurityToken securityToken = ValidateJwt(jwt);
+            JwtSecurityToken securityToken = ValidateJwt(jwt, true);
             return securityToken.Claims.Any();
         }
 
-        private static JwtSecurityToken ValidateJwt(string jwt)
+        private static JwtSecurityToken ValidateJwt(string jwt, bool validateTime)
         {
             JwtSecurityTokenHandler tokenHandler = new();
             string jwtSecret = Environment.GetEnvironmentVariable("JWTSECRET") ?? throw new NoNullAllowedException("Environment variable" +
@@ -58,7 +58,8 @@ namespace Auth_API.Logic
                     ValidAudience = "auth",
                     ValidateIssuerSigningKey = true,
                     ValidateAudience = true,
-                    ValidateIssuer = false
+                    ValidateIssuer = false,
+                    ValidateLifetime = validateTime
                 }, out SecurityToken validatedToken);
                 return (JwtSecurityToken)validatedToken;
             }

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Auth_API.Models.Dto.User
+namespace Auth_API.Models.Dto.Tokens
 {
     public class UserTokensDto
     {
@@ -9,6 +9,5 @@ namespace Auth_API.Models.Dto.User
         public string RefreshToken { get; set; } = string.Empty;
         public DateTime RefreshTokenExpireDate { get; set; }
         public IPAddress? ClientIp { get; set; }
-        public string SpotifyRefreshToken { get; set; } = string.Empty;
     }
 }

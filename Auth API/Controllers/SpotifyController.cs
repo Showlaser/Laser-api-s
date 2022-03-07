@@ -1,9 +1,7 @@
 ﻿using Auth_API.Logic;
+using Auth_API.Models.Dto.User;
 using Auth_API.Models.Helper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
-using System.Security;
-using System.Security.Claims;
 
 namespace Auth_API.Controllers
 {
@@ -19,19 +17,39 @@ namespace Auth_API.Controllers
             _tokenLogic = tokenLogic;
         }
 
-        [HttpPost]
-        public async Task<string?> RefreshAccessToken()
+        [HttpGet("grand-access")]
+        public async Task<ActionResult<string?>> GrandAccessToSpotify()
         {
             async Task<string?> Action()
             {
-                string jwt = Request.Headers[HeaderNames.Authorization]
-                    .ToString()
-                    .Replace("Bearer ", "");
-                List<Claim> claims = JwtLogic.GetJwtClaims(jwt);
+                UserDto user = ControllerHelper.GetUserModelFromJwtClaims(this);
+                return await _tokenLogic.GrandAccessToSpotify(user.Uuid);
+            }
 
-                string claimValue = claims.Find(c => c.Type == "uuid")?.Value ?? throw new SecurityException("Invalid claim");
-                Guid userUuid = Guid.Parse(claimValue);
-                return await _tokenLogic.RefreshSpotifyAccessToken(userUuid);
+            ControllerErrorHandler controllerErrorHandler = new();
+            return await controllerErrorHandler.Execute(Action());
+        }
+
+        [HttpGet("get-access-token")]
+        public async Task<string?> GetAccessToken([FromQuery] string code)
+        {
+            async Task<string?> Action()
+            {
+                UserDto user = ControllerHelper.GetUserModelFromJwtClaims(this);
+                return await _tokenLogic.GetAccessToken(code, user.Uuid);
+            }
+
+            ControllerErrorHandler controllerErrorHandler = new();
+            return await controllerErrorHandler.Execute(Action());
+        }
+
+        [HttpGet("refresh")]
+        public async Task<string?> RefreshAccessToken([FromQuery] string refreshToken)
+        {
+            async Task<string?> Action()
+            {
+                UserDto user = ControllerHelper.GetUserModelFromJwtClaims(this);
+                return await _tokenLogic.RefreshSpotifyAccessToken(refreshToken, user.Uuid);
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
