@@ -7,7 +7,7 @@ services:
         - mariadb
     build:
       context: .
-      dockerfile: Auth API/Dockerfile
+      dockerfile: Auth_API/Dockerfile
     ports:
         - "5001:80"
     environment:
@@ -42,3 +42,20 @@ services:
       - PMA_HOST=mariadb
     depends_on:
       - mariadb
+
+  vote_api:
+    image: ${DOCKER_REGISTRY-}voteapi
+    build:
+      context: .
+      dockerfile: Vote_API/Dockerfile
+    ports:
+        - "5002:80"
+    environment:
+        JWTSECRET: hwef9hewihsidhfkfdafew
+        SERVER: mariadb
+        DATABASE: vote
+        PORT: 3306
+        USERNAME: root
+        PASSWORD: qwerty
+        SERVERURL: localhost
+        SERVERPORT: 1500

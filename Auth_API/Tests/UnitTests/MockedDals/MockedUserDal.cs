@@ -2,7 +2,7 @@
 using Auth_API.Tests.UnitTests.TestModels;
 using Moq;
 
-namespace Auth_API.Tests.MockedDals
+namespace Auth_API.Tests.UnitTests.MockedDals
 {
     public class MockedUserDal
     {

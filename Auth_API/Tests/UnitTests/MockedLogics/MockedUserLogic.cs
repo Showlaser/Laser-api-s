@@ -1,5 +1,4 @@
 ﻿using Auth_API.Logic;
-using Auth_API.Tests.MockedDals;
 using Auth_API.Tests.UnitTests.MockedDals;
 
 namespace Auth_API.Tests.UnitTests.MockedLogics

@@ -58,15 +58,11 @@ static string GetConnectionString()
     return $"database={database};keepalive=5;server={server};port={port};user id={username};password={password};connectiontimeout=5";
 }
 
-/// <summary>
-/// Creates and database if it does not exists
-/// </summary>
-/// <param name="app">IApplicationBuilder object</param>
 static void CreateDatabaseIfNotExist(IApplicationBuilder app)
 {
     IServiceScope serviceScope = app.ApplicationServices
         .GetRequiredService<IServiceScopeFactory>()
         .CreateScope();
     DataContext? context = serviceScope.ServiceProvider.GetService<DataContext>();
-    context.Database.Migrate();
+    context?.Database.Migrate();
 }
