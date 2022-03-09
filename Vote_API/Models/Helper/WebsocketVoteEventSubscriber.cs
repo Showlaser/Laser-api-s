@@ -1,0 +1,38 @@
+﻿using System.Net.WebSockets;
+using System.Text;
+using Mapster;
+using Newtonsoft.Json;
+using Vote_API.Models.Dto;
+using Vote_API.Models.ToFrontend;
+
+namespace Vote_API.Models.Helper
+{
+    public class WebsocketVoteEventSubscriber
+    {
+        private readonly List<WebsocketInfo> _websockets = new();
+
+        public void Subscribe(WebsocketInfo websocketInfo)
+        {
+            _websockets.Add(websocketInfo);
+        }
+
+        public void UnSubscribe(WebsocketInfo websocketInfo)
+        {
+            _websockets.Remove(websocketInfo);
+        }
+        
+        public async Task OnUpdate(VoteDataDto data)
+        {
+            List<WebsocketInfo> websocketsToInform = _websockets.FindAll(wsi => wsi.Identifier.VoteDataUuid == data.Uuid);
+            foreach (WebsocketInfo wsi in websocketsToInform)
+            {
+                string json = JsonConvert.SerializeObject(data);
+                byte[] bytesToSend = Encoding.UTF8.GetBytes(json);
+
+                await wsi.WebSocket.SendAsync(new ArraySegment<byte>(bytesToSend,
+                    0, bytesToSend.Length), WebSocketMessageType.Text, 
+                    WebSocketMessageFlags.EndOfMessage, CancellationToken.None);
+            }
+        }
+    }
+}

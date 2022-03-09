@@ -28,7 +28,7 @@ services:
       - 3306:3306
     restart: always
     volumes:
-      - ~/apps/mysql:/var/lib/mysql
+      - ~/apps/mariadb/data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: qwerty
 
@@ -45,6 +45,8 @@ services:
 
   vote_api:
     image: ${DOCKER_REGISTRY-}voteapi
+    depends_on:
+        - mariadb
     build:
       context: .
       dockerfile: Vote_API/Dockerfile
@@ -57,5 +59,4 @@ services:
         PORT: 3306
         USERNAME: root
         PASSWORD: qwerty
-        SERVERURL: localhost
-        SERVERPORT: 1500
+        SERVERURL: 127.0.0.1

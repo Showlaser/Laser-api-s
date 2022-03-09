@@ -1,9 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using System.Data;
+using System.Net.WebSockets;
+using Microsoft.AspNetCore.Builder;
+using Vote_API;
 using Vote_API.Dal;
 using Vote_API.Interfaces.Dal;
 using Vote_API.Logic;
+using Vote_API.Models.Helper;
 
 WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +16,7 @@ WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddScoped<IVoteDal, VoteDal>();
 builder.Services.AddScoped<VoteLogic>();
+builder.Services.AddSingleton<WebsocketVoteEventSubscriber>();
 
 string connectionString = GetConnectionString();
 builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOptions
@@ -26,7 +31,12 @@ app.UseCors(builder =>
         .AllowAnyMethod();
 });
 
-app.UseAuthorization();
+var webSocketOptions = new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromMinutes(2)
+};
+
+app.UseWebSockets(webSocketOptions); app.UseAuthorization();
 app.MapControllers();
 CreateDatabaseIfNotExist(app);
 app.Run();

@@ -1,15 +1,20 @@
-﻿using Vote_API.Interfaces.Dal;
+﻿using Mapster;
+using Vote_API.Interfaces.Dal;
 using Vote_API.Models.Dto;
+using Vote_API.Models.Helper;
+using Vote_API.Models.ToFrontend;
 
 namespace Vote_API.Logic
 {
     public class VoteLogic
     {
         private readonly IVoteDal _voteDal;
+        private readonly WebsocketVoteEventSubscriber _websocketVoteEventSubscriber;
 
-        public VoteLogic(IVoteDal voteDal)
+        public VoteLogic(IVoteDal voteDal, WebsocketVoteEventSubscriber websocketVoteEventSubscriber)
         {
             _voteDal = voteDal;
+            _websocketVoteEventSubscriber = websocketVoteEventSubscriber;
         }
 
         private static void ValidateVoteData(VoteDataDto data)
@@ -37,6 +42,7 @@ namespace Vote_API.Logic
         public async Task Update(VoteDataDto data)
         {
             ValidateVoteData(data);
+            _websocketVoteEventSubscriber.OnUpdate(data);
             await _voteDal.Update(data);
         }
 
