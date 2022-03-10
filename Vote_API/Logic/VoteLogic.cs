@@ -52,6 +52,11 @@ namespace Vote_API.Logic
         public async Task<VoteDataDto?> Find(VoteJoinData joinData)
         {
             VoteDataDto data = await _voteDal.Find(joinData.JoinCode);
+            if (data == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
             SecurityLogic.ValidatePassword(data.Password, data.Salt, joinData.AccessCode);
             return data;
         }
