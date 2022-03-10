@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using Vote_API.Logic;
 using Vote_API.Models.Dto;
+using Vote_API.Models.FromFrontend;
 using Vote_API.Tests.UnitTests.LogicTest.MockedLogics;
 using Vote_API.Tests.UnitTests.TestModels;
 
@@ -27,14 +29,17 @@ namespace Vote_API.Tests.UnitTests.LogicTest
         [TestMethod]
         public async Task FindTest()
         {
-            VoteDataDto? data = await _voteLogic.Find(_voteData.AuthorUserUuid);
+            VoteDataDto? data = await _voteLogic.Find(new VoteJoinData
+            {
+                JoinCode = _voteData.JoinCode
+            });
             Assert.IsNotNull(data);
         }
 
         [TestMethod]
         public async Task UpdateTest()
         {
-            await _voteLogic.Update(_voteData);
+            await _voteLogic.Update(_voteData, _voteData.AuthorUserUuid);
         }
 
         [TestMethod]

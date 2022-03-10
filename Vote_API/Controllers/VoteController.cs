@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using System.Diagnostics.CodeAnalysis;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Vote_API.Logic;
 using Vote_API.Models.Dto;
@@ -21,26 +22,28 @@ namespace Vote_API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Add([FromBody] VoteData data)
+        public async Task<ActionResult<VoteJoinDataViewmodel>> Add([FromBody] VoteData data)
         {
-            async Task Action()
+            async Task<VoteJoinDataViewmodel> Action()
             {
                 VoteDataDto dataDto = data.Adapt<VoteDataDto>();
-                await _voteLogic.Add(dataDto);
+                return await _voteLogic.Add(dataDto);
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
-            await controllerErrorHandler.Execute(Action());
-            return StatusCode(controllerErrorHandler.StatusCode);
+            return await controllerErrorHandler.Execute(Action());
         }
 
         [HttpGet]
-        public async Task<ActionResult<VoteDataViewmodel?>> Find()
+        public async Task<ActionResult<VoteDataViewmodel?>> Find([FromQuery] string joinCode, [FromQuery] string accessCode)
         {
             async Task<VoteDataDto?> Action()
             {
-                UserModel user = ControllerHelper.GetUserModelFromJwtClaims(this);
-                return await _voteLogic.Find(user.Uuid);
+                return await _voteLogic.Find(new VoteJoinData
+                {
+                    JoinCode = joinCode,
+                    AccessCode = accessCode
+                });
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
@@ -48,13 +51,29 @@ namespace Vote_API.Controllers
             return data?.Adapt<VoteDataViewmodel?>();
         }
 
+        [HttpPost("vote")]
+        public async Task<ActionResult> VoteOnPlaylist([FromBody] PlaylistVote vote)
+        {
+            async Task Action()
+            {
+                var voteDto = vote.Adapt<PlaylistVoteDto>();
+                voteDto.Uuid = Guid.NewGuid();
+                await _voteLogic.VoteOnPlaylist(voteDto, vote.JoinData.AccessCode);
+            }
+
+            ControllerErrorHandler controllerErrorHandler = new();
+            await controllerErrorHandler.Execute(Action());
+            return Ok();
+        }
+
         [HttpPut]
         public async Task<ActionResult> Update([FromBody] VoteData data)
         {
             async Task Action()
             {
+                UserModel user = ControllerHelper.GetUserModelFromJwtClaims(this);
                 VoteDataDto dataDto = data.Adapt<VoteDataDto>();
-                await _voteLogic.Update(dataDto);
+                await _voteLogic.Update(dataDto, user.Uuid);
             }
 
             ControllerErrorHandler controllerErrorHandler = new();

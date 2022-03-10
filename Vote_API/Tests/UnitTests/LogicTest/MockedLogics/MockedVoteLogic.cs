@@ -1,5 +1,6 @@
 ﻿using Vote_API.Interfaces.Dal;
 using Vote_API.Logic;
+using Vote_API.Models.Helper;
 using Vote_API.Tests.UnitTests.LogicTest.MockedDals;
 
 namespace Vote_API.Tests.UnitTests.LogicTest.MockedLogics
@@ -11,7 +12,8 @@ namespace Vote_API.Tests.UnitTests.LogicTest.MockedLogics
         public MockedVoteLogic()
         {
             IVoteDal voteDal = new MockedVoteDal().VoteDal;
-            VoteLogic = new VoteLogic(voteDal);
+            IPlaylistVoteDal playlistVoteDal = new MockedPlaylistVoteDal().PlaylistVoteDal;
+            VoteLogic = new VoteLogic(voteDal, playlistVoteDal, new WebsocketVoteEventSubscriber());
         }
     }
 }

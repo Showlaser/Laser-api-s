@@ -1,7 +1,7 @@
-﻿using System.Net.WebSockets;
+﻿using Newtonsoft.Json;
+using System.Net.WebSockets;
 using System.Text;
 using Mapster;
-using Newtonsoft.Json;
 using Vote_API.Models.Dto;
 using Vote_API.Models.ToFrontend;
 
@@ -20,19 +20,36 @@ namespace Vote_API.Models.Helper
         {
             _websockets.Remove(websocketInfo);
         }
-        
+
         public async Task OnUpdate(VoteDataDto data)
         {
-            List<WebsocketInfo> websocketsToInform = _websockets.FindAll(wsi => wsi.Identifier.VoteDataUuid == data.Uuid);
+            List<WebsocketInfo> websocketsToInform = _websockets.FindAll(wsi => 
+                wsi.Identifier?.VoteDataUuid == data.Uuid);
+
+            VoteDataViewmodel voteDataViewmodel = data.Adapt<VoteDataViewmodel>();
+
             foreach (WebsocketInfo wsi in websocketsToInform)
             {
-                string json = JsonConvert.SerializeObject(data);
+                string json = JsonConvert.SerializeObject(voteDataViewmodel);
                 byte[] bytesToSend = Encoding.UTF8.GetBytes(json);
 
                 await wsi.WebSocket.SendAsync(new ArraySegment<byte>(bytesToSend,
-                    0, bytesToSend.Length), WebSocketMessageType.Text, 
+                    0, bytesToSend.Length), WebSocketMessageType.Text,
                     WebSocketMessageFlags.EndOfMessage, CancellationToken.None);
             }
+        }
+
+        public async Task DeleteClosedWebsockets()
+        {
+            _websockets.RemoveAll(wsi =>
+            {
+                if (wsi != null)
+                {
+                    return wsi.WebSocket.State is WebSocketState.Closed or WebSocketState.Aborted;
+                }
+
+                return false;
+            });
         }
     }
 }

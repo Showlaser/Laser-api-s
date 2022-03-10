@@ -1,9 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using System.Data;
-using System.Net.WebSockets;
-using Microsoft.AspNetCore.Builder;
-using Vote_API;
+using System.Timers;
 using Vote_API.Dal;
 using Vote_API.Interfaces.Dal;
 using Vote_API.Logic;
@@ -15,6 +13,7 @@ WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<IVoteDal, VoteDal>();
+builder.Services.AddScoped<IPlaylistVoteDal, PlaylistVoteDal>();
 builder.Services.AddScoped<VoteLogic>();
 builder.Services.AddSingleton<WebsocketVoteEventSubscriber>();
 
@@ -22,7 +21,7 @@ string connectionString = GetConnectionString();
 builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOptions
     .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-WebApplication? app = builder.Build();
+WebApplication app = builder.Build();
 app.UseCors(builder =>
 {
     builder.WithOrigins("http://localhost:3000")
@@ -39,6 +38,16 @@ var webSocketOptions = new WebSocketOptions
 app.UseWebSockets(webSocketOptions); app.UseAuthorization();
 app.MapControllers();
 CreateDatabaseIfNotExist(app);
+
+System.Timers.Timer timer = new() { Interval = 60000 };
+timer.Elapsed += delegate (object? o, ElapsedEventArgs eventArgs)
+{
+    var websocketVoteEventSubscriber = app.Services
+        .GetService<WebsocketVoteEventSubscriber>();
+    websocketVoteEventSubscriber.DeleteClosedWebsockets();
+};
+
+timer.Start();
 app.Run();
 
 static string GetConnectionString()

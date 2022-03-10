@@ -1,6 +1,7 @@
-﻿using Mapster;
+﻿using System.Security;
 using Vote_API.Interfaces.Dal;
 using Vote_API.Models.Dto;
+using Vote_API.Models.FromFrontend;
 using Vote_API.Models.Helper;
 using Vote_API.Models.ToFrontend;
 
@@ -9,11 +10,13 @@ namespace Vote_API.Logic
     public class VoteLogic
     {
         private readonly IVoteDal _voteDal;
+        private readonly IPlaylistVoteDal _playListVoteDal;
         private readonly WebsocketVoteEventSubscriber _websocketVoteEventSubscriber;
 
-        public VoteLogic(IVoteDal voteDal, WebsocketVoteEventSubscriber websocketVoteEventSubscriber)
+        public VoteLogic(IVoteDal voteDal, IPlaylistVoteDal playListVoteDal, WebsocketVoteEventSubscriber websocketVoteEventSubscriber)
         {
             _voteDal = voteDal;
+            _playListVoteDal = playListVoteDal;
             _websocketVoteEventSubscriber = websocketVoteEventSubscriber;
         }
 
@@ -28,21 +31,53 @@ namespace Vote_API.Logic
             }
         }
 
-        public async Task Add(VoteDataDto data)
+        public async Task<VoteJoinDataViewmodel> Add(VoteDataDto data)
         {
             ValidateVoteData(data);
+
+            string accessCode = SecurityLogic.GenerateRandomString(4);
+            data.Salt = SecurityLogic.GetSalt();
+            data.Password = SecurityLogic.HashPassword(accessCode, data.Salt);
+
+            data.JoinCode = SecurityLogic.GenerateRandomString(6);
             await _voteDal.Add(data);
+
+            return new()
+            {
+                AccessCode = accessCode,
+                JoinCode = data.JoinCode
+            };
         }
 
-        public async Task<VoteDataDto?> Find(Guid userUuid)
+        public async Task<VoteDataDto?> Find(VoteJoinData joinData)
         {
-            return await _voteDal.Find(userUuid);
+            VoteDataDto data = await _voteDal.Find(joinData.JoinCode);
+            SecurityLogic.ValidatePassword(data.Password, data.Salt, joinData.AccessCode);
+            return data;
         }
 
-        public async Task Update(VoteDataDto data)
+        public async Task VoteOnPlaylist(PlaylistVoteDto vote, string password)
+        {
+            VoteDataDto? data = await _voteDal.Find(vote.VoteDataUuid);
+            if (data == null)
+            {
+                throw new KeyNotFoundException();
+            }
+            SecurityLogic.ValidatePassword(data.Password, data.Salt, password);
+
+            await _playListVoteDal.Add(vote);
+            await _websocketVoteEventSubscriber.OnUpdate(data);
+        }
+
+        public async Task Update(VoteDataDto data, Guid userUuid)
         {
             ValidateVoteData(data);
-            _websocketVoteEventSubscriber.OnUpdate(data);
+            VoteDataDto? voteDataDto = await _voteDal.Find(data.JoinCode);
+            if (voteDataDto == null || voteDataDto.AuthorUserUuid != userUuid)
+            {
+                throw new SecurityException();
+            }
+
             await _voteDal.Update(data);
         }
 

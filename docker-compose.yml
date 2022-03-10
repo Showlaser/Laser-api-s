@@ -60,3 +60,4 @@ services:
         USERNAME: root
         PASSWORD: qwerty
         SERVERURL: 127.0.0.1
+        ARGON2SECRET: fho938fh32oewfjfefj2398

@@ -8,6 +8,5 @@ namespace Vote_API.Models.Helper
     {
         public WebSocket WebSocket { get; set; }
         public WebsocketIdentifier? Identifier { get; set; }
-        public VoteDataViewmodel VoteData { get; set; }
     }
 }

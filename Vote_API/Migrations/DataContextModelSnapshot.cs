@@ -16,7 +16,7 @@ namespace Vote_API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.2")
+                .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("Vote_API.Models.Dto.PlaylistVoteDto", b =>
@@ -25,12 +25,17 @@ namespace Vote_API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("SpotifyPlaylistSongUuid")
+                    b.Property<Guid>("SpotifyPlaylistUuid")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("VoteDataUuid")
                         .HasColumnType("char(36)");
 
                     b.HasKey("Uuid");
 
-                    b.ToTable("PlaylistVoteDto");
+                    b.HasIndex("VoteDataUuid");
+
+                    b.ToTable("PlaylistVote");
                 });
 
             modelBuilder.Entity("Vote_API.Models.Dto.SpotifyPlaylistSongDto", b =>
@@ -89,8 +94,15 @@ namespace Vote_API.Migrations
                     b.Property<Guid>("AuthorUserUuid")
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("JoinCode")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Password")
                         .HasColumnType("longtext");
+
+                    b.Property<byte[]>("Salt")
+                        .HasColumnType("longblob");
 
                     b.Property<DateTime>("ValidUntil")
                         .HasColumnType("datetime(6)");
@@ -98,6 +110,15 @@ namespace Vote_API.Migrations
                     b.HasKey("Uuid");
 
                     b.ToTable("VoteData");
+                });
+
+            modelBuilder.Entity("Vote_API.Models.Dto.PlaylistVoteDto", b =>
+                {
+                    b.HasOne("Vote_API.Models.Dto.VoteDataDto", null)
+                        .WithMany("Votes")
+                        .HasForeignKey("VoteDataUuid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Vote_API.Models.Dto.SpotifyPlaylistSongDto", b =>
@@ -126,6 +147,8 @@ namespace Vote_API.Migrations
             modelBuilder.Entity("Vote_API.Models.Dto.VoteDataDto", b =>
                 {
                     b.Navigation("VoteablePlaylistCollection");
+
+                    b.Navigation("Votes");
                 });
 #pragma warning restore 612, 618
         }

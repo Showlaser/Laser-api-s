@@ -1,7 +1,7 @@
-﻿using System.Net.WebSockets;
-using System.Text;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Net.WebSockets;
+using System.Text;
 using Vote_API.Logic;
 using Vote_API.Models.FromFrontend;
 using Vote_API.Models.Helper;
@@ -12,10 +12,12 @@ namespace Vote_API.Controllers
     public class WebsocketController : ControllerBase
     {
         private readonly WebsocketVoteEventSubscriber _websocketVoteEventSubscriber;
+        private readonly VoteLogic _voteLogic;
 
-        public WebsocketController(WebsocketVoteEventSubscriber websocketVoteEventSubscriber)
+        public WebsocketController(WebsocketVoteEventSubscriber websocketVoteEventSubscriber, VoteLogic voteLogic)
         {
             _websocketVoteEventSubscriber = websocketVoteEventSubscriber;
+            _voteLogic = voteLogic;
         }
 
         [HttpGet("/ws")]
@@ -29,10 +31,23 @@ namespace Vote_API.Controllers
                     new ArraySegment<byte>(buffer), CancellationToken.None);
 
                 string data = Encoding.UTF8.GetString(buffer);
-                var info = JsonConvert.DeserializeObject<WebsocketInfo>(data);
-                _websocketVoteEventSubscriber.Subscribe(info);
+                var identifier = JsonConvert.DeserializeObject<WebsocketIdentifier>(data);
 
-                await Echo(webSocket, Guid.NewGuid(), voteDataUuid);
+                await _voteLogic.Find(new VoteJoinData
+                {
+                    JoinCode = identifier.JoinCode,
+                    AccessCode = identifier.AccessCode
+                }); // check if the access code is valid
+
+                identifier.WebsocketUuid = Guid.NewGuid();
+                WebsocketInfo websocketInfo = new()
+                {
+                    Identifier = identifier,
+                    WebSocket = webSocket
+                };
+
+                _websocketVoteEventSubscriber.Subscribe(websocketInfo);
+                await Echo(webSocket, websocketInfo);
             }
             else
             {
@@ -40,7 +55,7 @@ namespace Vote_API.Controllers
             }
         }
 
-        private async Task Echo(WebSocket webSocket, Guid webSocketUuidIdentifier, Guid voteDataUuid)
+        private async Task Echo(WebSocket webSocket, WebsocketInfo info)
         {
             var buffer = new byte[1024 * 4];
             var receiveResult = await webSocket.ReceiveAsync(
@@ -48,7 +63,7 @@ namespace Vote_API.Controllers
 
             while (!receiveResult.CloseStatus.HasValue)
             {
-                byte[] bytes = Encoding.UTF8.GetBytes(webSocketUuidIdentifier.ToString());
+                byte[] bytes = Encoding.UTF8.GetBytes(info.Identifier.WebsocketUuid.ToString());
                 await webSocket.SendAsync(
                     new ArraySegment<byte>(bytes, 0, bytes.Length),
                     receiveResult.MessageType,
@@ -63,6 +78,7 @@ namespace Vote_API.Controllers
                 receiveResult.CloseStatus.Value,
                 receiveResult.CloseStatusDescription,
                 CancellationToken.None);
+            _websocketVoteEventSubscriber.UnSubscribe(info);
         }
     }
 }

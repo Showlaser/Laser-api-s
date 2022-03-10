@@ -13,31 +13,41 @@ namespace Vote_API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "PlaylistVoteDto",
-                columns: table => new
-                {
-                    Uuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    SpotifyPlaylistSongUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PlaylistVoteDto", x => x.Uuid);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "VoteData",
                 columns: table => new
                 {
                     Uuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     AuthorUserUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     ValidUntil = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    JoinCode = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     Password = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Salt = table.Column<byte[]>(type: "longblob", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VoteData", x => x.Uuid);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "PlaylistVote",
+                columns: table => new
+                {
+                    Uuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    VoteDataUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    SpotifyPlaylistUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlaylistVote", x => x.Uuid);
+                    table.ForeignKey(
+                        name: "FK_PlaylistVote_VoteData_VoteDataUuid",
+                        column: x => x.VoteDataUuid,
+                        principalTable: "VoteData",
+                        principalColumn: "Uuid",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -90,6 +100,11 @@ namespace Vote_API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PlaylistVote_VoteDataUuid",
+                table: "PlaylistVote",
+                column: "VoteDataUuid");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SpotifyPlaylistSongDto_SpotifyPlaylistUuid",
                 table: "SpotifyPlaylistSongDto",
                 column: "SpotifyPlaylistUuid");
@@ -103,7 +118,7 @@ namespace Vote_API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "PlaylistVoteDto");
+                name: "PlaylistVote");
 
             migrationBuilder.DropTable(
                 name: "SpotifyPlaylistSongDto");

@@ -19,9 +19,20 @@ namespace Vote_API.Dal
             await _context.SaveChangesAsync();
         }
 
-        public async Task<VoteDataDto?> Find(Guid userUuid)
+        public async Task<VoteDataDto?> Find(string joinCode)
         {
-            return await _context.VoteData.FirstOrDefaultAsync(e => e.AuthorUserUuid == userUuid);
+            return await _context.VoteData.Include(e => e.VoteablePlaylistCollection)
+                .ThenInclude(e => e.SongsInPlaylist)
+                .Include(e => e.Votes)
+                .SingleOrDefaultAsync(e => e.JoinCode == joinCode);
+        }
+
+        public async Task<VoteDataDto> Find(Guid? uuid)
+        {
+            return await _context.VoteData.Include(e => e.VoteablePlaylistCollection)
+                .ThenInclude(e => e.SongsInPlaylist)
+                .Include(e => e.Votes)
+                .SingleOrDefaultAsync(e => e.Uuid == uuid);
         }
 
         public async Task Update(VoteDataDto data)

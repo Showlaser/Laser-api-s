@@ -11,11 +11,18 @@ namespace Vote_API.Interfaces.Dal
         Task Add(VoteDataDto data);
 
         /// <summary>
-        /// Finds the data by user uuid
+        /// Finds the data by join code
         /// </summary>
-        /// <param name="userUuid">The uuid of user in the object to find</param>
+        /// <param name="joinCode">The join code of the vote data to find</param>
         /// <returns>The found data</returns>
-        Task<VoteDataDto?> Find(Guid userUuid);
+        Task<VoteDataDto?> Find(string joinCode);
+
+        /// <summary>
+        /// Finds the data by uuid
+        /// </summary>
+        /// <param name="uuid">The uuid of the data</param>
+        /// <returns>The found data</returns>
+        Task<VoteDataDto> Find(Guid? uuid);
 
         /// <summary>
         /// Updates the data in the database
