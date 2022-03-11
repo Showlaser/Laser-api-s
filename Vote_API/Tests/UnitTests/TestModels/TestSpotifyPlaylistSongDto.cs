@@ -10,7 +10,7 @@ namespace Vote_API.Tests.UnitTests.TestModels
             ArtistName = "Test Artist",
             SongName = "Test Song",
             SongImageUrl = "https://example.com",
-            SpotifyPlaylistUuid = Guid.Parse("7b98cec9-a30c-4cf3-af48-f26f8acfbb7f")
+            PlaylistUuid = Guid.Parse("7b98cec9-a30c-4cf3-af48-f26f8acfbb7f")
         };
     }
 }

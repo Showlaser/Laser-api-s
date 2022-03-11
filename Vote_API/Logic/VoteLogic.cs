@@ -39,7 +39,7 @@ namespace Vote_API.Logic
             data.Salt = SecurityLogic.GetSalt();
             data.Password = SecurityLogic.HashPassword(accessCode, data.Salt);
 
-            data.JoinCode = SecurityLogic.GenerateRandomString(6);
+            data.JoinCode = SecurityLogic.GenerateRandomString(4);
             await _voteDal.Add(data);
 
             return new()
@@ -69,6 +69,9 @@ namespace Vote_API.Logic
                 throw new KeyNotFoundException();
             }
             SecurityLogic.ValidatePassword(data.Password, data.Salt, password);
+
+            int index = data.VoteablePlaylistCollection.FindIndex(e => e.Uuid == vote.PlaylistUuid);
+            data.VoteablePlaylistCollection[index].Votes.Add(vote);
 
             await _playListVoteDal.Add(vote);
             await _websocketVoteEventSubscriber.OnUpdate(data);

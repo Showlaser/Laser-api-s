@@ -32,26 +32,6 @@ namespace Vote_API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "PlaylistVote",
-                columns: table => new
-                {
-                    Uuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    VoteDataUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    SpotifyPlaylistUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PlaylistVote", x => x.Uuid);
-                    table.ForeignKey(
-                        name: "FK_PlaylistVote_VoteData_VoteDataUuid",
-                        column: x => x.VoteDataUuid,
-                        principalTable: "VoteData",
-                        principalColumn: "Uuid",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "VoteablePlaylistDto",
                 columns: table => new
                 {
@@ -60,17 +40,37 @@ namespace Vote_API.Migrations
                     PlaylistName = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PlaylistImageUrl = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    VoteDataDtoUuid = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VoteablePlaylistDto", x => x.Uuid);
                     table.ForeignKey(
-                        name: "FK_VoteablePlaylistDto_VoteData_VoteDataUuid",
-                        column: x => x.VoteDataUuid,
+                        name: "FK_VoteablePlaylistDto_VoteData_VoteDataDtoUuid",
+                        column: x => x.VoteDataDtoUuid,
                         principalTable: "VoteData",
-                        principalColumn: "Uuid",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Uuid");
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "PlaylistVote",
+                columns: table => new
+                {
+                    Uuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    VoteDataUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    PlaylistUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    VoteablePlaylistDtoUuid = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlaylistVote", x => x.Uuid);
+                    table.ForeignKey(
+                        name: "FK_PlaylistVote_VoteablePlaylistDto_VoteablePlaylistDtoUuid",
+                        column: x => x.VoteablePlaylistDtoUuid,
+                        principalTable: "VoteablePlaylistDto",
+                        principalColumn: "Uuid");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -79,40 +79,40 @@ namespace Vote_API.Migrations
                 columns: table => new
                 {
                     Uuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    SpotifyPlaylistUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    PlaylistUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     SongName = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ArtistName = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     SongImageUrl = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    VoteablePlaylistDtoUuid = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SpotifyPlaylistSongDto", x => x.Uuid);
                     table.ForeignKey(
-                        name: "FK_SpotifyPlaylistSongDto_VoteablePlaylistDto_SpotifyPlaylistUu~",
-                        column: x => x.SpotifyPlaylistUuid,
+                        name: "FK_SpotifyPlaylistSongDto_VoteablePlaylistDto_VoteablePlaylistD~",
+                        column: x => x.VoteablePlaylistDtoUuid,
                         principalTable: "VoteablePlaylistDto",
-                        principalColumn: "Uuid",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Uuid");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PlaylistVote_VoteDataUuid",
+                name: "IX_PlaylistVote_VoteablePlaylistDtoUuid",
                 table: "PlaylistVote",
-                column: "VoteDataUuid");
+                column: "VoteablePlaylistDtoUuid");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SpotifyPlaylistSongDto_SpotifyPlaylistUuid",
+                name: "IX_SpotifyPlaylistSongDto_VoteablePlaylistDtoUuid",
                 table: "SpotifyPlaylistSongDto",
-                column: "SpotifyPlaylistUuid");
+                column: "VoteablePlaylistDtoUuid");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VoteablePlaylistDto_VoteDataUuid",
+                name: "IX_VoteablePlaylistDto_VoteDataDtoUuid",
                 table: "VoteablePlaylistDto",
-                column: "VoteDataUuid");
+                column: "VoteDataDtoUuid");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

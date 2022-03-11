@@ -7,7 +7,7 @@ using Vote_API.Interfaces.Dal;
 using Vote_API.Logic;
 using Vote_API.Models.Helper;
 
-WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
@@ -24,25 +24,25 @@ builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOpti
 WebApplication app = builder.Build();
 app.UseCors(builder =>
 {
-    builder.WithOrigins("http://localhost:3000")
+    builder.WithOrigins("http://localhost:3000", "http://192.168.1.31:3000")
         .AllowCredentials()
         .AllowAnyHeader()
         .AllowAnyMethod();
 });
 
-var webSocketOptions = new WebSocketOptions
+WebSocketOptions webSocketOptions = new WebSocketOptions
 {
-    KeepAliveInterval = TimeSpan.FromMinutes(2)
+    KeepAliveInterval = TimeSpan.FromMinutes(10)
 };
 
 app.UseWebSockets(webSocketOptions); app.UseAuthorization();
 app.MapControllers();
 CreateDatabaseIfNotExist(app);
 
-System.Timers.Timer timer = new() { Interval = 60000 };
+System.Timers.Timer timer = new() { Interval = 600000 };
 timer.Elapsed += delegate (object? o, ElapsedEventArgs eventArgs)
 {
-    var websocketVoteEventSubscriber = app.Services
+    global::Vote_API.Models.Helper.WebsocketVoteEventSubscriber? websocketVoteEventSubscriber = app.Services
         .GetService<WebsocketVoteEventSubscriber>();
     websocketVoteEventSubscriber.DeleteClosedWebsockets();
 };
