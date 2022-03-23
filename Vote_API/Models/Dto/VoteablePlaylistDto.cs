@@ -6,6 +6,7 @@
         public Guid VoteDataUuid { get; set; }
         public string? PlaylistName { get; set; }
         public string? PlaylistImageUrl { get; set; }
-        public List<SpotifyPlaylistSongDto>? SongsInPlaylist { get; set; }
+        public List<SpotifyPlaylistSongDto>? SongsInPlaylist { get; set; } = new();
+        public List<PlaylistVoteDto>? Votes { get; set; } = new();
     }
 }

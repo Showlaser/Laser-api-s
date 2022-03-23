@@ -21,9 +21,11 @@ namespace Vote_API.Dal
 
         public async Task<VoteDataDto?> Find(string joinCode)
         {
-            return await _context.VoteData.Include(e => e.VoteablePlaylistCollection)
+            return await _context.VoteData
+                .Include(e => e.VoteablePlaylistCollection)
                 .ThenInclude(e => e.SongsInPlaylist)
-                .Include(e => e.Votes)
+                .Include(e => e.VoteablePlaylistCollection)
+                .ThenInclude(e => e.Votes)
                 .SingleOrDefaultAsync(e => e.JoinCode == joinCode);
         }
 
@@ -31,7 +33,8 @@ namespace Vote_API.Dal
         {
             return await _context.VoteData.Include(e => e.VoteablePlaylistCollection)
                 .ThenInclude(e => e.SongsInPlaylist)
-                .Include(e => e.Votes)
+                .Include(e => e.VoteablePlaylistCollection)
+                .ThenInclude(e => e.Votes)
                 .SingleOrDefaultAsync(e => e.Uuid == uuid);
         }
 

@@ -9,5 +9,6 @@ namespace Vote_API.Models.ToFrontend
         public string? PlaylistName { get; set; }
         public string? PlaylistImageUrl { get; set; }
         public List<SpotifyPlaylistSong>? SongsInPlaylist { get; set; }
+        public List<PlaylistVoteViewmodel> Votes { get; set; }
     }
 }

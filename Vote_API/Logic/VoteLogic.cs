@@ -61,14 +61,27 @@ namespace Vote_API.Logic
             return data;
         }
 
+        private static void ValidatePlaylistVote(PlaylistVoteDto vote)
+        {
+            bool valid = vote.Uuid != Guid.Empty && vote.SpotifyPlaylistUuid != Guid.Empty &&
+                         vote.VoteDataUuid != Guid.Empty;
+            if (!valid)
+            {
+                throw new InvalidDataException();
+            }
+        }
+
         public async Task VoteOnPlaylist(PlaylistVoteDto vote, string password)
         {
+            ValidatePlaylistVote(vote);
             VoteDataDto? data = await _voteDal.Find(vote.VoteDataUuid);
             if (data == null)
             {
                 throw new KeyNotFoundException();
             }
             SecurityLogic.ValidatePassword(data.Password, data.Salt, password);
+
+            data.VoteablePlaylistCollection.Find(e => e.Uuid == vote.SpotifyPlaylistUuid).Votes.Add(vote);
 
             await _playListVoteDal.Add(vote);
             await _websocketVoteEventSubscriber.OnUpdate(data);

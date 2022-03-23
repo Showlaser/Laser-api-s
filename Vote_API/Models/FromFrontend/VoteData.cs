@@ -6,6 +6,5 @@
         public Guid AuthorUserUuid { get; set; }
         public DateTime ValidUntil { get; set; }
         public List<VoteablePlaylist>? VoteablePlaylistCollection { get; set; }
-        public List<PlaylistVote>? Votes { get; set; }
     }
 }

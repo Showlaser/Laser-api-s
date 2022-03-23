@@ -7,7 +7,7 @@ using Vote_API.Interfaces.Dal;
 using Vote_API.Logic;
 using Vote_API.Models.Helper;
 
-WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 

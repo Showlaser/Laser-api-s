@@ -9,6 +9,5 @@
         public string? Password { get; set; }
         public byte[]? Salt { get; set; }
         public List<VoteablePlaylistDto>? VoteablePlaylistCollection { get; set; }
-        public List<PlaylistVoteDto>? Votes { get; set; }
     }
 }

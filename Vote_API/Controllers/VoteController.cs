@@ -37,18 +37,19 @@ namespace Vote_API.Controllers
         [HttpGet]
         public async Task<ActionResult<VoteDataViewmodel?>> Find([FromQuery] string joinCode, [FromQuery] string accessCode)
         {
-            async Task<VoteDataDto?> Action()
+            async Task<VoteDataViewmodel?> Action()
             {
-                return await _voteLogic.Find(new VoteJoinData
+                VoteDataDto data = await _voteLogic.Find(new VoteJoinData
                 {
                     JoinCode = joinCode,
                     AccessCode = accessCode
                 });
+
+                return data.Adapt<VoteDataViewmodel>();
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
-            VoteDataDto? data = await controllerErrorHandler.Execute(Action());
-            return data?.Adapt<VoteDataViewmodel?>();
+            return await controllerErrorHandler.Execute(Action());
         }
 
         [HttpPost("vote")]
@@ -77,8 +78,7 @@ namespace Vote_API.Controllers
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
-            await controllerErrorHandler.Execute(Action());
-            return StatusCode(controllerErrorHandler.StatusCode);
+            return await controllerErrorHandler.Execute(Action());
         }
 
         [HttpDelete]
@@ -91,8 +91,7 @@ namespace Vote_API.Controllers
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
-            await controllerErrorHandler.Execute(Action());
-            return StatusCode(controllerErrorHandler.StatusCode);
+            return await controllerErrorHandler.Execute(Action());
         }
     }
 }

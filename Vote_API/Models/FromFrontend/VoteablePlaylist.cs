@@ -7,5 +7,6 @@
         public string? PlaylistName { get; set; }
         public string? PlaylistImageUrl { get; set; }
         public List<SpotifyPlaylistSong>? SongsInPlaylist { get; set; }
+        public List<VoteData>? Votes { get; set; }
     }
 }
