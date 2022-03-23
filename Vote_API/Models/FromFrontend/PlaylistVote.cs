@@ -3,7 +3,7 @@
     public class PlaylistVote
     {
         public Guid VoteDataUuid { get; set; }
-        public Guid SpotifyPlaylistUuid { get; set; }
+        public Guid PlaylistUuid { get; set; }
         public VoteJoinData JoinData { get; set; }
     }
 }

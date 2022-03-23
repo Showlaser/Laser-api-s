@@ -4,6 +4,6 @@
     {
         public Guid Uuid { get; set; }
         public Guid VoteDataUuid { get; set; }
-        public Guid SpotifyPlaylistUuid { get; set; }
+        public Guid PlaylistUuid { get; set; }
     }
 }
