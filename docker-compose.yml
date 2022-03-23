@@ -7,7 +7,7 @@ services:
         - mariadb
     build:
       context: .
-      dockerfile: Auth API/Dockerfile
+      dockerfile: Auth_API/Dockerfile
     ports:
         - "5001:80"
     environment:
@@ -28,7 +28,7 @@ services:
       - 3306:3306
     restart: always
     volumes:
-      - ~/apps/mysql:/var/lib/mysql
+      - ~/apps/mariadb/data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: qwerty
 
@@ -42,3 +42,22 @@ services:
       - PMA_HOST=mariadb
     depends_on:
       - mariadb
+
+  vote_api:
+    image: ${DOCKER_REGISTRY-}voteapi
+    depends_on:
+        - mariadb
+    build:
+      context: .
+      dockerfile: Vote_API/Dockerfile
+    ports:
+        - "5002:80"
+    environment:
+        JWTSECRET: hwef9hewihsidhfkfdafew
+        SERVER: mariadb
+        DATABASE: vote
+        PORT: 3306
+        USERNAME: root
+        PASSWORD: qwerty
+        SERVERURL: 127.0.0.1
+        ARGON2SECRET: fho938fh32oewfjfefj2398

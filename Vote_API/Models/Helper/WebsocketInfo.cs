@@ -1,0 +1,12 @@
+﻿using System.Net.WebSockets;
+using Vote_API.Models.FromFrontend;
+using Vote_API.Models.ToFrontend;
+
+namespace Vote_API.Models.Helper
+{
+    public class WebsocketInfo
+    {
+        public WebSocket WebSocket { get; set; }
+        public WebsocketIdentifier? Identifier { get; set; }
+    }
+}

@@ -1,8 +1,6 @@
-name: CI laser api
+name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 
@@ -17,9 +15,9 @@ jobs:
         with:
           dotnet-version: 6.0.x
       - name: Restore dependencies
-        run: dotnet restore Auth-API.sln
+        run: dotnet restore Docker-api-s.sln
       - name: Build
-        run: dotnet build Auth-API.sln --no-restore
+        run: dotnet build Docker-api-s.sln --no-restore
       - name: Start dependencies (docker-compose)
         run: |
           docker-compose up -d
@@ -28,4 +26,4 @@ jobs:
         with:
           time: "2s"
       - name: Test
-        run: dotnet test Auth-API.sln --no-build --verbosity normal
+        run: dotnet test Docker-api-s.sln --no-build --verbosity normal
