@@ -25,7 +25,7 @@ namespace Vote_API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("PlaylistUuid")
+                    b.Property<Guid>("SpotifyPlaylistUuid")
                         .HasColumnType("char(36)");
 
                     b.Property<Guid>("VoteDataUuid")
@@ -58,9 +58,6 @@ namespace Vote_API.Migrations
 
                     b.Property<string>("SongName")
                         .HasColumnType("longtext");
-
-                    b.Property<Guid?>("VoteablePlaylistDtoUuid")
-                        .HasColumnType("char(36)");
 
                     b.Property<Guid?>("VoteablePlaylistDtoUuid")
                         .HasColumnType("char(36)");

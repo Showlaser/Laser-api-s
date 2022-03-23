@@ -60,11 +60,7 @@ namespace Vote_API.Migrations
                 {
                     Uuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     VoteDataUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-<<<<<<< HEAD:Vote_API/Migrations/20220323102845_InitialCreate.cs
                     SpotifyPlaylistUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-=======
-                    PlaylistUuid = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
->>>>>>> 0ff030dfee197997e80490de58d4e73fd85f5543:Vote_API/Migrations/20220311102735_InitialCreate.cs
                     VoteablePlaylistDtoUuid = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
                 },
                 constraints: table =>

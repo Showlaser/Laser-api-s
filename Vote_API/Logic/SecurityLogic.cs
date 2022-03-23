@@ -29,7 +29,7 @@ namespace Vote_API.Logic
             }
 
             string argon2Secret = Environment.GetEnvironmentVariable("ARGON2SECRET") ?? throw new NoNullAllowedException("Environment variable" +
-                "ARGON2SECRET was empty. Set it using the ARGON2SECRET environment variable");
+                " ARGON2SECRET was empty. Set it using the ARGON2SECRET environment variable");
 
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
             byte[] secret = Encoding.UTF8.GetBytes(argon2Secret);

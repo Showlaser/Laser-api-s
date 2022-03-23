@@ -42,7 +42,7 @@ CreateDatabaseIfNotExist(app);
 System.Timers.Timer timer = new() { Interval = 600000 };
 timer.Elapsed += delegate (object? o, ElapsedEventArgs eventArgs)
 {
-    global::Vote_API.Models.Helper.WebsocketVoteEventSubscriber? websocketVoteEventSubscriber = app.Services
+    WebsocketVoteEventSubscriber? websocketVoteEventSubscriber = app.Services
         .GetService<WebsocketVoteEventSubscriber>();
     websocketVoteEventSubscriber.DeleteClosedWebsockets();
 };

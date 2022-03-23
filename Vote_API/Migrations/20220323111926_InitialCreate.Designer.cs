@@ -11,11 +11,7 @@ using Vote_API.Dal;
 namespace Vote_API.Migrations
 {
     [DbContext(typeof(DataContext))]
-<<<<<<< HEAD:Vote_API/Migrations/20220323102845_InitialCreate.Designer.cs
-    [Migration("20220323102845_InitialCreate")]
-=======
-    [Migration("20220311102735_InitialCreate")]
->>>>>>> 0ff030dfee197997e80490de58d4e73fd85f5543:Vote_API/Migrations/20220311102735_InitialCreate.Designer.cs
+    [Migration("20220323111926_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,7 +27,7 @@ namespace Vote_API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("PlaylistUuid")
+                    b.Property<Guid>("SpotifyPlaylistUuid")
                         .HasColumnType("char(36)");
 
                     b.Property<Guid>("VoteDataUuid")
@@ -64,9 +60,6 @@ namespace Vote_API.Migrations
 
                     b.Property<string>("SongName")
                         .HasColumnType("longtext");
-
-                    b.Property<Guid?>("VoteablePlaylistDtoUuid")
-                        .HasColumnType("char(36)");
 
                     b.Property<Guid?>("VoteablePlaylistDtoUuid")
                         .HasColumnType("char(36)");

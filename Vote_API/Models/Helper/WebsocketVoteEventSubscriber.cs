@@ -39,17 +39,10 @@ namespace Vote_API.Models.Helper
             }
         }
 
-        public async Task DeleteClosedWebsockets()
+        public Task DeleteClosedWebsockets()
         {
-            _websockets.RemoveAll(wsi =>
-            {
-                if (wsi != null)
-                {
-                    return wsi.WebSocket.State is WebSocketState.Closed or WebSocketState.Aborted;
-                }
-
-                return false;
-            });
+            _websockets.RemoveAll(wsi => wsi.WebSocket.State is WebSocketState.Closed or WebSocketState.Aborted);
+            return Task.CompletedTask;
         }
     }
 }

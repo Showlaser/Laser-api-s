@@ -63,8 +63,7 @@ namespace Vote_API.Controllers
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
-            await controllerErrorHandler.Execute(Action());
-            return Ok();
+            return await controllerErrorHandler.Execute(Action());
         }
 
         [HttpPut]

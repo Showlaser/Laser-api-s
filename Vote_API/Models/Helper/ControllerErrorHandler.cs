@@ -9,7 +9,6 @@ namespace Vote_API.Models.Helper
     {
         public async Task<ActionResult<T?>> Execute<T>(Task<T> task)
         {
-            T? result = default;
             try
             {
                 return await task.WaitAsync(CancellationToken.None);
