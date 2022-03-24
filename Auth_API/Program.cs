@@ -25,7 +25,7 @@ WebApplication app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseCors(builder =>
 {
-    builder.WithOrigins("http://localhost:3000")
+    builder.WithOrigins("http://localhost:3000", "http://localhost:3001")
         .AllowCredentials()
         .AllowAnyHeader()
         .AllowAnyMethod();
