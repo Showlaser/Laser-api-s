@@ -81,7 +81,8 @@ namespace Vote_API.Logic
             {
                 throw new KeyNotFoundException();
             }
-            if (data.ValidUntil < DateTime.UtcNow)
+
+            if (data.ValidUntil.ToUniversalTime() < DateTime.UtcNow)
             {
                 throw new InvalidDataException();
             }
