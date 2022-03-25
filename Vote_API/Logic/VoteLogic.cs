@@ -23,8 +23,10 @@ namespace Vote_API.Logic
         private static void ValidateVoteData(VoteDataDto data)
         {
             bool valid = (data.VoteablePlaylistCollection ?? throw new InvalidOperationException()).Any() &&
-                   data.VoteablePlaylistCollection.TrueForAll(vp => (vp.SongsInPlaylist ?? throw new InvalidOperationException())
-                       .Any());
+                   data.VoteablePlaylistCollection
+                       .TrueForAll(vp => (vp.SongsInPlaylist ?? throw new InvalidOperationException())
+                       .Any() &&
+                       data.ValidUntil <= DateTime.Now.AddMinutes(10));
             if (!valid)
             {
                 throw new InvalidDataException();
@@ -79,8 +81,13 @@ namespace Vote_API.Logic
             {
                 throw new KeyNotFoundException();
             }
-            SecurityLogic.ValidatePassword(data.Password, data.Salt, password);
 
+            if (data.ValidUntil.ToUniversalTime() < DateTime.UtcNow)
+            {
+                throw new InvalidDataException();
+            }
+
+            SecurityLogic.ValidatePassword(data.Password, data.Salt, password);
             data.VoteablePlaylistCollection.Find(e => e.Uuid == vote.SpotifyPlaylistUuid).Votes.Add(vote);
 
             await _playListVoteDal.Add(vote);
