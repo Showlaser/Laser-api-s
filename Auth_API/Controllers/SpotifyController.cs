@@ -1,6 +1,7 @@
 ﻿using Auth_API.Logic;
 using Auth_API.Models.Dto.User;
 using Auth_API.Models.Helper;
+using Auth_API.Models.ToFrontend;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Auth_API.Controllers
@@ -31,9 +32,9 @@ namespace Auth_API.Controllers
         }
 
         [HttpGet("get-access-token")]
-        public async Task<string?> GetAccessToken([FromQuery] string code)
+        public async Task<SpotifyTokensViewmodel?> GetAccessToken([FromQuery] string code)
         {
-            async Task<string?> Action()
+            async Task<SpotifyTokensViewmodel?> Action()
             {
                 UserDto user = ControllerHelper.GetUserModelFromJwtClaims(this);
                 return await _tokenLogic.GetAccessToken(code, user.Uuid);
@@ -44,9 +45,9 @@ namespace Auth_API.Controllers
         }
 
         [HttpGet("refresh")]
-        public async Task<string?> RefreshAccessToken([FromQuery] string refreshToken)
+        public async Task<SpotifyTokensViewmodel?> RefreshAccessToken([FromQuery] string refreshToken)
         {
-            async Task<string?> Action()
+            async Task<SpotifyTokensViewmodel?> Action()
             {
                 UserDto user = ControllerHelper.GetUserModelFromJwtClaims(this);
                 return await _tokenLogic.RefreshSpotifyAccessToken(refreshToken, user.Uuid);

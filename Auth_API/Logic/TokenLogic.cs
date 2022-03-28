@@ -47,7 +47,7 @@ namespace Auth_API.Logic
                               $"&scope={string.Join("%20", _scopes)}&code_challenge={codeChallenge}&code_challenge_method=S256");
         }
 
-        public async Task<string?> GetAccessToken(string code, Guid userUuid)
+        public async Task<SpotifyTokensViewmodel?> GetAccessToken(string code, Guid userUuid)
         {
             SpotifyTokensDto dbTokens = await _spotifyTokenDal.Find(userUuid) ?? throw new SecurityException();
             Dictionary<string, string> parameters = new()
@@ -71,10 +71,10 @@ namespace Auth_API.Logic
             SpotifyTokensViewmodel? tokens = await response.Content.ReadFromJsonAsync<SpotifyTokensViewmodel>();
 
             await UpdateSpotifyRefreshToken(userUuid, tokens?.refresh_token);
-            return tokens?.access_token;
+            return tokens;
         }
 
-        public async Task<string?> RefreshSpotifyAccessToken(string refreshToken, Guid userUuid)
+        public async Task<SpotifyTokensViewmodel?> RefreshSpotifyAccessToken(string refreshToken, Guid userUuid)
         {
             Dictionary<string, string> parameters = new()
             {
@@ -91,7 +91,7 @@ namespace Auth_API.Logic
             SpotifyTokensViewmodel? tokens = await response.Content.ReadFromJsonAsync<SpotifyTokensViewmodel>();
 
             await UpdateSpotifyRefreshToken(userUuid, tokens?.refresh_token);
-            return tokens?.access_token;
+            return tokens;
         }
 
         private async Task UpdateSpotifyRefreshToken(Guid userUuid, string? refreshToken)

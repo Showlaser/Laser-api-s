@@ -24,8 +24,7 @@ namespace Vote_API.Logic
         {
             bool valid = (data.VoteablePlaylistCollection ?? throw new InvalidOperationException()).Any() &&
                    data.VoteablePlaylistCollection
-                       .TrueForAll(vp => (vp.SongsInPlaylist ?? throw new InvalidOperationException())
-                       .Any() &&
+                       .TrueForAll(vp => vp.SongsInPlaylist.Any() && !string.IsNullOrEmpty(vp.SpotifyPlaylistId) &&
                        data.ValidUntil <= DateTime.Now.AddMinutes(10));
             if (!valid)
             {
@@ -40,7 +39,6 @@ namespace Vote_API.Logic
             string accessCode = SecurityLogic.GenerateRandomString(4);
             data.Salt = SecurityLogic.GetSalt();
             data.Password = SecurityLogic.HashPassword(accessCode, data.Salt);
-
             data.JoinCode = SecurityLogic.GenerateRandomString(6);
             await _voteDal.Add(data);
 
@@ -60,6 +58,7 @@ namespace Vote_API.Logic
             }
 
             SecurityLogic.ValidatePassword(data.Password, data.Salt, joinData.AccessCode);
+            data.ValidUntil = data.ValidUntil.ToUniversalTime();
             return data;
         }
 
