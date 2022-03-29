@@ -16,10 +16,19 @@ namespace Vote_API.Dal
             modelBuilder.Entity<VoteDataDto>(entity =>
             {
                 entity.HasKey(e => e.Uuid);
+                entity.HasMany(e => e.VoteablePlaylistCollection)
+                    .WithOne()
+                    .HasForeignKey(e => e.VoteDataUuid);
             });
             modelBuilder.Entity<VoteablePlaylistDto>(entity =>
             {
                 entity.HasKey(e => e.Uuid);
+                entity.HasMany(e => e.SongsInPlaylist)
+                    .WithOne()
+                    .HasForeignKey(e => e.PlaylistUuid);
+                entity.HasMany(e => e.Votes)
+                    .WithOne()
+                    .HasForeignKey(e => e.VoteDataUuid);
             });
             modelBuilder.Entity<SpotifyPlaylistSongDto>(entity =>
             {

@@ -39,16 +39,12 @@ app.UseWebSockets(webSocketOptions); app.UseAuthorization();
 app.MapControllers();
 CreateDatabaseIfNotExist(app);
 
-System.Timers.Timer timer = new() { Interval = 600000 };
+System.Timers.Timer timer = new() { Interval = 60000 };
 timer.Elapsed += delegate (object? o, ElapsedEventArgs eventArgs)
 {
     WebsocketVoteEventSubscriber? websocketVoteEventSubscriber = app.Services
         .GetService<WebsocketVoteEventSubscriber>();
     websocketVoteEventSubscriber.DeleteClosedWebsockets();
-
-    VoteLogic? voteLogic = app.Services
-        .GetService<VoteLogic>();
-    voteLogic.RemoveOutdatedVoteData();
 };
 
 timer.Start();

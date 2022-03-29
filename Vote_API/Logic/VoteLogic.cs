@@ -37,6 +37,7 @@ namespace Vote_API.Logic
         public async Task<VoteJoinDataViewmodel> Add(VoteDataDto data)
         {
             ValidateVoteData(data);
+            await RemoveOutdatedVoteData();
 
             string accessCode = SecurityLogic.GenerateRandomString(4);
             data.Salt = SecurityLogic.GetSalt();
@@ -44,7 +45,7 @@ namespace Vote_API.Logic
             data.JoinCode = SecurityLogic.GenerateRandomString(6);
             await _voteDal.Add(data);
 
-            return new()
+            return new VoteJoinDataViewmodel
             {
                 AccessCode = accessCode,
                 JoinCode = data.JoinCode

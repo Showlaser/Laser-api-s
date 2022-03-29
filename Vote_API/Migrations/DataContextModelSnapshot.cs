@@ -31,12 +31,9 @@ namespace Vote_API.Migrations
                     b.Property<Guid>("VoteDataUuid")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("VoteablePlaylistDtoUuid")
-                        .HasColumnType("char(36)");
-
                     b.HasKey("Uuid");
 
-                    b.HasIndex("VoteablePlaylistDtoUuid");
+                    b.HasIndex("VoteDataUuid");
 
                     b.ToTable("PlaylistVote");
                 });
@@ -59,12 +56,9 @@ namespace Vote_API.Migrations
                     b.Property<string>("SongName")
                         .HasColumnType("longtext");
 
-                    b.Property<Guid?>("VoteablePlaylistDtoUuid")
-                        .HasColumnType("char(36)");
-
                     b.HasKey("Uuid");
 
-                    b.HasIndex("VoteablePlaylistDtoUuid");
+                    b.HasIndex("PlaylistUuid");
 
                     b.ToTable("SpotifyPlaylistSongDto");
                 });
@@ -85,15 +79,12 @@ namespace Vote_API.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid?>("VoteDataDtoUuid")
-                        .HasColumnType("char(36)");
-
                     b.Property<Guid>("VoteDataUuid")
                         .HasColumnType("char(36)");
 
                     b.HasKey("Uuid");
 
-                    b.HasIndex("VoteDataDtoUuid");
+                    b.HasIndex("VoteDataUuid");
 
                     b.ToTable("VoteablePlaylistDto");
                 });
@@ -129,21 +120,27 @@ namespace Vote_API.Migrations
                 {
                     b.HasOne("Vote_API.Models.Dto.VoteablePlaylistDto", null)
                         .WithMany("Votes")
-                        .HasForeignKey("VoteablePlaylistDtoUuid");
+                        .HasForeignKey("VoteDataUuid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Vote_API.Models.Dto.SpotifyPlaylistSongDto", b =>
                 {
                     b.HasOne("Vote_API.Models.Dto.VoteablePlaylistDto", null)
                         .WithMany("SongsInPlaylist")
-                        .HasForeignKey("VoteablePlaylistDtoUuid");
+                        .HasForeignKey("PlaylistUuid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Vote_API.Models.Dto.VoteablePlaylistDto", b =>
                 {
                     b.HasOne("Vote_API.Models.Dto.VoteDataDto", null)
                         .WithMany("VoteablePlaylistCollection")
-                        .HasForeignKey("VoteDataDtoUuid");
+                        .HasForeignKey("VoteDataUuid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Vote_API.Models.Dto.VoteablePlaylistDto", b =>
