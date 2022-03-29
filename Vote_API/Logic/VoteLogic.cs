@@ -22,10 +22,12 @@ namespace Vote_API.Logic
 
         private static void ValidateVoteData(VoteDataDto data)
         {
+            bool playlistCollectionValid = data.VoteablePlaylistCollection
+                .TrueForAll(vp => vp.SongsInPlaylist.Any() && !string.IsNullOrEmpty(vp.SpotifyPlaylistId));
+            bool expirationDateValid = data.ValidUntil <= DateTime.Now.AddMinutes(10) && data.ValidUntil > DateTime.UtcNow;
+
             bool valid = (data.VoteablePlaylistCollection ?? throw new InvalidOperationException()).Any() &&
-                   data.VoteablePlaylistCollection
-                       .TrueForAll(vp => vp.SongsInPlaylist.Any() && !string.IsNullOrEmpty(vp.SpotifyPlaylistId) &&
-                       data.ValidUntil <= DateTime.Now.AddMinutes(10));
+                         playlistCollectionValid && expirationDateValid;
             if (!valid)
             {
                 throw new InvalidDataException();
@@ -103,6 +105,20 @@ namespace Vote_API.Logic
             }
 
             await _voteDal.Update(data);
+        }
+
+        public async Task RemoveOutdatedVoteData()
+        {
+            List<VoteDataDto> voteDataToRemove = await _voteDal.GetOutdatedVoteData();
+            if (!voteDataToRemove.Any())
+            {
+                return;
+            }
+
+            foreach (Guid uuid in voteDataToRemove.Select(vd => vd.Uuid))
+            {
+                await _voteDal.Remove(uuid);
+            }
         }
 
         public async Task Remove(Guid uuid)

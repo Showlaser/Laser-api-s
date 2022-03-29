@@ -7,20 +7,18 @@ using System.Text;
 
 namespace Auth_API.Logic
 {
-    public class TokenLogic
+    public class SpotifyTokenLogic
     {
-        private readonly IUserTokenDal _userTokenDal;
         private readonly ISpotifyTokenDal _spotifyTokenDal;
-        private readonly string _clientSecret = string.Empty;
-        private readonly string _clientId = string.Empty;
+        private readonly string _clientSecret;
+        private readonly string _clientId;
         private const string AuthEndpoint = "https://accounts.spotify.com/authorize";
         private const string RedirectUrl = "http://localhost:3000/laser-settings";
         private readonly string[] _scopes = { "user-read-currently-playing", "user-read-playback-state", "user-modify-playback-state", "user-read-private", "playlist-read-private" };
         private readonly HttpClient _client = new();
 
-        public TokenLogic(IUserTokenDal userTokenDal, ISpotifyTokenDal spotifyTokenDal)
+        public SpotifyTokenLogic(ISpotifyTokenDal spotifyTokenDal)
         {
-            _userTokenDal = userTokenDal;
             _spotifyTokenDal = spotifyTokenDal;
             _clientId = Environment.GetEnvironmentVariable("SPOTIFYCLIENTID") ?? throw new NoNullAllowedException(
                 "Environment variable SPOTIFYCLIENTID was empty. Set it using the SPOTIFYCLIENTID environment variable");
@@ -76,6 +74,11 @@ namespace Auth_API.Logic
 
         public async Task<SpotifyTokensViewmodel?> RefreshSpotifyAccessToken(string refreshToken, Guid userUuid)
         {
+            if (refreshToken.Length < 15)
+            {
+                throw new InvalidDataException();
+            }
+
             Dictionary<string, string> parameters = new()
             {
                 { "client_id", _clientId },

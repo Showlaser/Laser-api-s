@@ -38,6 +38,11 @@ namespace Vote_API.Dal
                 .SingleOrDefaultAsync(e => e.Uuid == uuid);
         }
 
+        public async Task<List<VoteDataDto>> GetOutdatedVoteData()
+        {
+            return await _context.VoteData.Where(vd => vd.ValidUntil > DateTime.UtcNow.AddMinutes(1)).ToListAsync();
+        }
+
         public async Task Update(VoteDataDto data)
         {
             VoteDataDto dbData = await _context.VoteData.FindAsync(data.Uuid) ?? throw new KeyNotFoundException();

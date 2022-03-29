@@ -11,11 +11,11 @@ namespace Auth_API.Controllers
     [ApiController]
     public class SpotifyController : ControllerBase
     {
-        private readonly TokenLogic _tokenLogic;
+        private readonly SpotifyTokenLogic _spotifyTokenLogic;
 
-        public SpotifyController(TokenLogic tokenLogic)
+        public SpotifyController(SpotifyTokenLogic spotifyTokenLogic)
         {
-            _tokenLogic = tokenLogic;
+            _spotifyTokenLogic = spotifyTokenLogic;
         }
 
         [HttpGet("grand-access")]
@@ -24,7 +24,7 @@ namespace Auth_API.Controllers
             async Task<string?> Action()
             {
                 UserDto user = ControllerHelper.GetUserModelFromJwtClaims(this);
-                return await _tokenLogic.GrandAccessToSpotify(user.Uuid);
+                return await _spotifyTokenLogic.GrandAccessToSpotify(user.Uuid);
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
@@ -37,7 +37,7 @@ namespace Auth_API.Controllers
             async Task<SpotifyTokensViewmodel?> Action()
             {
                 UserDto user = ControllerHelper.GetUserModelFromJwtClaims(this);
-                return await _tokenLogic.GetAccessToken(code, user.Uuid);
+                return await _spotifyTokenLogic.GetAccessToken(code, user.Uuid);
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
@@ -50,7 +50,7 @@ namespace Auth_API.Controllers
             async Task<SpotifyTokensViewmodel?> Action()
             {
                 UserDto user = ControllerHelper.GetUserModelFromJwtClaims(this);
-                return await _tokenLogic.RefreshSpotifyAccessToken(refreshToken, user.Uuid);
+                return await _spotifyTokenLogic.RefreshSpotifyAccessToken(refreshToken, user.Uuid);
             }
 
             ControllerErrorHandler controllerErrorHandler = new();

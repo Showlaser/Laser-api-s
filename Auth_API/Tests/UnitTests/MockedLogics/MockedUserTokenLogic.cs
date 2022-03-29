@@ -5,13 +5,12 @@ namespace Auth_API.Tests.UnitTests.MockedLogics
 {
     public class MockedUserTokenLogic
     {
-        public readonly TokenLogic TokenLogic;
+        public readonly SpotifyTokenLogic SpotifyTokenLogic;
 
         public MockedUserTokenLogic()
         {
-            MockedUserTokenDal userTokenDal = new();
             MockedSpotifyTokenDal spotifyTokenDal = new();
-            TokenLogic = new TokenLogic(userTokenDal.UserTokenDal, spotifyTokenDal.SpotifyTokenDal);
+            SpotifyTokenLogic = new SpotifyTokenLogic(spotifyTokenDal.SpotifyTokenDal);
         }
     }
 }

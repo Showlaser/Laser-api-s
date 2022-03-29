@@ -45,6 +45,10 @@ timer.Elapsed += delegate (object? o, ElapsedEventArgs eventArgs)
     WebsocketVoteEventSubscriber? websocketVoteEventSubscriber = app.Services
         .GetService<WebsocketVoteEventSubscriber>();
     websocketVoteEventSubscriber.DeleteClosedWebsockets();
+
+    VoteLogic? voteLogic = app.Services
+        .GetService<VoteLogic>();
+    voteLogic.RemoveOutdatedVoteData();
 };
 
 timer.Start();

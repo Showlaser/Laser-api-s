@@ -25,6 +25,12 @@ namespace Vote_API.Interfaces.Dal
         Task<VoteDataDto> Find(Guid? uuid);
 
         /// <summary>
+        /// Finds all vote data that is outdated by 1 minute or more
+        /// </summary>
+        /// <returns>Outdated vote data</returns>
+        Task<List<VoteDataDto>> GetOutdatedVoteData();
+
+        /// <summary>
         /// Updates the data in the database
         /// </summary>
         /// <param name="data">The updated data</param>

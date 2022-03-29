@@ -11,7 +11,7 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<UserLogic>();
-builder.Services.AddScoped<TokenLogic>();
+builder.Services.AddScoped<SpotifyTokenLogic>();
 builder.Services.AddScoped<IUserDal, UserDal>();
 builder.Services.AddScoped<IUserTokenDal, UserTokenDal>();
 builder.Services.AddScoped<ISpotifyTokenDal, SpotifyTokenDal>();
