@@ -40,7 +40,11 @@ namespace Vote_API.Dal
 
         public async Task<List<VoteDataDto>> GetOutdatedVoteData()
         {
-            return await _context.VoteData.Where(vd => vd.ValidUntil > DateTime.UtcNow.AddMinutes(1)).ToListAsync();
+            return await _context.VoteData.Include(e => e.VoteablePlaylistCollection)
+                .ThenInclude(e => e.SongsInPlaylist)
+                .Include(e => e.VoteablePlaylistCollection)
+                .ThenInclude(e => e.Votes)
+                .Where(vd => vd.ValidUntil > DateTime.UtcNow.AddMinutes(1)).ToListAsync();
         }
 
         public async Task Update(VoteDataDto data)
