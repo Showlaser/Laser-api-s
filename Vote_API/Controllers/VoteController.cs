@@ -1,4 +1,5 @@
 ﻿using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vote_API.Logic;
 using Vote_API.Models.Dto;
@@ -36,6 +37,7 @@ namespace Vote_API.Controllers
             return await controllerErrorHandler.Execute(Action());
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<VoteDataViewmodel?>> Find([FromQuery] string joinCode, [FromQuery] string accessCode)
         {
@@ -54,6 +56,7 @@ namespace Vote_API.Controllers
             return await controllerErrorHandler.Execute(Action());
         }
 
+        [AllowAnonymous]
         [HttpPost("vote")]
         public async Task<ActionResult> VoteOnPlaylist([FromBody] PlaylistVote vote)
         {
