@@ -24,7 +24,7 @@ builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOpti
 WebApplication app = builder.Build();
 app.UseCors(builder =>
 {
-    builder.WithOrigins("http://localhost:3000", "http://192.168.1.31:3000")
+    builder.WithOrigins("http://localhost:3000", "http://localhost:3001")
         .AllowCredentials()
         .AllowAnyHeader()
         .AllowAnyMethod();
@@ -39,7 +39,7 @@ app.UseWebSockets(webSocketOptions); app.UseAuthorization();
 app.MapControllers();
 CreateDatabaseIfNotExist(app);
 
-System.Timers.Timer timer = new() { Interval = 600000 };
+System.Timers.Timer timer = new() { Interval = 60000 };
 timer.Elapsed += delegate (object? o, ElapsedEventArgs eventArgs)
 {
     WebsocketVoteEventSubscriber? websocketVoteEventSubscriber = app.Services

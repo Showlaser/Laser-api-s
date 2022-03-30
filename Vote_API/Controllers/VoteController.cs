@@ -1,5 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Mapster;
+﻿using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vote_API.Logic;
 using Vote_API.Models.Dto;
@@ -9,7 +9,7 @@ using Vote_API.Models.ToFrontend;
 
 namespace Vote_API.Controllers
 {
-
+    [AuthorizedAction]
     [Route("vote")]
     [ApiController]
     public class VoteController : ControllerBase
@@ -27,6 +27,9 @@ namespace Vote_API.Controllers
             async Task<VoteJoinDataViewmodel> Action()
             {
                 VoteDataDto dataDto = data.Adapt<VoteDataDto>();
+                UserModel user = ControllerHelper.GetUserModelFromJwtClaims(this);
+
+                dataDto.AuthorUserUuid = user.Uuid;
                 return await _voteLogic.Add(dataDto);
             }
 
@@ -34,6 +37,7 @@ namespace Vote_API.Controllers
             return await controllerErrorHandler.Execute(Action());
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<VoteDataViewmodel?>> Find([FromQuery] string joinCode, [FromQuery] string accessCode)
         {
@@ -52,12 +56,13 @@ namespace Vote_API.Controllers
             return await controllerErrorHandler.Execute(Action());
         }
 
+        [AllowAnonymous]
         [HttpPost("vote")]
         public async Task<ActionResult> VoteOnPlaylist([FromBody] PlaylistVote vote)
         {
             async Task Action()
             {
-                var voteDto = vote.Adapt<PlaylistVoteDto>();
+                PlaylistVoteDto? voteDto = vote.Adapt<PlaylistVoteDto>();
                 voteDto.Uuid = Guid.NewGuid();
                 await _voteLogic.VoteOnPlaylist(voteDto, vote.JoinData.AccessCode);
             }

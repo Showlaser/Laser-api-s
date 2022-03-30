@@ -1,6 +1,7 @@
 ﻿using Auth_API.Logic;
 using Auth_API.Models.Dto.User;
 using Auth_API.Models.Helper;
+using Auth_API.Models.ToFrontend;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Auth_API.Controllers
@@ -10,11 +11,11 @@ namespace Auth_API.Controllers
     [ApiController]
     public class SpotifyController : ControllerBase
     {
-        private readonly TokenLogic _tokenLogic;
+        private readonly SpotifyTokenLogic _spotifyTokenLogic;
 
-        public SpotifyController(TokenLogic tokenLogic)
+        public SpotifyController(SpotifyTokenLogic spotifyTokenLogic)
         {
-            _tokenLogic = tokenLogic;
+            _spotifyTokenLogic = spotifyTokenLogic;
         }
 
         [HttpGet("grand-access")]
@@ -23,7 +24,7 @@ namespace Auth_API.Controllers
             async Task<string?> Action()
             {
                 UserDto user = ControllerHelper.GetUserModelFromJwtClaims(this);
-                return await _tokenLogic.GrandAccessToSpotify(user.Uuid);
+                return await _spotifyTokenLogic.GrandAccessToSpotify(user.Uuid);
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
@@ -31,12 +32,12 @@ namespace Auth_API.Controllers
         }
 
         [HttpGet("get-access-token")]
-        public async Task<string?> GetAccessToken([FromQuery] string code)
+        public async Task<SpotifyTokensViewmodel?> GetAccessToken([FromQuery] string code)
         {
-            async Task<string?> Action()
+            async Task<SpotifyTokensViewmodel?> Action()
             {
                 UserDto user = ControllerHelper.GetUserModelFromJwtClaims(this);
-                return await _tokenLogic.GetAccessToken(code, user.Uuid);
+                return await _spotifyTokenLogic.GetAccessToken(code, user.Uuid);
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
@@ -44,12 +45,12 @@ namespace Auth_API.Controllers
         }
 
         [HttpGet("refresh")]
-        public async Task<string?> RefreshAccessToken([FromQuery] string refreshToken)
+        public async Task<SpotifyTokensViewmodel?> RefreshAccessToken([FromQuery] string refreshToken)
         {
-            async Task<string?> Action()
+            async Task<SpotifyTokensViewmodel?> Action()
             {
                 UserDto user = ControllerHelper.GetUserModelFromJwtClaims(this);
-                return await _tokenLogic.RefreshSpotifyAccessToken(refreshToken, user.Uuid);
+                return await _spotifyTokenLogic.RefreshSpotifyAccessToken(refreshToken, user.Uuid);
             }
 
             ControllerErrorHandler controllerErrorHandler = new();

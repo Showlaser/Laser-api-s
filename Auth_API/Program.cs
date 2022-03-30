@@ -11,7 +11,7 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<UserLogic>();
-builder.Services.AddScoped<TokenLogic>();
+builder.Services.AddScoped<SpotifyTokenLogic>();
 builder.Services.AddScoped<IUserDal, UserDal>();
 builder.Services.AddScoped<IUserTokenDal, UserTokenDal>();
 builder.Services.AddScoped<ISpotifyTokenDal, SpotifyTokenDal>();
@@ -25,7 +25,7 @@ WebApplication app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseCors(builder =>
 {
-    builder.WithOrigins("http://localhost:3000")
+    builder.WithOrigins("http://localhost:3000", "http://localhost:3001")
         .AllowCredentials()
         .AllowAnyHeader()
         .AllowAnyMethod();

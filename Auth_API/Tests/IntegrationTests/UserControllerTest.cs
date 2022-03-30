@@ -4,6 +4,7 @@ using Auth_API.Tests.IntegrationTests.TestModels;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
+using Auth_API.Logic;
 
 namespace Auth_API.Tests.IntegrationTests
 {
@@ -36,14 +37,8 @@ namespace Auth_API.Tests.IntegrationTests
 
             HttpClient client = _factory.CreateDefaultClient(handler);
             User user = new TestUser().User;
-
-            FormUrlEncodedContent formContent = new(new[]
-            {
-                new KeyValuePair<string, string>("username", user.UserName),
-                new KeyValuePair<string, string>("password", user.Password)
-            });
-
-            await client.PostAsync("/user/login", formContent);
+            
+            var response = await client.PostAsync("/user/login", new JsonContent<User>(user));
             foreach (Cookie cookie in cookieContainer.GetAllCookies())
             {
                 _handler.Container.Add(cookie);
@@ -55,6 +50,8 @@ namespace Auth_API.Tests.IntegrationTests
         {
             HttpClient client = _factory.CreateDefaultClient(_handler);
             User user = new TestUser().User;
+            user.UserName = "newtestuser";
+
             HttpResponseMessage putResponse = await client.PutAsync("user", new JsonContent<User>(user));
             putResponse.EnsureSuccessStatusCode();
         }

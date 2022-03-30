@@ -7,12 +7,12 @@ namespace Auth_API.Tests.UnitTests.LogicTest
     [TestClass]
     public class SpotifyLogicTest
     {
-        private readonly TokenLogic _tokenLogic;
+        private readonly SpotifyTokenLogic _spotifyTokenLogic;
 
         public SpotifyLogicTest()
         {
             TestHelper.SetEnvironmentVariables();
-            _tokenLogic = new MockedUserTokenLogic().TokenLogic;
+            _spotifyTokenLogic = new MockedUserTokenLogic().SpotifyTokenLogic;
         }
     }
 }

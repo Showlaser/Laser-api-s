@@ -38,6 +38,15 @@ namespace Vote_API.Dal
                 .SingleOrDefaultAsync(e => e.Uuid == uuid);
         }
 
+        public async Task<List<VoteDataDto>> GetOutdatedVoteData()
+        {
+            return await _context.VoteData.Include(e => e.VoteablePlaylistCollection)
+                .ThenInclude(e => e.SongsInPlaylist)
+                .Include(e => e.VoteablePlaylistCollection)
+                .ThenInclude(e => e.Votes)
+                .Where(vd => vd.ValidUntil < DateTime.UtcNow.AddMinutes(1)).ToListAsync();
+        }
+
         public async Task Update(VoteDataDto data)
         {
             VoteDataDto dbData = await _context.VoteData.FindAsync(data.Uuid) ?? throw new KeyNotFoundException();
@@ -50,7 +59,11 @@ namespace Vote_API.Dal
 
         public async Task Remove(Guid uuid)
         {
-            VoteDataDto? dbData = await _context.VoteData.FindAsync(uuid);
+            VoteDataDto? dbData = await _context.VoteData.Include(e => e.VoteablePlaylistCollection)
+                .ThenInclude(e => e.SongsInPlaylist)
+                .Include(e => e.VoteablePlaylistCollection)
+                .ThenInclude(e => e.Votes)
+                .SingleOrDefaultAsync(e => e.Uuid == uuid);
             if (dbData == null)
             {
                 return;

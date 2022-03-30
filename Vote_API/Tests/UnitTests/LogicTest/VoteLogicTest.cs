@@ -16,6 +16,7 @@ namespace Vote_API.Tests.UnitTests.LogicTest
 
         public VoteLogicTest()
         {
+            TestHelper.SetEnvironmentVariables();
             _voteLogic = new MockedVoteLogic().VoteLogic;
             _voteData = new TestVoteDataDto().VoteData;
         }
@@ -31,7 +32,8 @@ namespace Vote_API.Tests.UnitTests.LogicTest
         {
             VoteDataDto? data = await _voteLogic.Find(new VoteJoinData
             {
-                JoinCode = _voteData.JoinCode
+                JoinCode = _voteData.JoinCode,
+                AccessCode = "qwerty"
             });
             Assert.IsNotNull(data);
         }

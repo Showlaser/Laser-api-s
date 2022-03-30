@@ -10,6 +10,7 @@ namespace Vote_API.Tests.UnitTests.TestModels
             VoteDataUuid = Guid.Parse("922eaf07-238b-40d6-bc43-589cc0682a69"),
             PlaylistImageUrl = "https://example.com",
             PlaylistName = "Test playlist",
+            SpotifyPlaylistId = "r32r23wefe",
             SongsInPlaylist = new List<SpotifyPlaylistSongDto>
             {
                 new TestSpotifyPlaylistSongDto().SpotifyPlaylistSong
