@@ -16,6 +16,9 @@ namespace Vote_API.Tests.UnitTests.LogicTest.MockedDals
             VoteDataDto data = voteData.VoteData;
 
             voteDal.Setup(s => s.Find(data.AuthorUserUuid)).ReturnsAsync(data);
+            voteDal.Setup(s => s.Find(data.Uuid)).ReturnsAsync(data);
+            voteDal.Setup(s => s.Find(data.JoinCode)).ReturnsAsync(data);
+            voteDal.Setup(s => s.GetOutdatedVoteData()).ReturnsAsync(new List<VoteDataDto>());
             VoteDal = voteDal.Object;
         }
     }
