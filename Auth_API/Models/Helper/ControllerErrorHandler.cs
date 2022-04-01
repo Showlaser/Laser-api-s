@@ -6,77 +6,70 @@ namespace Auth_API.Models.Helper
 {
     public class ControllerErrorHandler
     {
-        public int StatusCode { get; private set; }
-
-        public async Task<T?> Execute<T>(Task<T> task)
+        public async Task<ActionResult<T?>> Execute<T>(Task<T> task)
         {
-            T? result = default;
             try
             {
-                result = await task.WaitAsync(CancellationToken.None);
-                StatusCode = StatusCodes.Status200OK;
+                return await task.WaitAsync(CancellationToken.None);
             }
             catch (InvalidDataException)
             {
-                StatusCode = StatusCodes.Status400BadRequest;
+                return new BadRequestResult();
             }
             catch (KeyNotFoundException)
             {
-                StatusCode = StatusCodes.Status404NotFound;
+                return new NotFoundResult();
             }
             catch (DbUpdateException)
             {
-                StatusCode = StatusCodes.Status304NotModified;
+                return new StatusCodeResult(StatusCodes.Status304NotModified);
             }
             catch (DuplicateNameException)
             {
-                StatusCode = StatusCodes.Status409Conflict;
+                return new ConflictResult();
             }
             catch (SecurityException)
             {
-                StatusCode = StatusCodes.Status401Unauthorized;
+                return new UnauthorizedResult();
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception);
-                StatusCode = StatusCodes.Status500InternalServerError;
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
-
-            return result;
         }
 
-        public async Task Execute(Task task)
+        public async Task<ActionResult> Execute(Task task)
         {
             try
             {
                 await task.WaitAsync(CancellationToken.None);
-                StatusCode = StatusCodes.Status200OK;
+                return new OkResult();
             }
             catch (InvalidDataException)
             {
-                StatusCode = StatusCodes.Status400BadRequest;
+                return new BadRequestResult();
             }
             catch (KeyNotFoundException)
             {
-                StatusCode = StatusCodes.Status404NotFound;
+                return new NotFoundResult();
             }
-            catch (DbUpdateException exception)
+            catch (DbUpdateException)
             {
-                Console.WriteLine(exception);
-                StatusCode = StatusCodes.Status304NotModified;
+                return new StatusCodeResult(StatusCodes.Status304NotModified);
             }
             catch (DuplicateNameException)
             {
-                StatusCode = StatusCodes.Status409Conflict;
+                return new ConflictResult();
             }
             catch (SecurityException)
             {
-                StatusCode = StatusCodes.Status401Unauthorized;
+                return new UnauthorizedResult();
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception);
-                StatusCode = StatusCodes.Status500InternalServerError;
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
     }
