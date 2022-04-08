@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Security;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Auth_API.Models.Helper
 {
     public class ControllerErrorHandler
     {
-        public async Task<ActionResult<T?>> Execute<T>(Task<T> task)
+        public async Task<ActionResult<T>> Execute<T>(Task<T> task)
         {
             try
             {

@@ -31,40 +31,39 @@ namespace Auth_API.Controllers
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
-            await controllerErrorHandler.Execute(Action());
-            return StatusCode(controllerErrorHandler.StatusCode);
+            return await controllerErrorHandler.Execute(Action());
         }
 
         [HttpPost("refresh-token")]
         public async Task<ActionResult> RefreshToken()
         {
-            async Task<UserTokensViewmodel> Action()
+            async Task Action()
             {
                 IPAddress ip = Request.HttpContext.Connection.RemoteIpAddress ?? throw new NoNullAllowedException();
-                UserTokensViewmodel tokens = ControllerHelper.GetUserTokens(this);
-                return await _userLogic.RefreshToken(tokens, ip);
+                UserTokensViewmodel userTokens = ControllerHelper.GetUserTokens(this);
+                UserTokensViewmodel tokens = await _userLogic.RefreshToken(userTokens, ip);
+
+                //TODO set cookie secure on true in production
+                CookieOptions cookieOptions = new()
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    Path = "/",
+                    Expires = DateTime.Now.AddDays(31)
+                };
+
+                Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
+                Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
-            UserTokensViewmodel tokens = await controllerErrorHandler.Execute(Action()) ?? throw new NoNullAllowedException();
-            //TODO set cookie secure on true in production
-            CookieOptions cookieOptions = new()
-            {
-                HttpOnly = true,
-                Secure = false,
-                Path = "/",
-                Expires = DateTime.Now.AddDays(31)
-            };
-
-            Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
-            Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
-            return Ok();
+            return await controllerErrorHandler.Execute(Action()) ?? throw new NoNullAllowedException();
         }
 
         [HttpPost("login")]
         public async Task<ActionResult?> Login([FromBody] User user)
         {
-            async Task<ActionResult> Action()
+            async Task Action()
             {
                 IPAddress? ip = Request.HttpContext.Connection.RemoteIpAddress;
                 UserDto userDto = user.Adapt<UserDto>();
@@ -81,7 +80,6 @@ namespace Auth_API.Controllers
 
                 Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
                 Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
-                return Ok();
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
@@ -102,8 +100,7 @@ namespace Auth_API.Controllers
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
-            await controllerErrorHandler.Execute(Action());
-            return StatusCode(controllerErrorHandler.StatusCode);
+            return await controllerErrorHandler.Execute(Action());
         }
 
         [AuthorizedAction]
@@ -117,8 +114,7 @@ namespace Auth_API.Controllers
             }
 
             ControllerErrorHandler controllerErrorHandler = new();
-            await controllerErrorHandler.Execute(Action());
-            return StatusCode(controllerErrorHandler.StatusCode);
+            return await controllerErrorHandler.Execute(Action());
         }
     }
 }

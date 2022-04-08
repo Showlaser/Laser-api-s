@@ -32,7 +32,7 @@ namespace Auth_API.Controllers
         }
 
         [HttpGet("get-access-token")]
-        public async Task<SpotifyTokensViewmodel?> GetAccessToken([FromQuery] string code)
+        public async Task<ActionResult<SpotifyTokensViewmodel?>> GetAccessToken([FromQuery] string code)
         {
             async Task<SpotifyTokensViewmodel?> Action()
             {
@@ -45,7 +45,7 @@ namespace Auth_API.Controllers
         }
 
         [HttpGet("refresh")]
-        public async Task<SpotifyTokensViewmodel?> RefreshAccessToken([FromQuery] string refreshToken)
+        public async Task<ActionResult<SpotifyTokensViewmodel?>> RefreshAccessToken([FromQuery] string refreshToken)
         {
             async Task<SpotifyTokensViewmodel?> Action()
             {
