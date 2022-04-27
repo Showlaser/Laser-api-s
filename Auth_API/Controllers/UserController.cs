@@ -15,10 +15,12 @@ namespace Auth_API.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserLogic _userLogic;
+        private readonly ControllerResultHelper _controllerResultHelper;
 
-        public UserController(UserLogic userLogic)
+        public UserController(UserLogic userLogic, ControllerResultHelper controllerResultHelper)
         {
             _userLogic = userLogic;
+            _controllerResultHelper = controllerResultHelper;
         }
 
         [HttpPost]
@@ -30,8 +32,8 @@ namespace Auth_API.Controllers
                 await _userLogic.Add(userDto);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action());
+            ControllerResultHelper controllerResultHelper = new();
+            return await controllerResultHelper.Execute(Action());
         }
 
         [HttpPost("refresh-token")]
@@ -56,8 +58,30 @@ namespace Auth_API.Controllers
                 Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action()) ?? throw new NoNullAllowedException();
+            ControllerResultHelper controllerResultHelper = new();
+            return await controllerResultHelper.Execute(Action()) ?? throw new NoNullAllowedException();
+        }
+
+        [HttpPost("request-password-reset")]
+        public async Task<ActionResult> RequestPasswordReset([FromQuery] string email)
+        {
+            async Task Action()
+            {
+                await _userLogic.RequestPasswordReset(email);
+            }
+
+            return await _controllerResultHelper.Execute(Action());
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<ActionResult> ResetUserPassword([FromQuery] Guid code, [FromQuery] string newPassword)
+        {
+            async Task Action()
+            {
+                await _userLogic.ResetPassword(code, newPassword);
+            }
+
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [HttpPost("login")]
@@ -82,8 +106,7 @@ namespace Auth_API.Controllers
                 Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action());
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [AuthorizedAction]
@@ -99,8 +122,7 @@ namespace Auth_API.Controllers
                 await _userLogic.Update(userDto, "123");
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action());
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [AuthorizedAction]
@@ -113,8 +135,7 @@ namespace Auth_API.Controllers
                 await _userLogic.Remove(userDto);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action());
+            return await _controllerResultHelper.Execute(Action());
         }
     }
 }

@@ -3,11 +3,11 @@ using System.Data;
 using System.Security;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Vote_API.Models.Helper
+namespace Auth_API.Models.Helper
 {
-    public class ControllerErrorHandler
+    public class ControllerResultHelper
     {
-        public async Task<ActionResult<T?>> Execute<T>(Task<T> task)
+        public async Task<ActionResult<T>> Execute<T>(Task<T> task)
         {
             try
             {

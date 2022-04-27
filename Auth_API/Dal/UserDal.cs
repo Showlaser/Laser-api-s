@@ -29,6 +29,11 @@ namespace Auth_API.Dal
             return await _context.User.SingleOrDefaultAsync(u => u.UserName == username);
         }
 
+        public async Task<UserDto?> FindByEmail(string email)
+        {
+            return await _context.User.SingleAsync(u => u.Email == email);
+        }
+
         public async Task Update(UserDto user)
         {
             UserDto userToUpdate = await _context.User.FindAsync(user.Uuid) ?? throw new KeyNotFoundException();

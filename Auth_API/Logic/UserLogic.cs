@@ -1,6 +1,9 @@
-﻿using Auth_API.Interfaces.Dal;
+﻿using Auth_API.Enums;
+using Auth_API.Interfaces.Dal;
+using Auth_API.Models.Dto;
 using Auth_API.Models.Dto.Tokens;
 using Auth_API.Models.Dto.User;
+using Auth_API.Models.Helper;
 using Auth_API.Models.ToFrontend;
 using System.Data;
 using System.Net;
@@ -13,11 +16,15 @@ namespace Auth_API.Logic
     {
         private readonly IUserDal _userDal;
         private readonly IUserTokenDal _userTokenDal;
+        private readonly IPasswordResetDal _passwordResetDal;
+        private static readonly string AuthApiUrl = Environment.GetEnvironmentVariable("APIURL") ?? throw new NoNullAllowedException("Environment variable" +
+            "APIURL was empty. Set it using the APIURL environment variable");
 
-        public UserLogic(IUserDal userDal, IUserTokenDal userTokenDal)
+        public UserLogic(IUserDal userDal, IUserTokenDal userTokenDal, IPasswordResetDal passwordResetDal)
         {
             _userDal = userDal;
             _userTokenDal = userTokenDal;
+            _passwordResetDal = passwordResetDal;
         }
 
         /// <summary>
@@ -103,6 +110,66 @@ namespace Auth_API.Logic
             user.Password = SecurityLogic.HashPassword(user.Password, user.Salt);
 
             await _userDal.Update(user);
+        }
+
+        public async Task ResetPassword(Guid code, string newPassword)
+        {
+            PasswordResetDto? passwordReset = await _passwordResetDal.Find(code);
+            if (passwordReset == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            UserDto? userToReset = await _userDal.Find(passwordReset.UserUuid);
+            if (userToReset == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            userToReset.Salt = SecurityLogic.GetSalt();
+            userToReset.Password = SecurityLogic.HashPassword(newPassword, userToReset.Salt);
+            await _userDal.Update(userToReset);
+            await _passwordResetDal.Remove(passwordReset.Uuid);
+        }
+
+        public async Task RequestPasswordReset(string email)
+        {
+            UserDto? user = await _userDal.FindByEmail(email);
+            if (user == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            PasswordResetDto? existingPasswordReset = await _passwordResetDal.Find(user.Uuid);
+            if (existingPasswordReset != null)
+            {
+                await _passwordResetDal.Remove(existingPasswordReset.Uuid);
+            }
+
+            PasswordResetDto passwordReset = new()
+            {
+                Code = Guid.NewGuid(),
+                UserUuid = user.Uuid,
+                Uuid = Guid.NewGuid()
+            };
+
+            await _passwordResetDal.Add(passwordReset);
+            Dictionary<string, string> keyWordDictionary = new() { { "ResetUrl", AuthApiUrl + passwordReset.Code } };
+            string emailBody = EmailLogic.GetHtmlFormattedEmailBody(EmailTemplatePath.ForgotPassword, keyWordDictionary);
+
+            try
+            {
+                EmailLogic.Send(new Email
+                {
+                    EmailAddress = user.Email,
+                    Subject = "Password reset",
+                    Message = emailBody
+                });
+            }
+            catch (Exception)
+            {
+                await _passwordResetDal.Remove(passwordReset.Uuid);
+            }
         }
 
         public async Task Remove(UserDto user)
