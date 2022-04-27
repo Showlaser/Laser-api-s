@@ -24,7 +24,7 @@ services:
         SMTPPORT: 587
         EMAILADDRESS: vincentswebmail@gmail.com
         EMAILPASSWORD: cjhoevpijhsaisxf
-        APIURL: http://localhost:5001/
+        FRONTENDURL: http://localhost:3000/
 
   mariadb:
     container_name: mariadb

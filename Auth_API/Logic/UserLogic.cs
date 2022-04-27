@@ -17,8 +17,8 @@ namespace Auth_API.Logic
         private readonly IUserDal _userDal;
         private readonly IUserTokenDal _userTokenDal;
         private readonly IPasswordResetDal _passwordResetDal;
-        private static readonly string AuthApiUrl = Environment.GetEnvironmentVariable("APIURL") ?? throw new NoNullAllowedException("Environment variable" +
-            "APIURL was empty. Set it using the APIURL environment variable");
+        private static readonly string FrontEndUrl = Environment.GetEnvironmentVariable("FRONTENDURL") ?? throw new NoNullAllowedException("Environment variable" +
+            "FRONTENDURL was empty. Set it using the FRONTENDURL environment variable");
 
         public UserLogic(IUserDal userDal, IUserTokenDal userTokenDal, IPasswordResetDal passwordResetDal)
         {
@@ -154,7 +154,7 @@ namespace Auth_API.Logic
             };
 
             await _passwordResetDal.Add(passwordReset);
-            Dictionary<string, string> keyWordDictionary = new() { { "ResetUrl", AuthApiUrl + passwordReset.Code } };
+            Dictionary<string, string> keyWordDictionary = new() { { "ResetUrl", $"{FrontEndUrl}reset-password?code={passwordReset.Code}" } };
             string emailBody = EmailLogic.GetHtmlFormattedEmailBody(EmailTemplatePath.ForgotPassword, keyWordDictionary);
 
             try
