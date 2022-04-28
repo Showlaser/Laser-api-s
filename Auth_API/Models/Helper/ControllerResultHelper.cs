@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Auth_API.CustomExceptions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Security;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Auth_API.Models.Helper
 {
@@ -32,6 +33,10 @@ namespace Auth_API.Models.Helper
             catch (SecurityException)
             {
                 return new UnauthorizedResult();
+            }
+            catch (UserDisabledException)
+            {
+                return new StatusCodeResult(StatusCodes.Status451UnavailableForLegalReasons);
             }
             catch (Exception exception)
             {
@@ -66,6 +71,10 @@ namespace Auth_API.Models.Helper
             catch (SecurityException)
             {
                 return new UnauthorizedResult();
+            }
+            catch (UserDisabledException)
+            {
+                return new StatusCodeResult(StatusCodes.Status451UnavailableForLegalReasons);
             }
             catch (Exception exception)
             {

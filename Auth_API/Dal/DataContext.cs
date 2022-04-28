@@ -13,7 +13,8 @@ namespace Auth_API.Dal
         public virtual DbSet<UserDto> User { get; set; }
         public virtual DbSet<UserTokensDto> UserToken { get; set; }
         public virtual DbSet<SpotifyTokensDto> SpotifyToken { get; set; }
-        public virtual DbSet<PasswordResetDto> PasswordReset { get; set; }
+        public virtual DbSet<UserActivationDto> UserActivation { get; set; }
+        public virtual DbSet<DisabledUserDto> DisabledUser { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,7 +30,11 @@ namespace Auth_API.Dal
             {
                 entity.HasKey(rt => rt.Uuid);
             });
-            modelBuilder.Entity<PasswordResetDto>(entity =>
+            modelBuilder.Entity<UserActivationDto>(entity =>
+            {
+                entity.HasKey(e => e.Uuid);
+            });
+            modelBuilder.Entity<DisabledUserDto>(entity =>
             {
                 entity.HasKey(e => e.Uuid);
             });

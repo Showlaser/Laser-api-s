@@ -1,6 +1,6 @@
 ﻿namespace Auth_API.Models.Dto
 {
-    public class PasswordResetDto
+    public class UserActivationDto
     {
         public Guid Uuid { get; set; }
         public Guid UserUuid { get; set; }

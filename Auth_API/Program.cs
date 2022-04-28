@@ -17,7 +17,7 @@ builder.Services.AddTransient<ControllerResultHelper>();
 builder.Services.AddScoped<IUserDal, UserDal>();
 builder.Services.AddScoped<IUserTokenDal, UserTokenDal>();
 builder.Services.AddScoped<ISpotifyTokenDal, SpotifyTokenDal>();
-builder.Services.AddScoped<IPasswordResetDal, PasswordResetDal>();
+builder.Services.AddScoped<IUserActivationDal, UserActivationDal>();
 
 string connectionString = GetConnectionString();
 builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOptions

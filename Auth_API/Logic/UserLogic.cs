@@ -1,4 +1,5 @@
-﻿using Auth_API.Enums;
+﻿using Auth_API.CustomExceptions;
+using Auth_API.Enums;
 using Auth_API.Interfaces.Dal;
 using Auth_API.Models.Dto;
 using Auth_API.Models.Dto.Tokens;
@@ -16,15 +17,18 @@ namespace Auth_API.Logic
     {
         private readonly IUserDal _userDal;
         private readonly IUserTokenDal _userTokenDal;
-        private readonly IPasswordResetDal _passwordResetDal;
-        private static readonly string FrontEndUrl = Environment.GetEnvironmentVariable("FRONTENDURL") ?? throw new NoNullAllowedException("Environment variable" +
-            "FRONTENDURL was empty. Set it using the FRONTENDURL environment variable");
+        private readonly IUserActivationDal _userActivationDal;
+        private readonly IDisabledUserDal _disabledUserDal;
 
-        public UserLogic(IUserDal userDal, IUserTokenDal userTokenDal, IPasswordResetDal passwordResetDal)
+        private static readonly string FrontEndUrl = Environment.GetEnvironmentVariable("FRONTENDURL") ?? throw new NoNullAllowedException("Environment variable" +
+                                                                                                                                           "FRONTENDURL was empty. Set it using the FRONTENDURL environment variable");
+
+        public UserLogic(IUserDal userDal, IUserTokenDal userTokenDal, IUserActivationDal userActivationDal, IDisabledUserDal disabledUserDal)
         {
             _userDal = userDal;
             _userTokenDal = userTokenDal;
-            _passwordResetDal = passwordResetDal;
+            _userActivationDal = userActivationDal;
+            _disabledUserDal = disabledUserDal;
         }
 
         /// <summary>
@@ -36,9 +40,9 @@ namespace Auth_API.Logic
         /// <exception cref="DuplicateNameException"></exception>
         private async Task UsernameExists(UserDto user, UserDto? dbUser = null)
         {
-            dbUser ??= await _userDal.Find(user.UserName);
+            dbUser ??= await _userDal.Find(user.Username);
             if (dbUser != null &&
-                dbUser.UserName == user.UserName &&
+                dbUser.Username == user.Username &&
                 dbUser.Uuid != user.Uuid)
             {
                 throw new DuplicateNameException();
@@ -57,7 +61,13 @@ namespace Auth_API.Logic
 
         public async Task<UserTokensViewmodel> Login(UserDto user, IPAddress? ipAddress)
         {
-            UserDto dbUser = await _userDal.Find(user.UserName) ?? throw new SecurityException();
+            UserDto dbUser = await _userDal.Find(user.Username) ?? throw new SecurityException();
+            DisabledUserDto? disabledUser = await _disabledUserDal.Find(dbUser.Uuid);
+            if (disabledUser != null)
+            {
+                throw new UserDisabledException(DisabledUserHelper.ConvertEnumToFriendlyMessage(disabledUser.DisabledReason));
+            }
+
             SecurityLogic.ValidatePassword(dbUser.Password, dbUser.Salt, user.Password);
             UserTokensDto userTokensDto = SecurityLogic.GenerateRefreshToken(dbUser.Uuid, ipAddress);
             UserTokensViewmodel tokens = new()
@@ -75,10 +85,21 @@ namespace Auth_API.Logic
             };
         }
 
+        public async Task<UserDto?> Find(Guid uuid)
+        {
+            return await _userDal.Find(uuid);
+        }
+
         public async Task<UserTokensViewmodel> RefreshToken(UserTokensViewmodel tokens, IPAddress ipAddress)
         {
             Claim userUuidClaim = JwtLogic.GetJwtClaims(tokens.Jwt).Single(c => c.Type == "uuid");
             Guid userUuid = Guid.Parse(userUuidClaim.Value);
+            DisabledUserDto? disabledUser = await _disabledUserDal.Find(userUuid);
+            if (disabledUser != null)
+            {
+                throw new UserDisabledException(DisabledUserHelper.ConvertEnumToFriendlyMessage(disabledUser.DisabledReason));
+            }
+
             UserTokensDto dbTokens = await _userTokenDal.Find(userUuid) ?? throw new SecurityException();
 
             bool refreshTokenValid = dbTokens.RefreshToken == tokens.RefreshToken &&
@@ -100,21 +121,67 @@ namespace Auth_API.Logic
             };
         }
 
-        public async Task Update(UserDto user, string providedPassword)
+        public async Task Update(UserDto user, string newPassword)
         {
             UserDto dbUser = await _userDal.Find(user.Uuid) ?? throw new KeyNotFoundException();
             await UsernameExists(user, dbUser);
 
-            SecurityLogic.ValidatePassword(dbUser.Password, dbUser.Salt, providedPassword);
-            user.Salt = SecurityLogic.GetSalt();
-            user.Password = SecurityLogic.HashPassword(user.Password, user.Salt);
+            SecurityLogic.ValidatePassword(dbUser.Password, dbUser.Salt, user.Password);
+            if (!string.IsNullOrEmpty(newPassword))
+            {
+                user.Salt = SecurityLogic.GetSalt();
+                user.Password = SecurityLogic.HashPassword(newPassword, user.Salt);
+            }
+            if (dbUser.Email != user.Email)
+            {
+                dbUser.Email = user.Email;
+                await SetEmailChangeState(dbUser);
+            }
 
             await _userDal.Update(user);
         }
 
+        /// <summary>
+        /// Disables the user and send an activation email
+        /// </summary>
+        /// <param name="dbUser">The user to disable</param>
+        private async Task SetEmailChangeState(UserDto dbUser)
+        {
+            await _disabledUserDal.Add(new DisabledUserDto
+            {
+                Uuid = Guid.NewGuid(),
+                UserUuid = dbUser.Uuid,
+                DisabledReason = DisabledReason.EmailNeedsToBeValidated
+            });
+
+            Dictionary<string, string> keyWordDictionary = new();
+            UserActivationDto activation = new()
+            {
+                Uuid = Guid.NewGuid(),
+                UserUuid = dbUser.Uuid,
+                Code = Guid.NewGuid()
+            };
+
+            keyWordDictionary.Add("Url", activation.Code.ToString());
+            string body = EmailLogic.GetHtmlFormattedEmailBody(EmailTemplatePath.EmailValidation, keyWordDictionary);
+            EmailLogic.Send(new Email
+            {
+                EmailAddress = dbUser.Email,
+                Message = body,
+                Subject = "Email validation"
+            });
+        }
+
+        public async Task ActivateUserAccount(Guid code)
+        {
+            UserActivationDto userActivation = await _userActivationDal.Find(code) ?? throw new KeyNotFoundException();
+            await _disabledUserDal.Remove(userActivation.UserUuid);
+            await _userActivationDal.Remove(userActivation.UserUuid);
+        }
+
         public async Task ResetPassword(Guid code, string newPassword)
         {
-            PasswordResetDto? passwordReset = await _passwordResetDal.Find(code);
+            UserActivationDto? passwordReset = await _userActivationDal.Find(code);
             if (passwordReset == null)
             {
                 throw new KeyNotFoundException();
@@ -129,7 +196,7 @@ namespace Auth_API.Logic
             userToReset.Salt = SecurityLogic.GetSalt();
             userToReset.Password = SecurityLogic.HashPassword(newPassword, userToReset.Salt);
             await _userDal.Update(userToReset);
-            await _passwordResetDal.Remove(passwordReset.Uuid);
+            await _userActivationDal.Remove(passwordReset.Uuid);
         }
 
         public async Task RequestPasswordReset(string email)
@@ -140,21 +207,21 @@ namespace Auth_API.Logic
                 throw new KeyNotFoundException();
             }
 
-            PasswordResetDto? existingPasswordReset = await _passwordResetDal.Find(user.Uuid);
+            UserActivationDto? existingPasswordReset = await _userActivationDal.Find(user.Uuid);
             if (existingPasswordReset != null)
             {
-                await _passwordResetDal.Remove(existingPasswordReset.Uuid);
+                await _userActivationDal.Remove(existingPasswordReset.Uuid);
             }
 
-            PasswordResetDto passwordReset = new()
+            UserActivationDto userActivation = new()
             {
                 Code = Guid.NewGuid(),
                 UserUuid = user.Uuid,
                 Uuid = Guid.NewGuid()
             };
 
-            await _passwordResetDal.Add(passwordReset);
-            Dictionary<string, string> keyWordDictionary = new() { { "ResetUrl", $"{FrontEndUrl}reset-password?code={passwordReset.Code}" } };
+            await _userActivationDal.Add(userActivation);
+            Dictionary<string, string> keyWordDictionary = new() { { "ResetUrl", $"{FrontEndUrl}reset-password?code={userActivation.Code}" } };
             string emailBody = EmailLogic.GetHtmlFormattedEmailBody(EmailTemplatePath.ForgotPassword, keyWordDictionary);
 
             try
@@ -168,7 +235,7 @@ namespace Auth_API.Logic
             }
             catch (Exception)
             {
-                await _passwordResetDal.Remove(passwordReset.Uuid);
+                await _userActivationDal.Remove(userActivation.Uuid);
             }
         }
 

@@ -25,7 +25,7 @@ namespace Auth_API.Logic
         {
             Dictionary<EmailTemplatePath, string> dictionary = new()
             {
-                { EmailTemplatePath.ForgotPassword, "/EmailTemplates/PasswordReset.html" }
+                { EmailTemplatePath.ForgotPassword, "/EmailTemplates/UserActivation.html" }
             };
 
             return dictionary[templateName];

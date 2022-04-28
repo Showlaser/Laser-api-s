@@ -36,6 +36,24 @@ namespace Auth_API.Controllers
             return await controllerResultHelper.Execute(Action());
         }
 
+        [HttpGet]
+        public async Task<ActionResult<UserViewmodel>> GetCurrentUser()
+        {
+            async Task<UserViewmodel> Action()
+            {
+                UserDto user = ControllerHelper.GetUserModelFromJwtClaims(this);
+                UserDto? dbUser = await _userLogic.Find(user.Uuid);
+                if (dbUser == null)
+                {
+                    throw new KeyNotFoundException();
+                }
+
+                return dbUser.Adapt<UserViewmodel>();
+            }
+
+            return await _controllerResultHelper.Execute(Action()) ?? throw new NoNullAllowedException();
+        }
+
         [HttpPost("refresh-token")]
         public async Task<ActionResult> RefreshToken()
         {
@@ -58,8 +76,7 @@ namespace Auth_API.Controllers
                 Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
             }
 
-            ControllerResultHelper controllerResultHelper = new();
-            return await controllerResultHelper.Execute(Action()) ?? throw new NoNullAllowedException();
+            return await _controllerResultHelper.Execute(Action()) ?? throw new NoNullAllowedException();
         }
 
         [HttpPost("request-password-reset")]
@@ -79,6 +96,17 @@ namespace Auth_API.Controllers
             async Task Action()
             {
                 await _userLogic.ResetPassword(code, newPassword);
+            }
+
+            return await _controllerResultHelper.Execute(Action());
+        }
+
+        [HttpPost("activate")]
+        public async Task<ActionResult> ActivateUser([FromQuery] Guid code)
+        {
+            async Task Action()
+            {
+                await _userLogic.ActivateUserAccount(code);
             }
 
             return await _controllerResultHelper.Execute(Action());
@@ -119,7 +147,7 @@ namespace Auth_API.Controllers
                 UserDto userDto = user.Adapt<UserDto>();
                 userDto.Uuid = userData.Uuid;
 
-                await _userLogic.Update(userDto, "123");
+                await _userLogic.Update(userDto, user.NewPassword);
             }
 
             return await _controllerResultHelper.Execute(Action());

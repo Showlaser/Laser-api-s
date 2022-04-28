@@ -2,6 +2,7 @@
 {
     public enum EmailTemplatePath
     {
-        ForgotPassword
+        ForgotPassword,
+        EmailValidation
     }
 }
