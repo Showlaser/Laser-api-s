@@ -50,7 +50,7 @@ namespace Auth_API.Tests.IntegrationTests
         {
             HttpClient client = _factory.CreateDefaultClient(_handler);
             User user = new TestUser().User;
-            user.UserName = "newtestuser";
+            user.Username = "newtestuser";
 
             HttpResponseMessage putResponse = await client.PutAsync("user", new JsonContent<User>(user));
             putResponse.EnsureSuccessStatusCode();

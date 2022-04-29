@@ -51,7 +51,7 @@ namespace Auth_API.Controllers
                 return dbUser.Adapt<UserViewmodel>();
             }
 
-            return await _controllerResultHelper.Execute(Action()) ?? throw new NoNullAllowedException();
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [HttpPost("refresh-token")]

@@ -129,8 +129,8 @@ namespace Auth_API.Logic
             SecurityLogic.ValidatePassword(dbUser.Password, dbUser.Salt, user.Password);
             if (!string.IsNullOrEmpty(newPassword))
             {
-                user.Salt = SecurityLogic.GetSalt();
-                user.Password = SecurityLogic.HashPassword(newPassword, user.Salt);
+                dbUser.Salt = SecurityLogic.GetSalt();
+                dbUser.Password = SecurityLogic.HashPassword(newPassword, dbUser.Salt);
             }
             if (dbUser.Email != user.Email)
             {
@@ -138,7 +138,7 @@ namespace Auth_API.Logic
                 await SetEmailChangeState(dbUser);
             }
 
-            await _userDal.Update(user);
+            await _userDal.Update(dbUser);
         }
 
         /// <summary>
@@ -147,29 +147,41 @@ namespace Auth_API.Logic
         /// <param name="dbUser">The user to disable</param>
         private async Task SetEmailChangeState(UserDto dbUser)
         {
-            await _disabledUserDal.Add(new DisabledUserDto
+            try
             {
-                Uuid = Guid.NewGuid(),
-                UserUuid = dbUser.Uuid,
-                DisabledReason = DisabledReason.EmailNeedsToBeValidated
-            });
+                await _disabledUserDal.Add(new DisabledUserDto
+                {
+                    Uuid = Guid.NewGuid(),
+                    UserUuid = dbUser.Uuid,
+                    DisabledReason = DisabledReason.EmailNeedsToBeValidated
+                });
 
-            Dictionary<string, string> keyWordDictionary = new();
-            UserActivationDto activation = new()
-            {
-                Uuid = Guid.NewGuid(),
-                UserUuid = dbUser.Uuid,
-                Code = Guid.NewGuid()
-            };
+                UserActivationDto activation = new()
+                {
+                    Uuid = Guid.NewGuid(),
+                    UserUuid = dbUser.Uuid,
+                    Code = Guid.NewGuid()
+                };
+                await _userActivationDal.Add(activation);
 
-            keyWordDictionary.Add("Url", activation.Code.ToString());
-            string body = EmailLogic.GetHtmlFormattedEmailBody(EmailTemplatePath.EmailValidation, keyWordDictionary);
-            EmailLogic.Send(new Email
+                Dictionary<string, string> keyWordDictionary = new()
+                {
+                    { "Url", $"{FrontEndUrl}account-activation?code={activation.Code}" }
+                };
+
+                string body = EmailLogic.GetHtmlFormattedEmailBody(EmailTemplatePath.EmailValidation, keyWordDictionary);
+                EmailLogic.Send(new Email
+                {
+                    EmailAddress = dbUser.Email,
+                    Message = body,
+                    Subject = "Email validation"
+                });
+            }
+            catch (Exception)
             {
-                EmailAddress = dbUser.Email,
-                Message = body,
-                Subject = "Email validation"
-            });
+                await _disabledUserDal.Remove(dbUser.Uuid);
+                throw;
+            }
         }
 
         public async Task ActivateUserAccount(Guid code)
@@ -196,7 +208,7 @@ namespace Auth_API.Logic
             userToReset.Salt = SecurityLogic.GetSalt();
             userToReset.Password = SecurityLogic.HashPassword(newPassword, userToReset.Salt);
             await _userDal.Update(userToReset);
-            await _userActivationDal.Remove(passwordReset.Uuid);
+            await _userActivationDal.Remove(passwordReset.UserUuid);
         }
 
         public async Task RequestPasswordReset(string email)

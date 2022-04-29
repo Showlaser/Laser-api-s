@@ -31,7 +31,7 @@ namespace Auth_API.Dal
 
         public async Task<UserDto?> FindByEmail(string email)
         {
-            return await _context.User.SingleAsync(u => u.Email == email);
+            return await _context.User.SingleOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task Update(UserDto user)

@@ -26,9 +26,12 @@ namespace Auth_API.Dal
 
         public async Task Remove(Guid userUuid)
         {
-            DisabledUserDto? disabledUser = await _context.DisabledUser.FirstOrDefaultAsync(du => du.UserUuid == userUuid) ?? throw new KeyNotFoundException();
-            _context.DisabledUser.Remove(disabledUser);
-            await _context.SaveChangesAsync();
+            DisabledUserDto? disabledUser = await _context.DisabledUser.FirstOrDefaultAsync(du => du.UserUuid == userUuid);
+            if (disabledUser != null)
+            {
+                _context.DisabledUser.Remove(disabledUser);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

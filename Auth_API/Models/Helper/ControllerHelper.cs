@@ -20,7 +20,7 @@ namespace Auth_API.Models.Helper
 
         public static UserDto GetUserModelFromJwtClaims(ControllerBase controllerBase)
         {
-            string jwt = controllerBase.ControllerContext.HttpContext.Request.Cookies["jwt"]?.Replace("Bearer ", "") ?? throw new NoNullAllowedException();
+            string jwt = controllerBase.ControllerContext.HttpContext.Request.Cookies["jwt"]?.Replace("Bearer ", "") ?? throw new UnauthorizedAccessException();
             Claim userUuidClaim = JwtLogic.GetJwtClaims(jwt).Single(c => c.Type == "uuid");
             Guid userUuid = Guid.Parse(userUuidClaim.Value);
             return new UserDto

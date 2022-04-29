@@ -38,6 +38,10 @@ namespace Auth_API.Models.Helper
             {
                 return new StatusCodeResult(StatusCodes.Status451UnavailableForLegalReasons);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return new UnauthorizedResult();
+            }
             catch (Exception exception)
             {
                 Console.WriteLine(exception);
@@ -75,6 +79,10 @@ namespace Auth_API.Models.Helper
             catch (UserDisabledException)
             {
                 return new StatusCodeResult(StatusCodes.Status451UnavailableForLegalReasons);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return new UnauthorizedResult();
             }
             catch (Exception exception)
             {

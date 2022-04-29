@@ -18,6 +18,7 @@ builder.Services.AddScoped<IUserDal, UserDal>();
 builder.Services.AddScoped<IUserTokenDal, UserTokenDal>();
 builder.Services.AddScoped<ISpotifyTokenDal, SpotifyTokenDal>();
 builder.Services.AddScoped<IUserActivationDal, UserActivationDal>();
+builder.Services.AddScoped<IDisabledUserDal, DisabledUserDal>();
 
 string connectionString = GetConnectionString();
 builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOptions
