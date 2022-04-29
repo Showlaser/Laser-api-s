@@ -25,6 +25,13 @@ namespace Auth_API.Interfaces.Dal
         Task<UserDto?> Find(string username);
 
         /// <summary>
+        /// Finds the user in the database by email
+        /// </summary>
+        /// <param name="email">The email of the user</param>
+        /// <returns>The found user, null if nothing is found</returns>
+        Task<UserDto?> FindByEmail(string email);
+
+        /// <summary>
         /// Updates the user
         /// </summary>
         /// <param name="user">The updated user model</param>

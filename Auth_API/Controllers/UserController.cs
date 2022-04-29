@@ -15,10 +15,12 @@ namespace Auth_API.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserLogic _userLogic;
+        private readonly ControllerResultHelper _controllerResultHelper;
 
-        public UserController(UserLogic userLogic)
+        public UserController(UserLogic userLogic, ControllerResultHelper controllerResultHelper)
         {
             _userLogic = userLogic;
+            _controllerResultHelper = controllerResultHelper;
         }
 
         [HttpPost]
@@ -30,41 +32,90 @@ namespace Auth_API.Controllers
                 await _userLogic.Add(userDto);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            await controllerErrorHandler.Execute(Action());
-            return StatusCode(controllerErrorHandler.StatusCode);
+            ControllerResultHelper controllerResultHelper = new();
+            return await controllerResultHelper.Execute(Action());
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<UserViewmodel>> GetCurrentUser()
+        {
+            async Task<UserViewmodel> Action()
+            {
+                UserDto user = ControllerHelper.GetUserModelFromJwtClaims(this);
+                UserDto? dbUser = await _userLogic.Find(user.Uuid);
+                if (dbUser == null)
+                {
+                    throw new KeyNotFoundException();
+                }
+
+                return dbUser.Adapt<UserViewmodel>();
+            }
+
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [HttpPost("refresh-token")]
         public async Task<ActionResult> RefreshToken()
         {
-            async Task<UserTokensViewmodel> Action()
+            async Task Action()
             {
                 IPAddress ip = Request.HttpContext.Connection.RemoteIpAddress ?? throw new NoNullAllowedException();
-                UserTokensViewmodel tokens = ControllerHelper.GetUserTokens(this);
-                return await _userLogic.RefreshToken(tokens, ip);
+                UserTokensViewmodel userTokens = ControllerHelper.GetUserTokens(this);
+                UserTokensViewmodel tokens = await _userLogic.RefreshToken(userTokens, ip);
+
+                //TODO set cookie secure on true in production
+                CookieOptions cookieOptions = new()
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    Path = "/",
+                    Expires = DateTime.Now.AddDays(31)
+                };
+
+                Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
+                Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            UserTokensViewmodel tokens = await controllerErrorHandler.Execute(Action()) ?? throw new NoNullAllowedException();
-            //TODO set cookie secure on true in production
-            CookieOptions cookieOptions = new()
-            {
-                HttpOnly = true,
-                Secure = false,
-                Path = "/",
-                Expires = DateTime.Now.AddDays(31)
-            };
+            return await _controllerResultHelper.Execute(Action()) ?? throw new NoNullAllowedException();
+        }
 
-            Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
-            Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
-            return Ok();
+        [HttpPost("request-password-reset")]
+        public async Task<ActionResult> RequestPasswordReset([FromQuery] string email)
+        {
+            async Task Action()
+            {
+                await _userLogic.RequestPasswordReset(email);
+            }
+
+            return await _controllerResultHelper.Execute(Action());
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<ActionResult> ResetUserPassword([FromQuery] Guid code, [FromQuery] string newPassword)
+        {
+            async Task Action()
+            {
+                await _userLogic.ResetPassword(code, newPassword);
+            }
+
+            return await _controllerResultHelper.Execute(Action());
+        }
+
+        [HttpPost("activate")]
+        public async Task<ActionResult> ActivateUser([FromQuery] Guid code)
+        {
+            async Task Action()
+            {
+                await _userLogic.ActivateUserAccount(code);
+            }
+
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [HttpPost("login")]
         public async Task<ActionResult?> Login([FromBody] User user)
         {
-            async Task<ActionResult> Action()
+            async Task Action()
             {
                 IPAddress? ip = Request.HttpContext.Connection.RemoteIpAddress;
                 UserDto userDto = user.Adapt<UserDto>();
@@ -81,11 +132,9 @@ namespace Auth_API.Controllers
 
                 Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
                 Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
-                return Ok();
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action());
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [AuthorizedAction]
@@ -98,12 +147,10 @@ namespace Auth_API.Controllers
                 UserDto userDto = user.Adapt<UserDto>();
                 userDto.Uuid = userData.Uuid;
 
-                await _userLogic.Update(userDto, "123");
+                await _userLogic.Update(userDto, user.NewPassword);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            await controllerErrorHandler.Execute(Action());
-            return StatusCode(controllerErrorHandler.StatusCode);
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [AuthorizedAction]
@@ -116,9 +163,7 @@ namespace Auth_API.Controllers
                 await _userLogic.Remove(userDto);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            await controllerErrorHandler.Execute(Action());
-            return StatusCode(controllerErrorHandler.StatusCode);
+            return await _controllerResultHelper.Execute(Action());
         }
     }
 }

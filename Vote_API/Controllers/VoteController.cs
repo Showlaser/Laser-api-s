@@ -15,10 +15,12 @@ namespace Vote_API.Controllers
     public class VoteController : ControllerBase
     {
         private readonly VoteLogic _voteLogic;
+        private readonly ControllerResultHelper _controllerResultHelper;
 
-        public VoteController(VoteLogic voteLogic)
+        public VoteController(VoteLogic voteLogic, ControllerResultHelper controllerResultHelper)
         {
             _voteLogic = voteLogic;
+            _controllerResultHelper = controllerResultHelper;
         }
 
         [HttpPost]
@@ -33,8 +35,7 @@ namespace Vote_API.Controllers
                 return await _voteLogic.Add(dataDto);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action());
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [AllowAnonymous]
@@ -52,8 +53,7 @@ namespace Vote_API.Controllers
                 return data.Adapt<VoteDataViewmodel>();
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action());
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [AllowAnonymous]
@@ -67,8 +67,7 @@ namespace Vote_API.Controllers
                 await _voteLogic.VoteOnPlaylist(voteDto, vote.JoinData.AccessCode);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action());
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [HttpPut]
@@ -81,8 +80,7 @@ namespace Vote_API.Controllers
                 await _voteLogic.Update(dataDto, user.Uuid);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action());
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [HttpDelete]
@@ -94,8 +92,7 @@ namespace Vote_API.Controllers
                 await _voteLogic.Remove(user.Uuid);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action());
+            return await _controllerResultHelper.Execute(Action());
         }
     }
 }

@@ -14,6 +14,7 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddScoped<IVoteDal, VoteDal>();
 builder.Services.AddScoped<IPlaylistVoteDal, PlaylistVoteDal>();
+builder.Services.AddTransient<ControllerResultHelper>();
 builder.Services.AddScoped<VoteLogic>();
 builder.Services.AddSingleton<WebsocketVoteEventSubscriber>();
 

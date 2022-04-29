@@ -20,6 +20,11 @@ services:
         PASSWORD: qwerty
         SPOTIFYCLIENTID: b63c814d37454bb4bb47667cc2a854e0
         SPOTIFYCLIENTSECRET: 3461856b314c49408ee37ecd6d3c9413
+        SMTPHOST: smtp.gmail.com
+        SMTPPORT: 587
+        EMAILADDRESS: vincentswebmail@gmail.com
+        EMAILPASSWORD: cjhoevpijhsaisxf
+        FRONTENDURL: http://localhost:3000/
 
   mariadb:
     container_name: mariadb

@@ -12,10 +12,12 @@ namespace Auth_API.Controllers
     public class SpotifyController : ControllerBase
     {
         private readonly SpotifyTokenLogic _spotifyTokenLogic;
+        private readonly ControllerResultHelper _controllerResultHelper;
 
-        public SpotifyController(SpotifyTokenLogic spotifyTokenLogic)
+        public SpotifyController(SpotifyTokenLogic spotifyTokenLogic, ControllerResultHelper controllerResultHelper)
         {
             _spotifyTokenLogic = spotifyTokenLogic;
+            _controllerResultHelper = controllerResultHelper;
         }
 
         [HttpGet("grand-access")]
@@ -27,12 +29,11 @@ namespace Auth_API.Controllers
                 return await _spotifyTokenLogic.GrandAccessToSpotify(user.Uuid);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action());
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [HttpGet("get-access-token")]
-        public async Task<SpotifyTokensViewmodel?> GetAccessToken([FromQuery] string code)
+        public async Task<ActionResult<SpotifyTokensViewmodel?>> GetAccessToken([FromQuery] string code)
         {
             async Task<SpotifyTokensViewmodel?> Action()
             {
@@ -40,12 +41,11 @@ namespace Auth_API.Controllers
                 return await _spotifyTokenLogic.GetAccessToken(code, user.Uuid);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action());
+            return await _controllerResultHelper.Execute(Action());
         }
 
         [HttpGet("refresh")]
-        public async Task<SpotifyTokensViewmodel?> RefreshAccessToken([FromQuery] string refreshToken)
+        public async Task<ActionResult<SpotifyTokensViewmodel?>> RefreshAccessToken([FromQuery] string refreshToken)
         {
             async Task<SpotifyTokensViewmodel?> Action()
             {
@@ -53,8 +53,7 @@ namespace Auth_API.Controllers
                 return await _spotifyTokenLogic.RefreshSpotifyAccessToken(refreshToken, user.Uuid);
             }
 
-            ControllerErrorHandler controllerErrorHandler = new();
-            return await controllerErrorHandler.Execute(Action());
+            return await _controllerResultHelper.Execute(Action());
         }
     }
 }

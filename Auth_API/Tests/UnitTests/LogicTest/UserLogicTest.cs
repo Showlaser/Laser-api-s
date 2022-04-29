@@ -34,7 +34,7 @@ namespace Auth_API.Tests.UnitTests.LogicTest
             {
                 Password = "123",
                 Salt = _testUser.UserDto.Salt,
-                UserName = _testUser.UserDto.UserName
+                Username = _testUser.UserDto.Username
             }, IPAddress.Parse("127.0.0.1"));
             Assert.IsTrue(tokens.Jwt.Length > 25);
             Assert.IsTrue(tokens.RefreshToken.Length > 25);
@@ -96,7 +96,7 @@ namespace Auth_API.Tests.UnitTests.LogicTest
             {
                 Password = "123",
                 Salt = _testUser.UserDto.Salt,
-                UserName = _testUser.UserDto.UserName
+                Username = _testUser.UserDto.Username
             }, ip);
         }
     }

@@ -1,13 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Auth_API.CustomExceptions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Security;
-using Microsoft.AspNetCore.Mvc;
 
-namespace Vote_API.Models.Helper
+namespace Auth_API.Models.Helper
 {
-    public class ControllerErrorHandler
+    public class ControllerResultHelper
     {
-        public async Task<ActionResult<T?>> Execute<T>(Task<T> task)
+        public async Task<ActionResult<T>> Execute<T>(Task<T> task)
         {
             try
             {
@@ -30,6 +31,14 @@ namespace Vote_API.Models.Helper
                 return new ConflictResult();
             }
             catch (SecurityException)
+            {
+                return new UnauthorizedResult();
+            }
+            catch (UserDisabledException)
+            {
+                return new StatusCodeResult(StatusCodes.Status451UnavailableForLegalReasons);
+            }
+            catch (UnauthorizedAccessException)
             {
                 return new UnauthorizedResult();
             }
@@ -64,6 +73,14 @@ namespace Vote_API.Models.Helper
                 return new ConflictResult();
             }
             catch (SecurityException)
+            {
+                return new UnauthorizedResult();
+            }
+            catch (UserDisabledException)
+            {
+                return new StatusCodeResult(StatusCodes.Status451UnavailableForLegalReasons);
+            }
+            catch (UnauthorizedAccessException)
             {
                 return new UnauthorizedResult();
             }

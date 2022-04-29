@@ -3,6 +3,7 @@ using System;
 using Auth_API.Dal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,30 +11,31 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Auth_API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220427080158_AddEmail")]
+    partial class AddEmail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("Auth_API.Models.Dto.DisabledUserDto", b =>
+            modelBuilder.Entity("Auth_API.Models.Dto.PasswordResetDto", b =>
                 {
                     b.Property<Guid>("Uuid")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("DisabledReason")
-                        .HasColumnType("int");
+                    b.Property<Guid>("Code")
+                        .HasColumnType("char(36)");
 
                     b.Property<Guid>("UserUuid")
                         .HasColumnType("char(36)");
 
                     b.HasKey("Uuid");
 
-                    b.ToTable("DisabledUser");
+                    b.ToTable("PasswordReset");
                 });
 
             modelBuilder.Entity("Auth_API.Models.Dto.Tokens.SpotifyTokensDto", b =>
@@ -98,30 +100,13 @@ namespace Auth_API.Migrations
                         .IsRequired()
                         .HasColumnType("longblob");
 
-                    b.Property<string>("Username")
+                    b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("Uuid");
 
                     b.ToTable("User");
-                });
-
-            modelBuilder.Entity("Auth_API.Models.Dto.UserActivationDto", b =>
-                {
-                    b.Property<Guid>("Uuid")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("Code")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("UserUuid")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("Uuid");
-
-                    b.ToTable("UserActivation");
                 });
 #pragma warning restore 612, 618
         }

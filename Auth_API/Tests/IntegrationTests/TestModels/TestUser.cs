@@ -6,7 +6,7 @@ namespace Auth_API.Tests.IntegrationTests.TestModels
     {
         public readonly User User = new()
         {
-            UserName = "TestUser",
+            Username = "TestUser",
             Password = "123", // 123 plaintext
         };
     }

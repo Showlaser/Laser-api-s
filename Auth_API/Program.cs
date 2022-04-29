@@ -1,6 +1,7 @@
 using Auth_API.Dal;
 using Auth_API.Interfaces.Dal;
 using Auth_API.Logic;
+using Auth_API.Models.Helper;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using System.Data;
@@ -12,9 +13,12 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddScoped<UserLogic>();
 builder.Services.AddScoped<SpotifyTokenLogic>();
+builder.Services.AddTransient<ControllerResultHelper>();
 builder.Services.AddScoped<IUserDal, UserDal>();
 builder.Services.AddScoped<IUserTokenDal, UserTokenDal>();
 builder.Services.AddScoped<ISpotifyTokenDal, SpotifyTokenDal>();
+builder.Services.AddScoped<IUserActivationDal, UserActivationDal>();
+builder.Services.AddScoped<IDisabledUserDal, DisabledUserDal>();
 
 string connectionString = GetConnectionString();
 builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOptions
@@ -40,7 +44,7 @@ app.Run();
 static string GetConnectionString()
 {
     // Uncomment string below when creating migrations
-    // return $"database=auth;keepalive=5;server=127.0.0.1;port=3306;user id=root;password=qwerty;connectiontimeout=5";
+    //return $"database=auth;keepalive=5;server=127.0.0.1;port=3306;user id=root;password=qwerty;connectiontimeout=5";
 
     IDictionary variables = Environment.GetEnvironmentVariables();
     string? server = variables["SERVER"]?.ToString();
