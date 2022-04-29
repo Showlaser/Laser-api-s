@@ -49,8 +49,21 @@ namespace Auth_API.Logic
             }
         }
 
+        private static void ValidateUser(UserDto user)
+        {
+            bool userValid = !string.IsNullOrEmpty(user.Password) &&
+                             !string.IsNullOrEmpty(user.Email)
+                             && !string.IsNullOrEmpty(user.Username);
+
+            if (!userValid)
+            {
+                throw new InvalidDataException();
+            }
+        }
+
         public async Task Add(UserDto user)
         {
+            ValidateUser(user);
             await UsernameExists(user);
 
             user.Uuid = Guid.NewGuid();
@@ -123,6 +136,7 @@ namespace Auth_API.Logic
 
         public async Task Update(UserDto user, string newPassword)
         {
+            ValidateUser(user);
             UserDto dbUser = await _userDal.Find(user.Uuid) ?? throw new KeyNotFoundException();
             await UsernameExists(user, dbUser);
 
