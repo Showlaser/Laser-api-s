@@ -99,6 +99,11 @@ namespace Auth_API.Logic
 
         private async Task UpdateSpotifyRefreshToken(Guid userUuid, string? refreshToken)
         {
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                throw new NoNullAllowedException(nameof(refreshToken));
+            }
+
             SpotifyTokensDto dbTokens = await _spotifyTokenDal.Find(userUuid) ?? throw new SecurityException();
             dbTokens.SpotifyRefreshToken = refreshToken;
 

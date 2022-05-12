@@ -70,6 +70,7 @@ namespace Auth_API.Logic
             user.Salt = SecurityLogic.GetSalt();
             user.Password = SecurityLogic.HashPassword(user.Password, user.Salt);
             await _userDal.Add(user);
+            await SetEmailChangeState(user);
         }
 
         public async Task<UserTokensViewmodel> Login(UserDto user, IPAddress? ipAddress)
@@ -176,8 +177,8 @@ namespace Auth_API.Logic
                     UserUuid = dbUser.Uuid,
                     Code = Guid.NewGuid()
                 };
-                await _userActivationDal.Add(activation);
 
+                await _userActivationDal.Add(activation);
                 Dictionary<string, string> keyWordDictionary = new()
                 {
                     { "Url", $"{FrontEndUrl}account-activation?code={activation.Code}" }
@@ -267,6 +268,9 @@ namespace Auth_API.Logic
 
         public async Task Remove(UserDto user)
         {
+            await _userTokenDal.Remove(user.Uuid);
+            await _userActivationDal.Remove(user.Uuid);
+            await _disabledUserDal.Remove(user.Uuid);
             await _userDal.Remove(user.Uuid);
         }
     }
