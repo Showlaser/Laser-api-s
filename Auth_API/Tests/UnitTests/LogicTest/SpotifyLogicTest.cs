@@ -11,7 +11,7 @@ namespace Auth_API.Tests.UnitTests.LogicTest
 
         public SpotifyLogicTest()
         {
-            TestHelper.SetEnvironmentVariables();
+            TestHelper.SetupTestEnvironment();
             _spotifyTokenLogic = new MockedUserTokenLogic().SpotifyTokenLogic;
         }
     }

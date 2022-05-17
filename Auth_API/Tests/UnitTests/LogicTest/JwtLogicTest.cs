@@ -13,7 +13,7 @@ namespace Auth_API.Tests.LogicTest
         public JwtLogicTest()
         {
             _testRefreshToken = new TestRefreshTokenDto();
-            TestHelper.SetEnvironmentVariables();
+            TestHelper.SetupTestEnvironment();
         }
 
         [TestMethod]

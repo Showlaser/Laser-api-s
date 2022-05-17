@@ -18,7 +18,7 @@ namespace Auth_API.Tests.UnitTests.LogicTest
         public UserLogicTest()
         {
             _userLogic = new MockedUserLogic().UserLogic;
-            TestHelper.SetEnvironmentVariables();
+            TestHelper.SetupTestEnvironment();
         }
 
         [TestMethod]

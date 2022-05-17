@@ -20,7 +20,7 @@ namespace Auth_API.Logic
         private readonly IUserActivationDal _userActivationDal;
         private readonly IDisabledUserDal _disabledUserDal;
 
-        private static readonly string FrontEndUrl = Environment.GetEnvironmentVariable("FRONTENDURL") ?? throw new NoNullAllowedException("Environment variable" +
+        private static readonly string FrontEndUrl = Environment.GetEnvironmentVariable("FRONTENDURL") ?? throw new NoNullAllowedException("Environment variable " +
                                                                                                                                            "FRONTENDURL was empty. Set it using the FRONTENDURL environment variable");
 
         public UserLogic(IUserDal userDal, IUserTokenDal userTokenDal, IUserActivationDal userActivationDal, IDisabledUserDal disabledUserDal)
@@ -38,7 +38,7 @@ namespace Auth_API.Logic
         /// <param name="user">The user from the front-end</param>
         /// <param name="dbUser">The user found in the database. If null the user will be searched in the database</param>
         /// <exception cref="DuplicateNameException"></exception>
-        private async Task UsernameExists(UserDto user, UserDto? dbUser = null)
+        private async Task ThrowExceptionIfUsernameExists(UserDto user, UserDto? dbUser = null)
         {
             dbUser ??= await _userDal.Find(user.Username);
             if (dbUser != null &&
@@ -48,7 +48,7 @@ namespace Auth_API.Logic
                 throw new DuplicateNameException();
             }
         }
-
+        
         private static void ValidateUser(UserDto user)
         {
             bool userValid = !string.IsNullOrEmpty(user.Password) &&
@@ -61,10 +61,22 @@ namespace Auth_API.Logic
             }
         }
 
+        private async Task ThrowExceptionIfEmailExists(UserDto user, UserDto? dbUser = null)
+        {
+            dbUser ??= await _userDal.FindByEmail(user.Username);
+            if (dbUser != null &&
+                dbUser.Email == user.Email &&
+                dbUser.Uuid != user.Uuid)
+            {
+                throw new DuplicateNameException();
+            }
+        }
+
         public async Task Add(UserDto user)
         {
             ValidateUser(user);
-            await UsernameExists(user);
+            await ThrowExceptionIfUsernameExists(user);
+            await ThrowExceptionIfEmailExists(user);
 
             user.Uuid = Guid.NewGuid();
             user.Salt = SecurityLogic.GetSalt();
@@ -139,7 +151,8 @@ namespace Auth_API.Logic
         {
             ValidateUser(user);
             UserDto dbUser = await _userDal.Find(user.Uuid) ?? throw new KeyNotFoundException();
-            await UsernameExists(user, dbUser);
+            await ThrowExceptionIfUsernameExists(user, dbUser);
+            dbUser.Username = user.Username;
 
             SecurityLogic.ValidatePassword(dbUser.Password, dbUser.Salt, user.Password);
             if (!string.IsNullOrEmpty(newPassword))
@@ -194,7 +207,7 @@ namespace Auth_API.Logic
             }
             catch (Exception)
             {
-                await _disabledUserDal.Remove(dbUser.Uuid);
+                await Remove(dbUser);
                 throw;
             }
         }

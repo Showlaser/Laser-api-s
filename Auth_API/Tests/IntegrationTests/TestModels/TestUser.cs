@@ -7,7 +7,8 @@ namespace Auth_API.Tests.IntegrationTests.TestModels
         public readonly User User = new()
         {
             Username = "TestUser",
-            Password = "123", // 123 plaintext
+            Password = "123",
+            Email = "test@example.com123fewef"
         };
     }
 }
