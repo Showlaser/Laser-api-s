@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Data;
 using System.Security;
 using System.Security.Claims;
 using Vote_API.Logic;

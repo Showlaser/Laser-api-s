@@ -63,7 +63,7 @@ namespace Vote_API.Dal
                 .ThenInclude(e => e.SongsInPlaylist)
                 .Include(e => e.VoteablePlaylistCollection)
                 .ThenInclude(e => e.Votes)
-                .SingleOrDefaultAsync(e => e.Uuid == uuid);
+                .FirstOrDefaultAsync(e => e.Uuid == uuid);
             if (dbData == null)
             {
                 return;

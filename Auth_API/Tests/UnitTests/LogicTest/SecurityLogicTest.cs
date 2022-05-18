@@ -1,4 +1,5 @@
 ﻿using Auth_API.Logic;
+using Auth_API.Tests.IntegrationTests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
 using System.Security.Cryptography;

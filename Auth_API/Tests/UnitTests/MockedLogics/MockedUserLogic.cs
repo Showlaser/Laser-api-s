@@ -11,7 +11,9 @@ namespace Auth_API.Tests.UnitTests.MockedLogics
         {
             MockedUserDal userDal = new();
             MockedUserTokenDal userTokenDal = new();
-            UserLogic userLogic = new(userDal.UserDal, userTokenDal.UserTokenDal, null, null);
+            MockedUserActivationDal userActivationDal = new();
+            MockedDisabledUserDal disabledUserDal = new();
+            UserLogic userLogic = new(userDal.UserDal, userTokenDal.UserTokenDal, userActivationDal.UserActivationDal, disabledUserDal.DisabledUserDal);
             UserLogic = userLogic;
         }
     }

@@ -88,6 +88,7 @@ namespace Auth_API.Logic
             byte[] salt = new byte[64];
             RandomNumberGenerator rng = RandomNumberGenerator.Create();
             rng.GetBytes(salt);
+            string bytestring = salt.ToB64String();
             return salt;
         }
 

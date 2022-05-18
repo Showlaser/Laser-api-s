@@ -2,7 +2,6 @@
 using Auth_API.Models.Dto.User;
 using Auth_API.Models.ToFrontend;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 using System.Security.Claims;
 
 namespace Auth_API.Models.Helper

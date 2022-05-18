@@ -1,20 +1,68 @@
-﻿using System.Collections;
-using System.Data;
-using Auth_API.Dal;
+﻿using Auth_API.Dal;
 using Auth_API.Interfaces.Dal;
 using Auth_API.Logic;
+using Auth_API.Models.Dto.User;
+using Auth_API.Models.FromFrontend.User;
+using Auth_API.Tests.IntegrationTests.Factories;
+using Auth_API.Tests.IntegrationTests.TestModels;
+using Auth_API.Tests.UnitTests.TestModels;
+using Microsoft.AspNetCore.Mvc.Testing.Handlers;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
+using System.Data;
+using System.Net;
 
-namespace Auth_API.Tests
+namespace Auth_API.Tests.IntegrationTests
 {
     public static class TestHelper
     {
-        public static IServiceProvider? Services { get; private set; }
+        private static IServiceProvider? _services;
+        private static readonly CookieContainerHandler Handler = new();
+        public static HttpClient? Client;
 
         public static void SetupTestEnvironment()
         {
+            if (_services != null && Client != null)
+            {
+                return;
+            }
+
             SetEnvironmentVariables();
             SetupDependencyInjection();
+            GetAuthorizationTokens();
+            CreateTestUserIfItDoesNotExists();
+        }
+
+        private static void CreateTestUserIfItDoesNotExists()
+        {
+            IUserDal userDal = _services.GetService<IUserDal>();
+            UserDto testUser = new TestUserDto().UserDto;
+            bool testUserExists = userDal.Find(testUser.Username).Result != null;
+            if (testUserExists)
+            {
+                return;
+            }
+
+            userDal.Add(testUser).Wait();
+        }
+
+        private static void GetAuthorizationTokens()
+        {
+            AuthFactory authFactory = new();
+            CookieContainer cookieContainer = new();
+            CookieContainerHandler handler = new(cookieContainer);
+
+            HttpClient client = authFactory.CreateDefaultClient(handler);
+            User user = new TestUser().User;
+
+            HttpResponseMessage response = client.PostAsync("/user/login", new JsonContent<User>(user)).Result;
+            response.EnsureSuccessStatusCode();
+            foreach (Cookie cookie in cookieContainer.GetAllCookies())
+            {
+                Handler.Container.Add(cookie);
+            }
+
+            Client = authFactory.CreateDefaultClient(Handler);
         }
 
         private static void SetEnvironmentVariables()
@@ -46,7 +94,7 @@ namespace Auth_API.Tests
             builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOptions
                 .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
             WebApplication app = builder.Build();
-            Services = app.Services;
+            _services = app.Services;
         }
 
         static string GetConnectionString()

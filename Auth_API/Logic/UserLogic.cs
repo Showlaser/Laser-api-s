@@ -48,7 +48,7 @@ namespace Auth_API.Logic
                 throw new DuplicateNameException();
             }
         }
-        
+
         private static void ValidateUser(UserDto user)
         {
             bool userValid = !string.IsNullOrEmpty(user.Password) &&
@@ -88,6 +88,7 @@ namespace Auth_API.Logic
         public async Task<UserTokensViewmodel> Login(UserDto user, IPAddress? ipAddress)
         {
             UserDto dbUser = await _userDal.Find(user.Username) ?? throw new SecurityException();
+
             DisabledUserDto? disabledUser = await _disabledUserDal.Find(dbUser.Uuid);
             if (disabledUser != null)
             {

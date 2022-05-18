@@ -1,4 +1,5 @@
 ﻿using Auth_API.Logic;
+using Auth_API.Tests.IntegrationTests;
 using Auth_API.Tests.UnitTests.MockedLogics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

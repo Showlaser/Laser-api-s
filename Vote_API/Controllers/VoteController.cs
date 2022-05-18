@@ -24,7 +24,7 @@ namespace Vote_API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<VoteJoinDataViewmodel>> Add([FromBody] VoteData data)
+        public async Task<ActionResult<VoteJoinDataViewmodel?>> Add([FromBody] VoteData data)
         {
             async Task<VoteJoinDataViewmodel> Action()
             {
@@ -44,7 +44,7 @@ namespace Vote_API.Controllers
         {
             async Task<VoteDataViewmodel?> Action()
             {
-                VoteDataDto data = await _voteLogic.Find(new VoteJoinData
+                VoteDataDto? data = await _voteLogic.Find(new VoteJoinData
                 {
                     JoinCode = joinCode,
                     AccessCode = accessCode
@@ -62,7 +62,7 @@ namespace Vote_API.Controllers
         {
             async Task Action()
             {
-                PlaylistVoteDto? voteDto = vote.Adapt<PlaylistVoteDto>();
+                PlaylistVoteDto voteDto = vote.Adapt<PlaylistVoteDto>();
                 voteDto.Uuid = Guid.NewGuid();
                 await _voteLogic.VoteOnPlaylist(voteDto, vote.JoinData.AccessCode);
             }
