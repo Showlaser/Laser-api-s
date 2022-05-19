@@ -29,8 +29,8 @@ namespace Auth_API.Tests.IntegrationTests
 
             SetEnvironmentVariables();
             SetupDependencyInjection();
-            GetAuthorizationTokens();
             CreateTestUserIfItDoesNotExists();
+            GetAuthorizationTokens();
         }
 
         private static void CreateTestUserIfItDoesNotExists()
