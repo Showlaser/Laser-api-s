@@ -6,6 +6,7 @@ using Auth_API.Models.Dto.Tokens;
 using Auth_API.Models.Dto.User;
 using Auth_API.Models.Helper;
 using Auth_API.Models.ToFrontend;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.Net;
 using System.Security;
@@ -189,7 +190,8 @@ namespace Auth_API.Logic
                 {
                     Uuid = Guid.NewGuid(),
                     UserUuid = dbUser.Uuid,
-                    Code = Guid.NewGuid()
+                    Code = Guid.NewGuid(),
+                    ExpirationDate = DateTime.UtcNow.AddHours(2)
                 };
 
                 await _userActivationDal.Add(activation);
@@ -218,6 +220,11 @@ namespace Auth_API.Logic
             UserActivationDto userActivation = await _userActivationDal.Find(code) ?? throw new KeyNotFoundException();
             await _disabledUserDal.Remove(userActivation.UserUuid);
             await _userActivationDal.Remove(userActivation.UserUuid);
+
+            if (userActivation.ExpirationDate < DateTime.UtcNow)
+            {
+                throw new SecurityTokenExpiredException();
+            }
         }
 
         public async Task ResetPassword(Guid code, string newPassword)

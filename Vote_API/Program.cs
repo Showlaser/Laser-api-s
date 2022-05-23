@@ -23,12 +23,12 @@ builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOpti
     .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 WebApplication app = builder.Build();
-app.UseCors(builder =>
+app.UseCors(b =>
 {
-    builder.WithOrigins("http://localhost:3000", "http://localhost:3001")
-        .AllowCredentials()
+    b.AllowCredentials()
         .AllowAnyHeader()
-        .AllowAnyMethod();
+        .AllowAnyMethod()
+        .AllowAnyOrigin();
 });
 
 WebSocketOptions webSocketOptions = new WebSocketOptions

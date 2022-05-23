@@ -25,14 +25,12 @@ builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOpti
     .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 WebApplication app = builder.Build();
-
-// Configure the HTTP request pipeline.
-app.UseCors(builder =>
+app.UseCors(b =>
 {
-    builder.WithOrigins("http://localhost:3000", "http://localhost:3001")
-        .AllowCredentials()
+    b.AllowCredentials()
         .AllowAnyHeader()
-        .AllowAnyMethod();
+        .AllowAnyMethod()
+        .AllowAnyOrigin();
 });
 
 app.UseAuthorization();

@@ -1,6 +1,7 @@
 ﻿using Auth_API.CustomExceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.Security;
 
@@ -41,6 +42,10 @@ namespace Auth_API.Models.Helper
             catch (UnauthorizedAccessException)
             {
                 return new UnauthorizedResult();
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                return new StatusCodeResult(StatusCodes.Status410Gone);
             }
             catch (Exception exception)
             {
@@ -83,6 +88,10 @@ namespace Auth_API.Models.Helper
             catch (UnauthorizedAccessException)
             {
                 return new UnauthorizedResult();
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                return new StatusCodeResult(StatusCodes.Status410Gone);
             }
             catch (Exception exception)
             {
