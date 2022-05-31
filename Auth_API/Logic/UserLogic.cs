@@ -89,7 +89,6 @@ namespace Auth_API.Logic
         public async Task<UserTokensViewmodel> Login(UserDto user, IPAddress? ipAddress)
         {
             UserDto dbUser = await _userDal.Find(user.Username) ?? throw new SecurityException();
-
             DisabledUserDto? disabledUser = await _disabledUserDal.Find(dbUser.Uuid);
             if (disabledUser != null)
             {
