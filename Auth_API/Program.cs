@@ -27,7 +27,7 @@ builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOpti
 WebApplication app = builder.Build();
 app.UseCors(b =>
 {
-    b.WithOrigins("http://localhost:3000", "http://localhost:3001")
+    b.SetIsOriginAllowed(o => true)
         .AllowCredentials()
         .AllowAnyHeader()
         .AllowAnyMethod();
