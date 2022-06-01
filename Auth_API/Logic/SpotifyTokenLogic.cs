@@ -92,6 +92,10 @@ namespace Auth_API.Logic
             req.Content = urlEncodedParameters;
             HttpResponseMessage response = await _client.SendAsync(req);
             SpotifyTokensViewmodel? tokens = await response.Content.ReadFromJsonAsync<SpotifyTokensViewmodel>();
+            if (string.IsNullOrEmpty(tokens.access_token) || string.IsNullOrEmpty(tokens.refresh_token))
+            {
+                throw new SecurityException("Invalid refresh token");
+            }
 
             await UpdateSpotifyRefreshToken(userUuid, tokens?.refresh_token);
             return tokens;

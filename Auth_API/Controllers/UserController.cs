@@ -36,6 +36,7 @@ namespace Auth_API.Controllers
             return await controllerResultHelper.Execute(Action());
         }
 
+        [AuthorizedAction]
         [HttpGet]
         public async Task<ActionResult<UserViewmodel>> GetCurrentUser()
         {

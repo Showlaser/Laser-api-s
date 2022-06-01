@@ -59,7 +59,7 @@ namespace Auth_API.Logic
                     ValidateIssuerSigningKey = true,
                     ValidateAudience = true,
                     ValidateIssuer = false,
-                    ValidateLifetime = validateTime
+                    ValidateLifetime = validateTime,
                 }, out SecurityToken validatedToken);
                 return (JwtSecurityToken)validatedToken;
             }
