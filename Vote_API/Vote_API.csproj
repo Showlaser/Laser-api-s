@@ -9,22 +9,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Isopoh.Cryptography.Argon2" Version="1.1.11" />
+    <PackageReference Include="Isopoh.Cryptography.Argon2" Version="1.1.12" />
     <PackageReference Include="Mapster" Version="7.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.3">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.0" />
-    <PackageReference Include="Moq" Version="4.17.2" />
-    <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
-    <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
+    <PackageReference Include="Moq" Version="4.18.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.16.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.19.0" />
   </ItemGroup>
 
   <ItemGroup>

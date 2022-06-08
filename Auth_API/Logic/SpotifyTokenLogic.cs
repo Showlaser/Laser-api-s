@@ -97,7 +97,7 @@ namespace Auth_API.Logic
                 throw new SecurityException("Invalid refresh token");
             }
 
-            await UpdateSpotifyRefreshToken(userUuid, tokens?.refresh_token);
+            await UpdateSpotifyRefreshToken(userUuid, tokens.refresh_token);
             return tokens;
         }
 
