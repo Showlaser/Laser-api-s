@@ -42,7 +42,7 @@ app.Run();
 static string GetConnectionString()
 {
     // Uncomment string below when creating migrations
-    //return $"database=auth;keepalive=5;server=127.0.0.1;port=3306;user id=root;password=qwerty;connectiontimeout=5";
+    return $"database=auth;keepalive=5;server=127.0.0.1;port=3306;user id=root;password=qwerty;connectiontimeout=5";
 
     IDictionary variables = Environment.GetEnvironmentVariables();
     string? server = variables["SERVER"]?.ToString();
@@ -66,8 +66,5 @@ static void CreateDatabaseIfNotExist(IApplicationBuilder app)
         .GetRequiredService<IServiceScopeFactory>()
         .CreateScope();
     DataContext? context = serviceScope.ServiceProvider.GetService<DataContext>();
-    if (!context.Database.EnsureCreatedAsync().Result)
-    {
-        context?.Database.Migrate();
-    }
+    context?.Database.Migrate();
 }
