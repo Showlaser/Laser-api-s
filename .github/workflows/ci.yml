@@ -25,5 +25,7 @@ jobs:
         uses: jakejarvis/wait-action@master
         with:
           time: "5s"
+      - name: Show containers
+        run: docker container ls
       - name: Test
         run: dotnet test Docker-api-s.sln --no-build --verbosity normal
