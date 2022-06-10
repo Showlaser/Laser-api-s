@@ -17,7 +17,7 @@ namespace Vote_API.Tests.IntegrationTests.Tests
         [TestMethod]
         public void FindVoteTest()
         {
-            VoteDataViewmodel voteData = TestHelper.Client.GetFromJsonAsync<VoteDataViewmodel>($"vote?joinCode={TestHelper.VoteJoinData.JoinCode}&accessCode={TestHelper.VoteJoinData.AccessCode}").Result;
+            VoteDataViewmodel? voteData = TestHelper.Client.GetFromJsonAsync<VoteDataViewmodel>($"vote?joinCode={TestHelper.VoteJoinData.JoinCode}&accessCode={TestHelper.VoteJoinData.AccessCode}").Result;
             Assert.IsNotNull(voteData);
         }
 
