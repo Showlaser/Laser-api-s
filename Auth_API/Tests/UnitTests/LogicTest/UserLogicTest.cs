@@ -1,6 +1,7 @@
 ﻿using Auth_API.Logic;
 using Auth_API.Models.Dto.User;
 using Auth_API.Models.ToFrontend;
+using Auth_API.Tests.IntegrationTests;
 using Auth_API.Tests.UnitTests.MockedLogics;
 using Auth_API.Tests.UnitTests.TestModels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,19 +13,14 @@ namespace Auth_API.Tests.UnitTests.LogicTest
     [TestClass]
     public class UserLogicTest
     {
-        private readonly UserLogic _userLogic;
+        private UserLogic _userLogic;
         private readonly TestUserDto _testUser = new();
 
-        public UserLogicTest()
+        [TestInitialize]
+        public void Setup()
         {
             _userLogic = new MockedUserLogic().UserLogic;
-            TestHelper.SetEnvironmentVariables();
-        }
-
-        [TestMethod]
-        public async Task AddUserTest()
-        {
-            await _userLogic.Add(_testUser.UserDto);
+            TestHelper.SetupTestEnvironment();
         }
 
         [TestMethod]
@@ -32,7 +28,7 @@ namespace Auth_API.Tests.UnitTests.LogicTest
         {
             UserTokensViewmodel tokens = await _userLogic.Login(new UserDto
             {
-                Password = "123",
+                Password = "qwerty",
                 Salt = _testUser.UserDto.Salt,
                 Username = _testUser.UserDto.Username
             }, IPAddress.Parse("127.0.0.1"));
@@ -94,7 +90,7 @@ namespace Auth_API.Tests.UnitTests.LogicTest
             ip ??= IPAddress.Parse("127.0.0.1");
             return await _userLogic.Login(new UserDto
             {
-                Password = "123",
+                Password = "qwerty",
                 Salt = _testUser.UserDto.Salt,
                 Username = _testUser.UserDto.Username
             }, ip);

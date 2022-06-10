@@ -1,4 +1,5 @@
 ﻿using Auth_API.Logic;
+using Auth_API.Tests.IntegrationTests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
 using System.Security.Cryptography;
@@ -12,7 +13,7 @@ namespace Auth_API.Tests.UnitTests.LogicTest
 
         public SecurityLogicTest()
         {
-            TestHelper.SetEnvironmentVariables();
+            TestHelper.SetupTestEnvironment();
             RandomNumberGenerator rng = RandomNumberGenerator.Create();
             byte[] salt = new byte[64];
             rng.GetBytes(salt);

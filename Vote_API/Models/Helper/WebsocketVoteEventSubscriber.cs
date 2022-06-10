@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Mapster;
+using Newtonsoft.Json;
 using System.Net.WebSockets;
 using System.Text;
-using Mapster;
 using Vote_API.Models.Dto;
 using Vote_API.Models.ToFrontend;
 
@@ -23,7 +23,7 @@ namespace Vote_API.Models.Helper
 
         public async Task OnUpdate(VoteDataDto data)
         {
-            List<WebsocketInfo> websocketsToInform = _websockets.FindAll(wsi => 
+            List<WebsocketInfo> websocketsToInform = _websockets.FindAll(wsi =>
                 wsi.Identifier?.VoteDataUuid == data.Uuid);
 
             VoteDataViewmodel voteDataViewmodel = data.Adapt<VoteDataViewmodel>();

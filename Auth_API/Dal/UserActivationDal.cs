@@ -26,14 +26,12 @@ namespace Auth_API.Dal
 
         public async Task Remove(Guid userUuid)
         {
-            UserActivationDto userActivationToRemove = await _context.UserActivation.SingleAsync(p => p.UserUuid == userUuid);
-            if (userActivationToRemove == null)
+            UserActivationDto? userActivationToRemove = await _context.UserActivation.FirstOrDefaultAsync(p => p.UserUuid == userUuid);
+            if (userActivationToRemove != null)
             {
-                throw new KeyNotFoundException();
+                _context.UserActivation.Remove(userActivationToRemove);
+                await _context.SaveChangesAsync();
             }
-
-            _context.UserActivation.Remove(userActivationToRemove);
-            await _context.SaveChangesAsync();
         }
     }
 }

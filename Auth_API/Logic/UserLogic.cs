@@ -6,6 +6,7 @@ using Auth_API.Models.Dto.Tokens;
 using Auth_API.Models.Dto.User;
 using Auth_API.Models.Helper;
 using Auth_API.Models.ToFrontend;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.Net;
 using System.Security;
@@ -20,7 +21,7 @@ namespace Auth_API.Logic
         private readonly IUserActivationDal _userActivationDal;
         private readonly IDisabledUserDal _disabledUserDal;
 
-        private static readonly string FrontEndUrl = Environment.GetEnvironmentVariable("FRONTENDURL") ?? throw new NoNullAllowedException("Environment variable" +
+        private static readonly string FrontEndUrl = Environment.GetEnvironmentVariable("FRONTENDURL") ?? throw new NoNullAllowedException("Environment variable " +
                                                                                                                                            "FRONTENDURL was empty. Set it using the FRONTENDURL environment variable");
 
         public UserLogic(IUserDal userDal, IUserTokenDal userTokenDal, IUserActivationDal userActivationDal, IDisabledUserDal disabledUserDal)
@@ -38,7 +39,7 @@ namespace Auth_API.Logic
         /// <param name="user">The user from the front-end</param>
         /// <param name="dbUser">The user found in the database. If null the user will be searched in the database</param>
         /// <exception cref="DuplicateNameException"></exception>
-        private async Task UsernameExists(UserDto user, UserDto? dbUser = null)
+        private async Task ThrowExceptionIfUsernameExists(UserDto user, UserDto? dbUser = null)
         {
             dbUser ??= await _userDal.Find(user.Username);
             if (dbUser != null &&
@@ -49,14 +50,40 @@ namespace Auth_API.Logic
             }
         }
 
+        private static void ValidateUser(UserDto user)
+        {
+            bool userValid = !string.IsNullOrEmpty(user.Password) &&
+                             !string.IsNullOrEmpty(user.Email)
+                             && !string.IsNullOrEmpty(user.Username);
+
+            if (!userValid)
+            {
+                throw new InvalidDataException();
+            }
+        }
+
+        private async Task ThrowExceptionIfEmailExists(UserDto user, UserDto? dbUser = null)
+        {
+            dbUser ??= await _userDal.FindByEmail(user.Username);
+            if (dbUser != null &&
+                dbUser.Email == user.Email &&
+                dbUser.Uuid != user.Uuid)
+            {
+                throw new DuplicateNameException();
+            }
+        }
+
         public async Task Add(UserDto user)
         {
-            await UsernameExists(user);
+            ValidateUser(user);
+            await ThrowExceptionIfUsernameExists(user);
+            await ThrowExceptionIfEmailExists(user);
 
             user.Uuid = Guid.NewGuid();
             user.Salt = SecurityLogic.GetSalt();
             user.Password = SecurityLogic.HashPassword(user.Password, user.Salt);
             await _userDal.Add(user);
+            await SetEmailChangeState(user);
         }
 
         public async Task<UserTokensViewmodel> Login(UserDto user, IPAddress? ipAddress)
@@ -123,8 +150,10 @@ namespace Auth_API.Logic
 
         public async Task Update(UserDto user, string newPassword)
         {
+            ValidateUser(user);
             UserDto dbUser = await _userDal.Find(user.Uuid) ?? throw new KeyNotFoundException();
-            await UsernameExists(user, dbUser);
+            await ThrowExceptionIfUsernameExists(user, dbUser);
+            dbUser.Username = user.Username;
 
             SecurityLogic.ValidatePassword(dbUser.Password, dbUser.Salt, user.Password);
             if (!string.IsNullOrEmpty(newPassword))
@@ -160,10 +189,11 @@ namespace Auth_API.Logic
                 {
                     Uuid = Guid.NewGuid(),
                     UserUuid = dbUser.Uuid,
-                    Code = Guid.NewGuid()
+                    Code = Guid.NewGuid(),
+                    ExpirationDate = DateTime.UtcNow.AddHours(2)
                 };
-                await _userActivationDal.Add(activation);
 
+                await _userActivationDal.Add(activation);
                 Dictionary<string, string> keyWordDictionary = new()
                 {
                     { "Url", $"{FrontEndUrl}account-activation?code={activation.Code}" }
@@ -179,7 +209,7 @@ namespace Auth_API.Logic
             }
             catch (Exception)
             {
-                await _disabledUserDal.Remove(dbUser.Uuid);
+                await Remove(dbUser);
                 throw;
             }
         }
@@ -189,6 +219,11 @@ namespace Auth_API.Logic
             UserActivationDto userActivation = await _userActivationDal.Find(code) ?? throw new KeyNotFoundException();
             await _disabledUserDal.Remove(userActivation.UserUuid);
             await _userActivationDal.Remove(userActivation.UserUuid);
+
+            if (userActivation.ExpirationDate < DateTime.UtcNow)
+            {
+                throw new SecurityTokenExpiredException();
+            }
         }
 
         public async Task ResetPassword(Guid code, string newPassword)
@@ -253,6 +288,9 @@ namespace Auth_API.Logic
 
         public async Task Remove(UserDto user)
         {
+            await _userTokenDal.Remove(user.Uuid);
+            await _userActivationDal.Remove(user.Uuid);
+            await _disabledUserDal.Remove(user.Uuid);
             await _userDal.Remove(user.Uuid);
         }
     }

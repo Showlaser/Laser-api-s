@@ -1,4 +1,5 @@
 ﻿using Auth_API.Logic;
+using Auth_API.Tests.IntegrationTests;
 using Auth_API.Tests.UnitTests.MockedLogics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,7 +12,7 @@ namespace Auth_API.Tests.UnitTests.LogicTest
 
         public SpotifyLogicTest()
         {
-            TestHelper.SetEnvironmentVariables();
+            TestHelper.SetupTestEnvironment();
             _spotifyTokenLogic = new MockedUserTokenLogic().SpotifyTokenLogic;
         }
     }

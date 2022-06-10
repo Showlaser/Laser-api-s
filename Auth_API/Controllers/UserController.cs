@@ -36,6 +36,7 @@ namespace Auth_API.Controllers
             return await controllerResultHelper.Execute(Action());
         }
 
+        [AuthorizedAction]
         [HttpGet]
         public async Task<ActionResult<UserViewmodel>> GetCurrentUser()
         {
@@ -155,11 +156,11 @@ namespace Auth_API.Controllers
 
         [AuthorizedAction]
         [HttpDelete]
-        public async Task<ActionResult> Remove([FromBody] User user)
+        public async Task<ActionResult> Remove()
         {
             async Task Action()
             {
-                UserDto userDto = user.Adapt<UserDto>();
+                UserDto userDto = ControllerHelper.GetUserModelFromJwtClaims(this);
                 await _userLogic.Remove(userDto);
             }
 

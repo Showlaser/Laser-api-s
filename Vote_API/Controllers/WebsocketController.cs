@@ -25,13 +25,13 @@ namespace Vote_API.Controllers
         {
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                var buffer = new byte[1024 * 4];
+                using WebSocket? webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                byte[]? buffer = new byte[1024 * 4];
                 await webSocket.ReceiveAsync(
                     new ArraySegment<byte>(buffer), CancellationToken.None);
 
                 string data = Encoding.UTF8.GetString(buffer);
-                var identifier = JsonConvert.DeserializeObject<WebsocketIdentifier>(data);
+                WebsocketIdentifier? identifier = JsonConvert.DeserializeObject<WebsocketIdentifier>(data);
 
                 await _voteLogic.Find(new VoteJoinData
                 {
@@ -57,8 +57,8 @@ namespace Vote_API.Controllers
 
         private async Task Echo(WebSocket webSocket, WebsocketInfo info)
         {
-            var buffer = new byte[1024 * 4];
-            var receiveResult = await webSocket.ReceiveAsync(
+            byte[]? buffer = new byte[1024 * 4];
+            WebSocketReceiveResult? receiveResult = await webSocket.ReceiveAsync(
                 new ArraySegment<byte>(buffer), CancellationToken.None);
 
             while (!receiveResult.CloseStatus.HasValue)

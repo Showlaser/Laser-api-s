@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Vote_API.Logic;
+﻿using Vote_API.Logic;
 using Vote_API.Models.Dto;
 
 namespace Vote_API.Tests.UnitTests.TestModels

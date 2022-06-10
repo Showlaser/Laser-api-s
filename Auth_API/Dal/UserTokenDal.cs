@@ -26,12 +26,13 @@ namespace Auth_API.Dal
 
         public async Task Remove(Guid userUuid)
         {
-            UserTokensDto? spotifyDb = await _context.UserToken.SingleOrDefaultAsync(s => s.UserUuid == userUuid);
-            if (spotifyDb == null)
+            List<UserTokensDto> spotifyTokens = await _context.UserToken.Where(s => s.UserUuid == userUuid).ToListAsync();
+            if (!spotifyTokens.Any())
             {
                 return;
             }
-            _context.UserToken.Remove(spotifyDb);
+
+            _context.UserToken.RemoveRange(spotifyTokens);
             await _context.SaveChangesAsync();
         }
     }

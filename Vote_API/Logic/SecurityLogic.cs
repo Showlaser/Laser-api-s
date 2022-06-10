@@ -1,10 +1,9 @@
-﻿using System.Data;
-using System.Net;
+﻿using Isopoh.Cryptography.Argon2;
+using Isopoh.Cryptography.SecureArray;
+using System.Data;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
-using Isopoh.Cryptography.Argon2;
-using Isopoh.Cryptography.SecureArray;
 
 namespace Vote_API.Logic
 {
@@ -20,7 +19,7 @@ namespace Vote_API.Logic
             Threads = Environment.ProcessorCount, // higher than "Lanes" doesn't help (or hurt)
             HashLength = 32 // >= 4
         };
-        
+
         private static Argon2Config GetArgon2Config(string password, byte[] salt)
         {
             if (string.IsNullOrEmpty(password) || salt.Length < 64)

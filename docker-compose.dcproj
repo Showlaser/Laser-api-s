@@ -6,7 +6,7 @@
     <ProjectGuid>996d4f67-1b09-4afd-a421-a7555ca1453a</ProjectGuid>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
     <DockerServiceName>authapi</DockerServiceName>
-    <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
+    <DockerLaunchAction>None</DockerLaunchAction>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

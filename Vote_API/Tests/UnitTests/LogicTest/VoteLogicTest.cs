@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 using Vote_API.Logic;
 using Vote_API.Models.Dto;
 using Vote_API.Models.FromFrontend;

@@ -1,9 +1,10 @@
 ﻿using Auth_API.Logic;
+using Auth_API.Tests.IntegrationTests;
 using Auth_API.Tests.UnitTests.TestModels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Security.Claims;
 
-namespace Auth_API.Tests.LogicTest
+namespace Auth_API.Tests.UnitTests.LogicTest
 {
     [TestClass]
     public class JwtLogicTest
@@ -13,7 +14,7 @@ namespace Auth_API.Tests.LogicTest
         public JwtLogicTest()
         {
             _testRefreshToken = new TestRefreshTokenDto();
-            TestHelper.SetEnvironmentVariables();
+            TestHelper.SetupTestEnvironment();
         }
 
         [TestMethod]
