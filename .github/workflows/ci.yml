@@ -24,6 +24,6 @@ jobs:
       - name: Wait for Mariadb Server container
         uses: jakejarvis/wait-action@master
         with:
-          time: "2s"
+          time: "15s"
       - name: Test
         run: dotnet test Docker-api-s.sln --no-build --verbosity normal

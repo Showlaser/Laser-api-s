@@ -5,7 +5,6 @@ using Auth_API.Models.Helper;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using System.Data;
-using System.Diagnostics;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -63,11 +62,12 @@ static string GetConnectionString()
 
 static void CreateDatabaseIfNotExist(IApplicationBuilder app)
 {
-    Console.WriteLine("CREATE NEW DATABASE");
-    Debug.WriteLine("CREATE NEW DATABASE");
     IServiceScope serviceScope = app.ApplicationServices
         .GetRequiredService<IServiceScopeFactory>()
         .CreateScope();
     DataContext? context = serviceScope.ServiceProvider.GetService<DataContext>();
-    context?.Database.Migrate();
+    if (!context.Database.EnsureCreatedAsync().Result)
+    {
+        context?.Database.Migrate();
+    }
 }

@@ -82,5 +82,8 @@ static void CreateDatabaseIfNotExist(IApplicationBuilder app)
         .GetRequiredService<IServiceScopeFactory>()
         .CreateScope();
     DataContext? context = serviceScope.ServiceProvider.GetService<DataContext>();
-    context.Database.Migrate();
+    if (!context.Database.EnsureCreatedAsync().Result)
+    {
+        context?.Database.Migrate();
+    }
 }
