@@ -95,12 +95,27 @@ namespace Auth_API.Tests.IntegrationTests
                 .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
             WebApplication app = builder.Build();
             _services = app.Services;
+
+            CreateDatabaseIfNotExist(app);
+        }
+
+        /// <summary>
+        /// Creates and database if it does not exists
+        /// </summary>
+        /// <param name="app">IApplicationBuilder object</param>
+        static void CreateDatabaseIfNotExist(IApplicationBuilder app)
+        {
+            IServiceScope serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope();
+            DataContext? context = serviceScope.ServiceProvider.GetService<DataContext>();
+            context.Database.Migrate();
         }
 
         static string GetConnectionString()
         {
             // Uncomment string below when creating migrations
-            return $"database=auth;keepalive=5;server=127.0.0.1;port=3306;user id=root;password=qwerty;connectiontimeout=5";
+            //return $"database=auth;keepalive=5;server=127.0.0.1;port=3306;user id=root;password=qwerty;connectiontimeout=5";
 
             IDictionary variables = Environment.GetEnvironmentVariables();
             string? server = variables["SERVER"]?.ToString();
@@ -109,13 +124,16 @@ namespace Auth_API.Tests.IntegrationTests
             string? username = variables["USERNAME"]?.ToString();
             string? password = variables["PASSWORD"]?.ToString();
 
-            if (string.IsNullOrEmpty(server) || string.IsNullOrEmpty(database) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(server) || string.IsNullOrEmpty(database) || string.IsNullOrEmpty(username) ||
+                string.IsNullOrEmpty(password))
             {
-                throw new NoNullAllowedException("Environment variable or variables where null. Please enter include the following environment variables:" +
-                                                 "SERVER, DATABASE, PORT, USERNAME and Password");
+                throw new NoNullAllowedException(
+                    "Environment variable or variables where null. Please enter include the following environment variables:" +
+                    "SERVER, DATABASE, PORT, USERNAME and Password");
             }
 
-            return $"database={database};keepalive=5;server={server};port={port};user id={username};password={password};connectiontimeout=5";
+            return
+                $"database={database};keepalive=5;server={server};port={port};user id={username};password={password};connectiontimeout=5";
         }
     }
 }

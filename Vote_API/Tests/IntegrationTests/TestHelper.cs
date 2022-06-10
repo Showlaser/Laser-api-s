@@ -111,13 +111,25 @@ namespace Vote_API.Tests.IntegrationTests
                 .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
             WebApplication app = builder.Build();
             _services = app.Services;
+
+            CreateDatabaseIfNotExist(app);
+        }
+
+        /// <summary>
+        /// Creates and database if it does not exists
+        /// </summary>
+        /// <param name="app">IApplicationBuilder object</param>
+        static void CreateDatabaseIfNotExist(IApplicationBuilder app)
+        {
+            IServiceScope serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope();
+            DataContext? context = serviceScope.ServiceProvider.GetService<DataContext>();
+            context.Database.Migrate();
         }
 
         static string GetConnectionString()
         {
-            // Uncomment string below when creating migrations
-            return $"database=vote;keepalive=5;server=127.0.0.1;port=3306;user id=root;password=qwerty;connectiontimeout=5";
-
             IDictionary variables = Environment.GetEnvironmentVariables();
             string? server = variables["SERVER"]?.ToString();
             string? database = variables["DATABASE"]?.ToString();
