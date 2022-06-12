@@ -33,7 +33,7 @@ namespace Vote_API.Tests.IntegrationTests
 
             SetEnvironmentVariables();
             SetupDependencyInjection();
-            GetAuthorizationTokens();
+            GetAuthorizationTokensAndSetupClient();
             RemoveTestVoteDataIfExists();
             AddVoteData();
         }
@@ -52,7 +52,7 @@ namespace Vote_API.Tests.IntegrationTests
             VoteJoinData = postResponse.Content.ReadFromJsonAsync<VoteJoinData>().Result;
         }
 
-        private static void GetAuthorizationTokens()
+        private static void GetAuthorizationTokensAndSetupClient()
         {
             AuthFactory authFactory = new();
             string jwt = GenerateJwtToken(Guid.Parse("4a4a4847-e081-40c8-a020-b5c2d4ccc00d"));

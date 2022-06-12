@@ -30,7 +30,7 @@ namespace Auth_API.Tests.IntegrationTests
             SetEnvironmentVariables();
             SetupDependencyInjection();
             CreateTestUserIfItDoesNotExists();
-            GetAuthorizationTokens();
+            GetAuthorizationTokensAndSetupClient();
         }
 
         private static void CreateTestUserIfItDoesNotExists()
@@ -46,7 +46,7 @@ namespace Auth_API.Tests.IntegrationTests
             userDal.Add(testUser).Wait();
         }
 
-        private static void GetAuthorizationTokens()
+        private static void GetAuthorizationTokensAndSetupClient()
         {
             AuthFactory authFactory = new();
             CookieContainer cookieContainer = new();
