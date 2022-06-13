@@ -122,11 +122,10 @@ namespace Auth_API.Controllers
                 UserDto userDto = user.Adapt<UserDto>();
 
                 UserTokensViewmodel tokens = await _userLogic.Login(userDto, ip);
-                //TODO set cookie secure on true in production
                 CookieOptions cookieOptions = new()
                 {
                     HttpOnly = true,
-                    Secure = false,
+                    Secure = true,
                     Path = "/",
                     Expires = DateTime.Now.AddDays(7)
                 };
