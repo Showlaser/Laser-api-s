@@ -26,6 +26,5 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: user/app:latest
           repository: vincentdarwinkel/laser-auth
           file: ./Auth_API/Dockerfile
