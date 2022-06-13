@@ -67,7 +67,7 @@ namespace Auth_API.Controllers
                 CookieOptions cookieOptions = new()
                 {
                     SameSite = SameSiteMode.None,
-                    HttpOnly = true,
+                    HttpOnly = false,
                     Secure = true,
                     Path = "/",
                     Expires = DateTime.Now.AddDays(31)
