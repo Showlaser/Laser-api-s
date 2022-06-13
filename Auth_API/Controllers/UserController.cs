@@ -64,11 +64,11 @@ namespace Auth_API.Controllers
                 UserTokensViewmodel userTokens = ControllerHelper.GetUserTokens(this);
                 UserTokensViewmodel tokens = await _userLogic.RefreshToken(userTokens, ip);
 
-                //TODO set cookie secure on true in production
                 CookieOptions cookieOptions = new()
                 {
+                    SameSite = SameSiteMode.None,
                     HttpOnly = true,
-                    Secure = false,
+                    Secure = true,
                     Path = "/",
                     Expires = DateTime.Now.AddDays(31)
                 };
