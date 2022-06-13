@@ -11,7 +11,7 @@ services:
     ports:
         - "5001:80"
     environment:
-        JWTSECRET: 234ger34q3gt3q4g43qg34g34g43
+        JWTSECRET: hwef9hewihsidhfkfdafew
         ARGON2SECRET: jwoi320djkg40-8u92huyashdfkj
         SERVER: mariadb
         DATABASE: auth
