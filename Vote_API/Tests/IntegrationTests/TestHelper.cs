@@ -93,6 +93,7 @@ namespace Vote_API.Tests.IntegrationTests
             Environment.SetEnvironmentVariable("PORT", "3306");
             Environment.SetEnvironmentVariable("USERNAME", "root");
             Environment.SetEnvironmentVariable("PASSWORD", "qwerty");
+            Environment.SetEnvironmentVariable("FRONTENDURL", "http://localhost:3000/");
         }
 
         private static void SetupDependencyInjection()

@@ -22,10 +22,13 @@ string connectionString = GetConnectionString();
 builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOptions
     .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
+string frontEndUrl = Environment.GetEnvironmentVariable("FRONTENDURL") ?? throw new NoNullAllowedException("Environment variable " +
+    "FRONTENDURL was empty. Set it using the FRONTENDURL environment variable");
+
 WebApplication app = builder.Build();
 app.UseCors(b =>
 {
-    b.SetIsOriginAllowed(o => true)
+    b.WithOrigins(frontEndUrl)
         .AllowCredentials()
         .AllowAnyHeader()
         .AllowAnyMethod();
