@@ -28,7 +28,7 @@ string frontEndUrl = Environment.GetEnvironmentVariable("FRONTENDURL") ?? throw 
 WebApplication app = builder.Build();
 app.UseCors(b =>
 {
-    b.WithOrigins(frontEndUrl)
+    b.WithOrigins(frontEndUrl, "https://localhost:3000")
         .AllowCredentials()
         .AllowAnyHeader()
         .AllowAnyMethod();
