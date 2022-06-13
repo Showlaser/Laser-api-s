@@ -9,6 +9,7 @@
     <DockerLaunchAction>None</DockerLaunchAction>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="docker-compose.Development.yml" />
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
     </None>

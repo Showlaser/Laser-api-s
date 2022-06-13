@@ -11,19 +11,19 @@ services:
     ports:
         - "5001:80"
     environment:
-        JWTSECRET: hwef9hewihsidhfkfdafew
-        ARGON2SECRET: jwoi320djkg40-8u92huyashdfkj
+        JWTSECRET: 
+        ARGON2SECRET: 
         SERVER: mariadb
         DATABASE: auth
         PORT: 3306
         USERNAME: root
         PASSWORD: qwerty
-        SPOTIFYCLIENTID: b63c814d37454bb4bb47667cc2a854e0
-        SPOTIFYCLIENTSECRET: 3461856b314c49408ee37ecd6d3c9413
+        SPOTIFYCLIENTID:
+        SPOTIFYCLIENTSECRET:
         SMTPHOST: smtp.gmail.com
         SMTPPORT: 587
-        EMAILADDRESS: vincentswebmail@gmail.com
-        EMAILPASSWORD: cjhoevpijhsaisxf
+        EMAILADDRESS: example.com
+        EMAILPASSWORD: f4f34f
         FRONTENDURL: http://localhost:3000/
 
   mariadb:
