@@ -127,6 +127,7 @@ namespace Auth_API.Controllers
                     HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.None,
+                    Domain = "vdarwinkel.nl",
                     Path = "/",
                     Expires = DateTime.Now.AddDays(7)
                 };
