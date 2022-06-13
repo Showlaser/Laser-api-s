@@ -66,11 +66,11 @@ namespace Auth_API.Controllers
 
                 CookieOptions cookieOptions = new()
                 {
-                    SameSite = SameSiteMode.Lax,
                     HttpOnly = true,
                     Secure = true,
+                    SameSite = SameSiteMode.None,
                     Path = "/",
-                    Expires = DateTime.Now.AddDays(31)
+                    Expires = DateTime.Now.AddDays(7)
                 };
 
                 Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
@@ -126,6 +126,7 @@ namespace Auth_API.Controllers
                 {
                     HttpOnly = true,
                     Secure = true,
+                    SameSite = SameSiteMode.None,
                     Path = "/",
                     Expires = DateTime.Now.AddDays(7)
                 };

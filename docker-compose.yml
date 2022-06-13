@@ -11,8 +11,8 @@ services:
     ports:
         - "5001:80"
     environment:
-        JWTSECRET: 
-        ARGON2SECRET: 
+        JWTSECRET: 234ger34q3gt3q4g43qg34g34g43
+        ARGON2SECRET: jwoi320djkg40-8u92huyashdfkj
         SERVER: mariadb
         DATABASE: auth
         PORT: 3306
@@ -24,7 +24,7 @@ services:
         SMTPPORT: 587
         EMAILADDRESS: example.com
         EMAILPASSWORD: f4f34f
-        FRONTENDURL: http://localhost:3000/
+        FRONTENDURL: http://localhost:3000
 
   mariadb:
     container_name: mariadb

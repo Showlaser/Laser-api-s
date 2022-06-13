@@ -19,6 +19,12 @@ builder.Services.AddScoped<IUserTokenDal, UserTokenDal>();
 builder.Services.AddScoped<ISpotifyTokenDal, SpotifyTokenDal>();
 builder.Services.AddScoped<IUserActivationDal, UserActivationDal>();
 builder.Services.AddScoped<IDisabledUserDal, DisabledUserDal>();
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+    options.CheckConsentNeeded = _ => true;
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+});
 
 string connectionString = GetConnectionString();
 builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOptions
