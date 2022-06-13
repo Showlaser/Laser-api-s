@@ -66,3 +66,4 @@ services:
         PASSWORD: qwerty
         SERVERURL: 127.0.0.1
         ARGON2SECRET: fho938fh32oewfjfefj2398
+        FRONTENDURL: https://laser-vote.vdarwinkel.nl/
