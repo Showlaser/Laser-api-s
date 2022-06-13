@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System.Diagnostics;
 using Vote_API.Logic;
 
 namespace Vote_API.Models.Helper
@@ -21,8 +20,6 @@ namespace Vote_API.Models.Helper
             string? jwt = context.HttpContext.Request.Cookies["jwt"]?.Replace("Bearer ", "");
             if (string.IsNullOrEmpty(jwt))
             {
-                Console.WriteLine("JWT EMPTY");
-                Debug.WriteLine("JWT EMPTY");
                 context.Result = new UnauthorizedResult();
                 base.OnActionExecuting(context);
                 return;

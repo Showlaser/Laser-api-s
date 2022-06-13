@@ -1,6 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System.Data;
-using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -23,8 +22,6 @@ namespace Vote_API.Logic
 
         private static JwtSecurityToken ValidateJwt(string jwt)
         {
-            Console.WriteLine($"JWT IS: {jwt}");
-            Debug.WriteLine($"JWT IS: {jwt}");
             JwtSecurityTokenHandler tokenHandler = new();
             string jwtSecret = Environment.GetEnvironmentVariable("JWTSECRET") ?? throw new NoNullAllowedException("Environment variable" +
                 "JWTSECRET was empty. Set it using the JWTSECRET environment variable");
