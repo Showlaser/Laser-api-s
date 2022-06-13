@@ -22,8 +22,8 @@ services:
         SPOTIFYCLIENTSECRET:
         SMTPHOST: smtp.gmail.com
         SMTPPORT: 587
-        EMAILADDRESS:
-        EMAILPASSWORD: 
+        EMAILADDRESS: example.com
+        EMAILPASSWORD: f4f34f
         FRONTENDURL: http://localhost:3000/
 
   mariadb:
