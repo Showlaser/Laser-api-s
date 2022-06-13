@@ -27,5 +27,5 @@ jobs:
         with:
           push: true
           repository: vincentdarwinkel/laser-auth
-          tag: vincentdarwinkel/laser-auth
+          tags: vincentdarwinkel/laser-auth
           file: ./Auth_API/Dockerfile
