@@ -16,11 +16,16 @@ namespace Auth_API.Controllers
     {
         private readonly UserLogic _userLogic;
         private readonly ControllerResultHelper _controllerResultHelper;
+        private readonly bool _debugModeActive = false;
 
         public UserController(UserLogic userLogic, ControllerResultHelper controllerResultHelper)
         {
             _userLogic = userLogic;
             _controllerResultHelper = controllerResultHelper;
+
+            #if DEBUG
+                _debugModeActive = true;
+            #endif
         }
 
         [HttpPost]
@@ -67,8 +72,9 @@ namespace Auth_API.Controllers
                 CookieOptions cookieOptions = new()
                 {
                     HttpOnly = true,
-                    Secure = true,
+                    Secure = !_debugModeActive,
                     SameSite = SameSiteMode.None,
+                    Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
                     Path = "/",
                     Expires = DateTime.Now.AddDays(7)
                 };
@@ -125,9 +131,9 @@ namespace Auth_API.Controllers
                 CookieOptions cookieOptions = new()
                 {
                     HttpOnly = true,
-                    Secure = true,
+                    Secure = !_debugModeActive,
                     SameSite = SameSiteMode.None,
-                    Domain = "vdarwinkel.nl",
+                    Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
                     Path = "/",
                     Expires = DateTime.Now.AddDays(7)
                 };
