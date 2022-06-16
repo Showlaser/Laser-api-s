@@ -23,9 +23,9 @@ namespace Auth_API.Controllers
             _userLogic = userLogic;
             _controllerResultHelper = controllerResultHelper;
 
-            #if DEBUG
-                _debugModeActive = true;
-            #endif
+#if DEBUG
+            _debugModeActive = true;
+#endif
         }
 
         [HttpPost]
@@ -72,7 +72,7 @@ namespace Auth_API.Controllers
                 CookieOptions cookieOptions = new()
                 {
                     HttpOnly = true,
-                    Secure = !_debugModeActive,
+                    Secure = true,
                     SameSite = SameSiteMode.None,
                     Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
                     Path = "/",
@@ -131,7 +131,7 @@ namespace Auth_API.Controllers
                 CookieOptions cookieOptions = new()
                 {
                     HttpOnly = true,
-                    Secure = !_debugModeActive,
+                    Secure = true,
                     SameSite = SameSiteMode.None,
                     Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
                     Path = "/",
