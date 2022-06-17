@@ -35,7 +35,8 @@ namespace Vote_API.Logic
                     ValidateIssuerSigningKey = true,
                     ValidateAudience = true,
                     ValidateIssuer = false,
-                    ValidateLifetime = true
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
                 return (JwtSecurityToken)validatedToken;
             }

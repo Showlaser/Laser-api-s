@@ -76,10 +76,13 @@ namespace Auth_API.Controllers
                     SameSite = SameSiteMode.None,
                     Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
                     Path = "/",
-                    Expires = DateTime.Now.AddDays(7)
+                    Expires = DateTime.Now.AddMinutes(15)
                 };
 
+                Response.Cookies.Delete("jwt");
                 Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
+                cookieOptions.Expires = DateTime.Now.AddDays(31);
+                Response.Cookies.Delete("refreshToken");
                 Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
             }
 
@@ -135,10 +138,12 @@ namespace Auth_API.Controllers
                     SameSite = SameSiteMode.None,
                     Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
                     Path = "/",
-                    Expires = DateTime.Now.AddDays(7)
+                    Expires = DateTime.Now.AddMinutes(15)
                 };
-
+                Response.Cookies.Delete("jwt");
                 Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
+                cookieOptions.Expires = DateTime.Now.AddDays(31);
+                Response.Cookies.Delete("refreshToken");
                 Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
             }
 

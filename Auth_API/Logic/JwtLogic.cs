@@ -22,7 +22,7 @@ namespace Auth_API.Logic
                     new Claim("uuid", userUuid.ToString()),
                 }),
                 Audience = "auth",
-                Expires = DateTime.UtcNow.AddMinutes(15),
+                Expires = DateTime.UtcNow.AddMinutes(5),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(jwtSecretKey),
                     SecurityAlgorithms.HmacSha256Signature)
@@ -60,6 +60,7 @@ namespace Auth_API.Logic
                     ValidateAudience = true,
                     ValidateIssuer = false,
                     ValidateLifetime = validateTime,
+                    ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
                 return (JwtSecurityToken)validatedToken;
             }
