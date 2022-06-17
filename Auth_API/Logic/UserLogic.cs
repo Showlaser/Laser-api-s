@@ -217,13 +217,13 @@ namespace Auth_API.Logic
         public async Task ActivateUserAccount(Guid code)
         {
             UserActivationDto userActivation = await _userActivationDal.Find(code) ?? throw new KeyNotFoundException();
-            await _disabledUserDal.Remove(userActivation.UserUuid);
-            await _userActivationDal.Remove(userActivation.UserUuid);
-
             if (userActivation.ExpirationDate < DateTime.UtcNow)
             {
                 throw new SecurityTokenExpiredException();
             }
+
+            await _disabledUserDal.Remove(userActivation.UserUuid);
+            await _userActivationDal.Remove(userActivation.UserUuid);
         }
 
         public async Task ResetPassword(Guid code, string newPassword)

@@ -23,9 +23,9 @@ namespace Auth_API.Controllers
             _userLogic = userLogic;
             _controllerResultHelper = controllerResultHelper;
 
-            #if DEBUG
-                _debugModeActive = true;
-            #endif
+#if DEBUG
+            _debugModeActive = true;
+#endif
         }
 
         [HttpPost]
@@ -72,14 +72,17 @@ namespace Auth_API.Controllers
                 CookieOptions cookieOptions = new()
                 {
                     HttpOnly = true,
-                    Secure = !_debugModeActive,
+                    Secure = true,
                     SameSite = SameSiteMode.None,
                     Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
                     Path = "/",
-                    Expires = DateTime.Now.AddDays(7)
+                    Expires = DateTime.Now.AddMinutes(15)
                 };
 
+                Response.Cookies.Delete("jwt");
                 Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
+                cookieOptions.Expires = DateTime.Now.AddDays(31);
+                Response.Cookies.Delete("refreshToken");
                 Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
             }
 
@@ -131,14 +134,16 @@ namespace Auth_API.Controllers
                 CookieOptions cookieOptions = new()
                 {
                     HttpOnly = true,
-                    Secure = !_debugModeActive,
+                    Secure = true,
                     SameSite = SameSiteMode.None,
                     Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
                     Path = "/",
-                    Expires = DateTime.Now.AddDays(7)
+                    Expires = DateTime.Now.AddMinutes(15)
                 };
-
+                Response.Cookies.Delete("jwt");
                 Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
+                cookieOptions.Expires = DateTime.Now.AddDays(31);
+                Response.Cookies.Delete("refreshToken");
                 Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
             }
 
