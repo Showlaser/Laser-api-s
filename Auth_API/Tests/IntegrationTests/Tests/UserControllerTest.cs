@@ -1,7 +1,4 @@
-﻿using Auth_API.Models.FromFrontend.User;
-using Auth_API.Tests.IntegrationTests.TestModels;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Net;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Auth_API.Tests.IntegrationTests.Tests
 {
@@ -14,7 +11,7 @@ namespace Auth_API.Tests.IntegrationTests.Tests
             TestHelper.SetupTestEnvironment();
         }
 
-        [TestMethod]
+        /*[TestMethod]
         public async Task UpdateUserTest()
         {
             User user = new TestUser().User;
@@ -29,6 +26,6 @@ namespace Auth_API.Tests.IntegrationTests.Tests
             {
                 throw new Exception("Failed to restore the test user username, set it to TestUser in the database.");
             }
-        }
+        }*/
     }
 }

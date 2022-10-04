@@ -13,7 +13,7 @@ namespace Auth_API.Logic
         private readonly string _clientSecret;
         private readonly string _clientId;
         private const string AuthEndpoint = "https://accounts.spotify.com/authorize";
-        private const string RedirectUrl = "https://localhost:3000/laser-settings";
+        private const string RedirectUrl = "https://localhost:3000/settings";
         private readonly string[] _scopes = { "user-read-currently-playing", "user-read-playback-state", "user-modify-playback-state", "user-read-private", "playlist-read-private" };
         private readonly HttpClient _client = new();
 
