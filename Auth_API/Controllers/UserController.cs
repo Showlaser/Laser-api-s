@@ -80,9 +80,7 @@ namespace Auth_API.Controllers
                 };
 
                 Response.Cookies.Delete("jwt");
-                Response.Headers.Add("set-cookie", $"jwt={tokens.Jwt}; expires={DateTime.Now.AddMinutes(15)}; domain=vdarwinkel.nl; path=/; secure; samesite=none; httponly");
                 Response.Cookies.Delete("refreshToken");
-                Response.Headers.Add("set-cookie", $"refreshtoken={tokens.RefreshToken}; expires={DateTime.Now.AddDays(31)}; domain=vdarwinkel.nl; path=/; secure; samesite=none; httponly");
             }
 
             return await _controllerResultHelper.Execute(Action()) ?? throw new NoNullAllowedException();
