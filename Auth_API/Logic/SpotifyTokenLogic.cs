@@ -13,7 +13,7 @@ namespace Auth_API.Logic
         private readonly string _clientSecret;
         private readonly string _clientId;
         private const string AuthEndpoint = "https://accounts.spotify.com/authorize";
-        private const string RedirectUrl = "https://localhost:3000/settings";
+        private readonly string _redirectUrl;
         private readonly string[] _scopes = { "user-read-currently-playing", "user-read-playback-state", "user-modify-playback-state", "user-read-private", "playlist-read-private" };
         private readonly HttpClient _client = new();
 
@@ -24,6 +24,8 @@ namespace Auth_API.Logic
                 "Environment variable SPOTIFYCLIENTID was empty. Set it using the SPOTIFYCLIENTID environment variable");
             _clientSecret = Environment.GetEnvironmentVariable("SPOTIFYCLIENTSECRET") ?? throw new NoNullAllowedException(
                 "Environment variable SPOTIFYCLIENTSECRET was empty. Set it using the SPOTIFYCLIENTSECRET environment variable");
+            _redirectUrl = Environment.GetEnvironmentVariable("SPOTIFYREDIRECTURL") ?? throw new NoNullAllowedException(
+                "Environment variable SPOTIFYREDIRECTURL was empty. Set it using the SPOTIFYREDIRECTURL environment variable");
         }
 
         public async Task<string> GrandAccessToSpotify(Guid userUuid)
@@ -41,7 +43,7 @@ namespace Auth_API.Logic
             await _spotifyTokenDal.Remove(userUuid);
             await _spotifyTokenDal.Add(tokens);
 
-            return new string($"{AuthEndpoint}?response_type=code&client_id={_clientId}&redirect_uri={RedirectUrl}" +
+            return new string($"{AuthEndpoint}?response_type=code&client_id={_clientId}&redirect_uri={_redirectUrl}" +
                               $"&scope={string.Join("%20", _scopes)}&code_challenge={codeChallenge}&code_challenge_method=S256");
         }
 
@@ -53,7 +55,7 @@ namespace Auth_API.Logic
                 { "client_id", _clientId },
                 { "grant_type", "authorization_code" },
                 { "code", code },
-                { "redirect_uri", RedirectUrl },
+                { "redirect_uri", _redirectUrl },
                 { "code_verifier", dbTokens.CodeVerifier },
             };
 
