@@ -69,18 +69,10 @@ namespace Auth_API.Controllers
                 UserTokensViewmodel userTokens = ControllerHelper.GetUserTokens(this);
                 UserTokensViewmodel tokens = await _userLogic.RefreshToken(userTokens, ip);
 
-                CookieOptions cookieOptions = new()
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.None,
-                    Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
-                    Path = "/",
-                    Expires = DateTime.Now.AddMinutes(15)
-                };
-
                 Response.Cookies.Delete("jwt");
+                Response.Headers.Add("set-cookie", $"jwt={tokens.Jwt}; expires={DateTime.Now.AddMinutes(15)}; domain=vdarwinkel.nl; path=/; secure; samesite=none; httponly");
                 Response.Cookies.Delete("refreshToken");
+                Response.Headers.Add("set-cookie", $"refreshtoken={tokens.RefreshToken}; expires={DateTime.Now.AddDays(31)}; domain=vdarwinkel.nl; path=/; secure; samesite=none; httponly");
             }
 
             return await _controllerResultHelper.Execute(Action()) ?? throw new NoNullAllowedException();
@@ -128,20 +120,11 @@ namespace Auth_API.Controllers
                 UserDto userDto = user.Adapt<UserDto>();
 
                 UserTokensViewmodel tokens = await _userLogic.Login(userDto, ip);
-                CookieOptions cookieOptions = new()
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.None,
-                    Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
-                    Path = "/",
-                    Expires = DateTime.Now.AddMinutes(15)
-                };
+
                 Response.Cookies.Delete("jwt");
-                Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
-                cookieOptions.Expires = DateTime.Now.AddDays(31);
+                Response.Headers.Add("set-cookie", $"jwt={tokens.Jwt}; expires={DateTime.Now.AddMinutes(15)}; domain=vdarwinkel.nl; path=/; secure; samesite=none; httponly");
                 Response.Cookies.Delete("refreshToken");
-                Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
+                Response.Headers.Add("set-cookie", $"refreshtoken={tokens.RefreshToken}; expires={DateTime.Now.AddDays(31)}; domain=vdarwinkel.nl; path=/; secure; samesite=none; httponly");
             }
 
             return await _controllerResultHelper.Execute(Action());
