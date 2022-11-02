@@ -21,8 +21,7 @@ namespace Auth_API.Logic
         private readonly IUserActivationDal _userActivationDal;
         private readonly IDisabledUserDal _disabledUserDal;
 
-        private static readonly string FrontEndUrl = Environment.GetEnvironmentVariable("FRONTENDURL") ?? throw new NoNullAllowedException("Environment variable " +
-                                                                                                                                           "FRONTENDURL was empty. Set it using the FRONTENDURL environment variable");
+        private readonly string _frontEndUrl;
 
         public UserLogic(IUserDal userDal, IUserTokenDal userTokenDal, IUserActivationDal userActivationDal, IDisabledUserDal disabledUserDal)
         {
@@ -30,6 +29,14 @@ namespace Auth_API.Logic
             _userTokenDal = userTokenDal;
             _userActivationDal = userActivationDal;
             _disabledUserDal = disabledUserDal;
+            _frontEndUrl = Environment.GetEnvironmentVariable("FRONTENDURL") ?? throw new NoNullAllowedException("Environment variable " +
+                "FRONTENDURL was empty. Set it using the FRONTENDURL environment variable");
+
+            if (!_frontEndUrl.EndsWith("/"))
+            {
+                throw new InvalidDataException(
+                    "Environment variable FRONTENDURL does not end with a forward slash. Set it like: example.com/");
+            }
         }
 
         /// <summary>
@@ -196,7 +203,7 @@ namespace Auth_API.Logic
                 await _userActivationDal.Add(activation);
                 Dictionary<string, string> keyWordDictionary = new()
                 {
-                    { "Url", $"{FrontEndUrl}account-activation?code={activation.Code}" }
+                    { "Url", $"{_frontEndUrl}account-activation?code={activation.Code}" }
                 };
 
                 string body = EmailLogic.GetHtmlFormattedEmailBody(EmailTemplatePath.EmailValidation, keyWordDictionary);
@@ -268,7 +275,7 @@ namespace Auth_API.Logic
             };
 
             await _userActivationDal.Add(userActivation);
-            Dictionary<string, string> keyWordDictionary = new() { { "ResetUrl", $"{FrontEndUrl}reset-password?code={userActivation.Code}" } };
+            Dictionary<string, string> keyWordDictionary = new() { { "ResetUrl", $"{_frontEndUrl}reset-password?code={userActivation.Code}" } };
             string emailBody = EmailLogic.GetHtmlFormattedEmailBody(EmailTemplatePath.ForgotPassword, keyWordDictionary);
 
             try
@@ -283,6 +290,7 @@ namespace Auth_API.Logic
             catch (Exception)
             {
                 await _userActivationDal.Remove(userActivation.Uuid);
+                throw;
             }
         }
 

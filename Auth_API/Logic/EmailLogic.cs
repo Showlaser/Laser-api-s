@@ -77,7 +77,7 @@ namespace Auth_API.Logic
                 Credentials = new NetworkCredential(EmailAddress, EmailPassword),
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
-                Timeout = 10000
+                Timeout = 30000
             };
 
             // mail settings
