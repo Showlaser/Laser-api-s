@@ -69,11 +69,21 @@ namespace Auth_API.Controllers
                 UserTokensViewmodel userTokens = ControllerHelper.GetUserTokens(this);
                 UserTokensViewmodel tokens = await _userLogic.RefreshToken(userTokens, ip);
 
-                // TODO fix this so multiple cookies can be set in one request
-                Response.Cookies.Delete("jwt");
-                Response.Headers.Add("set-cookie", $"jwt={tokens.Jwt}; expires={DateTime.Now.AddMinutes(15)}; domain=vdarwinkel.nl; path=/; secure; samesite=none; httponly");
-                Response.Cookies.Delete("refreshToken");
-                Response.Headers.Add("set-cookie", $"refreshtoken={tokens.RefreshToken}; expires={DateTime.Now.AddDays(31)}; domain=vdarwinkel.nl; path=/; secure; samesite=none; httponly");
+                CookieOptions cookieOptions = new()
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
+                    Path = "/",
+                    Expires = DateTime.Now.AddMinutes(15)
+                };
+
+                Response.Cookies.Delete("jwt", cookieOptions);
+                Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
+                cookieOptions.Expires = DateTime.Now.AddDays(31);
+                Response.Cookies.Delete("refreshToken", cookieOptions);
+                Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
             }
 
             return await _controllerResultHelper.Execute(Action()) ?? throw new NoNullAllowedException();
@@ -121,11 +131,20 @@ namespace Auth_API.Controllers
                 UserDto userDto = user.Adapt<UserDto>();
 
                 UserTokensViewmodel tokens = await _userLogic.Login(userDto, ip);
-
-                Response.Cookies.Delete("jwt");
-                Response.Headers.Add("set-cookie", $"jwt={tokens.Jwt}; expires={DateTime.Now.AddMinutes(15)}; domain=vdarwinkel.nl; path=/; secure; samesite=none; httponly");
-                Response.Cookies.Delete("refreshToken");
-                //Response.Headers.Add("set-cookie", $"refreshtoken={tokens.RefreshToken}; expires={DateTime.Now.AddDays(31)}; domain=vdarwinkel.nl; path=/; secure; samesite=none; httponly");
+                CookieOptions cookieOptions = new()
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
+                    Path = "/",
+                    Expires = DateTime.Now.AddMinutes(15)
+                };
+                Response.Cookies.Delete("jwt", cookieOptions);
+                Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
+                cookieOptions.Expires = DateTime.Now.AddDays(31);
+                Response.Cookies.Delete("refreshToken", cookieOptions);
+                Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieOptions);
             }
 
             return await _controllerResultHelper.Execute(Action());
