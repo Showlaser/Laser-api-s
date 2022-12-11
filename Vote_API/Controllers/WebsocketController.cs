@@ -25,8 +25,8 @@ namespace Vote_API.Controllers
         {
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                using WebSocket? webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                byte[]? buffer = new byte[1024 * 4];
+                using WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                var buffer = new byte[1024 * 4];
                 await webSocket.ReceiveAsync(
                     new ArraySegment<byte>(buffer), CancellationToken.None);
 
@@ -37,7 +37,7 @@ namespace Vote_API.Controllers
                 {
                     JoinCode = identifier.JoinCode,
                     AccessCode = identifier.AccessCode
-                }); // check if the access code is valid
+                }); // check if the access code is valid by throwing exception
 
                 identifier.WebsocketUuid = Guid.NewGuid();
                 WebsocketInfo websocketInfo = new()
