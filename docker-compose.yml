@@ -20,7 +20,7 @@ services:
         PASSWORD: qwerty
         SPOTIFYCLIENTID: b63c814d37454bb4bb47667cc2a854e0
         SPOTIFYCLIENTSECRET: a76e45bc1b3345ed8eed3ca7c11c7588
-        SPOTIFYREDIRECTURL: http://localhost:3000/settings
+        SPOTIFYREDIRECTURL: http://localhost:3000/account
         SMTPHOST: smtp.gmail.com
         SMTPPORT: 587
         EMAILADDRESS: example.com
