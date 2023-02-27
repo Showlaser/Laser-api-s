@@ -146,6 +146,15 @@ namespace Auth_API.Controllers
             return await _controllerResultHelper.Execute(Action());
         }
 
+        [HttpPost("logout")]
+        public ActionResult Logout()
+        {
+            CookieOptions cookieOptions = GetCookieOptions();
+            Response.Cookies.Delete("jwt", cookieOptions);
+            Response.Cookies.Delete("refreshToken", cookieOptions);
+            return Ok();
+        }
+
         [AuthorizedAction]
         [HttpPut]
         public async Task<ActionResult> Update([FromBody] User user)
