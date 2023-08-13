@@ -11,7 +11,7 @@ services:
     ports:
         - "5001:80"
     environment:
-        JWTSECRET: hwef9hewihsidhfkfdafew
+        JWTSECRET: hwef9hewihsidhfkfdafewhgrh45h45hfghsh4545h45hhj5hsrh545ghfshgfk
         ARGON2SECRET: jwoi320djkg40-8u92huyashdfkj
         SERVER: mariadb
         DATABASE: auth
@@ -59,7 +59,7 @@ services:
     ports:
         - "5002:80"
     environment:
-        JWTSECRET: hwef9hewihsidhfkfdafew
+        JWTSECRET: hwef9hewihsidhfkfdafewhgrh45h45hfghsh4545h45hhj5hsrh545ghfshgfk
         SERVER: mariadb
         DATABASE: vote
         PORT: 3306
