@@ -89,7 +89,7 @@ namespace Auth_API.Logic
             user.Salt = SecurityLogic.GetSalt();
             user.Password = SecurityLogic.HashPassword(user.Password, user.Salt);
             await _userDal.Add(user);
-            await SetEmailChangeState(user);
+            await DisableUser(user);
         }
 
         public async Task<UserTokensViewmodel> Login(UserDto user, IPAddress? ipAddress)
@@ -172,7 +172,7 @@ namespace Auth_API.Logic
             if (dbUser.Email != user.Email)
             {
                 dbUser.Email = user.Email;
-                await SetEmailChangeState(dbUser);
+                await DisableUser(dbUser);
             }
 
             await _userDal.Update(dbUser);
@@ -182,7 +182,7 @@ namespace Auth_API.Logic
         /// Disables the user and send an activation email
         /// </summary>
         /// <param name="dbUser">The user to disable</param>
-        private async Task SetEmailChangeState(UserDto dbUser)
+        private async Task DisableUser(UserDto dbUser)
         {
             try
             {
@@ -204,6 +204,7 @@ namespace Auth_API.Logic
                 await _userActivationDal.Add(activation);
                 Dictionary<string, string> keyWordDictionary = new()
                 {
+                    { "Username", $"{dbUser.Username}" },
                     { "Url", $"{_frontEndUrl}account-activation?code={activation.Code}" }
                 };
 
