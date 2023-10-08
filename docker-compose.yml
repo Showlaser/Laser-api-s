@@ -34,7 +34,7 @@ services:
       - 3306:3306
     restart: always
     volumes:
-      - ~/apps/mariadb/data:/var/lib/mysql
+      - ~/apps/mariadb2/data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: qwerty
 
