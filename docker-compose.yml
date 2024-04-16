@@ -9,7 +9,7 @@ services:
       context: .
       dockerfile: Auth_API/Dockerfile
     ports:
-        - "5001:80"
+        - "5001:8080"
     environment:
         JWTSECRET: hwef9hewihsidhfkfdafewhgrh45h45hfghsh4545h45hhj5hsrh545ghfshgfk
         ARGON2SECRET: jwoi320djkg40-8u92huyashdfkj
@@ -57,7 +57,7 @@ services:
       context: .
       dockerfile: Vote_API/Dockerfile
     ports:
-        - "5002:80"
+        - "5002:8080"
     environment:
         JWTSECRET: hwef9hewihsidhfkfdafewhgrh45h45hfghsh4545h45hhj5hsrh545ghfshgfk
         SERVER: mariadb
