@@ -14,8 +14,15 @@ namespace Auth_API.Interfaces.Dal
         /// Finds the token data by user uuid
         /// </summary>
         /// <param name="userUuid">The uuid of the user</param>
-        /// <returns>The found spotify userTokens data which contains the useruuid null if nothing is found</returns>
+        /// <returns>The found user tokens data, null if nothing is found</returns>
         Task<UserTokensDto?> Find(Guid userUuid);
+
+        /// <summary>
+        /// Finds the token data by refresh token
+        /// </summary>
+        /// <param name="refreshToken">The refresh token to search for</param>
+        /// <returns>The found user tokens data, null if nothing is found</returns>
+        Task<UserTokensDto?> Find(string refreshToken);
 
         /// <summary>
         /// Removes the token data by user uuid

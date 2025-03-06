@@ -28,6 +28,19 @@ namespace Auth_API.Controllers
 #endif
         }
 
+        private CookieOptions GetCookieOptions()
+        {
+            return new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = !_debugModeActive,
+                SameSite = _debugModeActive ? SameSiteMode.Strict : SameSiteMode.None,
+                Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
+                Path = "/",
+                Expires = DateTime.Now.AddMinutes(15)
+            };
+        }
+
         [HttpPost]
         public async Task<ActionResult> Add([FromBody] User user)
         {
@@ -69,16 +82,7 @@ namespace Auth_API.Controllers
                 UserTokensViewmodel userTokens = ControllerHelper.GetUserTokens(this);
                 UserTokensViewmodel tokens = await _userLogic.RefreshToken(userTokens, ip);
 
-                CookieOptions cookieOptions = new()
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.None,
-                    Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
-                    Path = "/",
-                    Expires = DateTime.Now.AddMinutes(15)
-                };
-
+                CookieOptions cookieOptions = GetCookieOptions();
                 Response.Cookies.Delete("jwt", cookieOptions);
                 Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
                 cookieOptions.Expires = DateTime.Now.AddDays(31);
@@ -129,17 +133,9 @@ namespace Auth_API.Controllers
             {
                 IPAddress? ip = Request.HttpContext.Connection.RemoteIpAddress;
                 UserDto userDto = user.Adapt<UserDto>();
-
                 UserTokensViewmodel tokens = await _userLogic.Login(userDto, ip);
-                CookieOptions cookieOptions = new()
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.None,
-                    Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
-                    Path = "/",
-                    Expires = DateTime.Now.AddMinutes(15)
-                };
+
+                CookieOptions cookieOptions = GetCookieOptions();
                 Response.Cookies.Delete("jwt", cookieOptions);
                 Response.Cookies.Append("jwt", tokens.Jwt, cookieOptions);
                 cookieOptions.Expires = DateTime.Now.AddDays(31);
@@ -148,6 +144,15 @@ namespace Auth_API.Controllers
             }
 
             return await _controllerResultHelper.Execute(Action());
+        }
+
+        [HttpPost("logout")]
+        public ActionResult Logout()
+        {
+            CookieOptions cookieOptions = GetCookieOptions();
+            Response.Cookies.Delete("jwt", cookieOptions);
+            Response.Cookies.Delete("refreshToken", cookieOptions);
+            return Ok();
         }
 
         [AuthorizedAction]

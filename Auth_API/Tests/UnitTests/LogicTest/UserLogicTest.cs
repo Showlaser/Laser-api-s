@@ -1,7 +1,6 @@
 ﻿using Auth_API.Logic;
 using Auth_API.Models.Dto.User;
 using Auth_API.Models.ToFrontend;
-using Auth_API.Tests.IntegrationTests;
 using Auth_API.Tests.UnitTests.MockedLogics;
 using Auth_API.Tests.UnitTests.TestModels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,14 +12,13 @@ namespace Auth_API.Tests.UnitTests.LogicTest
     [TestClass]
     public class UserLogicTest
     {
-        private UserLogic _userLogic;
+        private readonly UserLogic _userLogic;
         private readonly TestUserDto _testUser = new();
 
-        [TestInitialize]
-        public void Setup()
+        public UserLogicTest()
         {
-            _userLogic = new MockedUserLogic().UserLogic;
             TestHelper.SetupTestEnvironment();
+            _userLogic = new MockedUserLogic().UserLogic;
         }
 
         [TestMethod]

@@ -17,10 +17,10 @@ namespace Auth_API.Logic
             byte[] jwtSecretKey = Encoding.ASCII.GetBytes(jwtSecret);
             SecurityTokenDescriptor tokenDescriptor = new()
             {
-                Subject = new ClaimsIdentity(new[]
-                {
+                Subject = new ClaimsIdentity(
+                [
                     new Claim("uuid", userUuid.ToString()),
-                }),
+                ]),
                 Audience = "auth",
                 Expires = DateTime.UtcNow.AddMinutes(5),
                 SigningCredentials = new SigningCredentials(

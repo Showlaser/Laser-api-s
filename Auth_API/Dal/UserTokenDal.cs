@@ -24,6 +24,11 @@ namespace Auth_API.Dal
             return await _context.UserToken.SingleOrDefaultAsync(s => s.UserUuid == userUuid);
         }
 
+        public async Task<UserTokensDto?> Find(string refreshToken)
+        {
+            return await _context.UserToken.SingleOrDefaultAsync(s => s.RefreshToken == refreshToken);
+        }
+
         public async Task Remove(Guid userUuid)
         {
             List<UserTokensDto> spotifyTokens = await _context.UserToken.Where(s => s.UserUuid == userUuid).ToListAsync();

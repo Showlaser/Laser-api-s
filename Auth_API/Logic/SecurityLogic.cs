@@ -79,7 +79,7 @@ namespace Auth_API.Logic
                 UserUuid = userUuid,
                 ClientIp = clientIp,
                 RefreshToken = Convert.ToBase64String(randomBytes),
-                RefreshTokenExpireDate = DateTime.Now.AddDays(7),
+                RefreshTokenExpireDate = DateTime.Now.AddDays(30),
             };
         }
 

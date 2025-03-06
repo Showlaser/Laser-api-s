@@ -10,7 +10,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.Net;
 using System.Security;
-using System.Security.Claims;
 
 namespace Auth_API.Logic
 {
@@ -90,7 +89,7 @@ namespace Auth_API.Logic
             user.Salt = SecurityLogic.GetSalt();
             user.Password = SecurityLogic.HashPassword(user.Password, user.Salt);
             await _userDal.Add(user);
-            await SetEmailChangeState(user);
+            await DisableUser(user);
         }
 
         public async Task<UserTokensViewmodel> Login(UserDto user, IPAddress? ipAddress)
@@ -126,15 +125,17 @@ namespace Auth_API.Logic
 
         public async Task<UserTokensViewmodel> RefreshToken(UserTokensViewmodel tokens, IPAddress ipAddress)
         {
-            Claim userUuidClaim = JwtLogic.GetJwtClaims(tokens.Jwt).Single(c => c.Type == "uuid");
-            Guid userUuid = Guid.Parse(userUuidClaim.Value);
-            DisabledUserDto? disabledUser = await _disabledUserDal.Find(userUuid);
-            if (disabledUser != null)
+            if (string.IsNullOrEmpty(tokens.RefreshToken))
             {
-                throw new UserDisabledException(DisabledUserHelper.ConvertEnumToFriendlyMessage(disabledUser.DisabledReason));
+                throw new NoNullAllowedException();
             }
 
-            UserTokensDto dbTokens = await _userTokenDal.Find(userUuid) ?? throw new SecurityException();
+            UserTokensDto dbTokens = await _userTokenDal.Find(tokens.RefreshToken) ?? throw new SecurityException();
+            DisabledUserDto? disabledUser = await _disabledUserDal.Find(dbTokens.UserUuid);
+            if (disabledUser != null)
+            {
+                throw new UserDisabledException(DisabledUserHelper.ConvertEnumToFriendlyMessage(disabledUser.DisabledReason) ?? throw new NoNullAllowedException());
+            }
 
             bool refreshTokenValid = dbTokens.RefreshToken == tokens.RefreshToken &&
                                dbTokens.RefreshTokenExpireDate > DateTime.Now &&
@@ -144,13 +145,13 @@ namespace Auth_API.Logic
                 throw new SecurityException();
             }
 
-            UserTokensDto newTokens = SecurityLogic.GenerateRefreshToken(userUuid, ipAddress);
-            await _userTokenDal.Remove(userUuid);
+            UserTokensDto newTokens = SecurityLogic.GenerateRefreshToken(dbTokens.UserUuid, ipAddress);
+            await _userTokenDal.Remove(dbTokens.UserUuid);
             await _userTokenDal.Add(newTokens);
 
             return new UserTokensViewmodel
             {
-                Jwt = JwtLogic.GenerateJwtToken(userUuid),
+                Jwt = JwtLogic.GenerateJwtToken(dbTokens.UserUuid),
                 RefreshToken = newTokens.RefreshToken,
             };
         }
@@ -171,7 +172,7 @@ namespace Auth_API.Logic
             if (dbUser.Email != user.Email)
             {
                 dbUser.Email = user.Email;
-                await SetEmailChangeState(dbUser);
+                await DisableUser(dbUser);
             }
 
             await _userDal.Update(dbUser);
@@ -181,7 +182,7 @@ namespace Auth_API.Logic
         /// Disables the user and send an activation email
         /// </summary>
         /// <param name="dbUser">The user to disable</param>
-        private async Task SetEmailChangeState(UserDto dbUser)
+        private async Task DisableUser(UserDto dbUser)
         {
             try
             {
@@ -203,6 +204,7 @@ namespace Auth_API.Logic
                 await _userActivationDal.Add(activation);
                 Dictionary<string, string> keyWordDictionary = new()
                 {
+                    { "Username", $"{dbUser.Username}" },
                     { "Url", $"{_frontEndUrl}account-activation?code={activation.Code}" }
                 };
 
