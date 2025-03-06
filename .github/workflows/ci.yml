@@ -18,14 +18,5 @@ jobs:
         run: dotnet restore Docker-api-s.sln
       - name: Build
         run: dotnet build Docker-api-s.sln --no-restore
-      - name: Start dependencies (docker-compose)
-        run: |
-          docker-compose up -d
-      - name: Wait for Mariadb Server container
-        uses: jakejarvis/wait-action@master
-        with:
-          time: "5s"
-      - name: Show containers
-        run: docker container ls
       - name: Test
         run: dotnet test Docker-api-s.sln --no-build --verbosity normal
