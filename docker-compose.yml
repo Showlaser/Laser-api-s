@@ -23,8 +23,8 @@ services:
         SPOTIFYREDIRECTURL: http://localhost:3000/account
         SMTPHOST: smtp.gmail.com
         SMTPPORT: 587
-        EMAILADDRESS: example.com
-        EMAILPASSWORD: f4f34f
+        EMAILADDRESS: vincentswebmail@gmail.com
+        EMAILPASSWORD: muomdyzhvoisokzi
         FRONTENDURL: http://localhost:3000/
 
   mariadb:

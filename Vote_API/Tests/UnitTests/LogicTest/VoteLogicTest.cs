@@ -15,7 +15,7 @@ namespace Vote_API.Tests.UnitTests.LogicTest
 
         public VoteLogicTest()
         {
-            TestHelper.SetEnvironmentVariables();
+            TestHelper.SetupTestEnvironment();
             _voteLogic = new MockedVoteLogic().VoteLogic;
             _voteData = new TestVoteDataDto().VoteData;
         }

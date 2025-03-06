@@ -13,6 +13,7 @@ namespace Auth_API.Tests.UnitTests.MockedDals
             TestRefreshTokenDto accountDataDto = new();
             Mock<IUserTokenDal> mockedTokenDal = new();
             mockedTokenDal.Setup(msd => msd.Find(accountDataDto.RefreshToken.UserUuid)).ReturnsAsync(accountDataDto.RefreshToken);
+            mockedTokenDal.Setup(msd => msd.Find(accountDataDto.RefreshToken.RefreshToken)).ReturnsAsync(accountDataDto.RefreshToken);
             UserTokenDal = mockedTokenDal.Object;
         }
     }
