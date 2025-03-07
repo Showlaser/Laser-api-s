@@ -40,7 +40,7 @@ jobs:
       - name: Detect files
         shell: powershell
         run: |
-          dir /k:
+          dir
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
