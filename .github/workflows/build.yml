@@ -10,6 +10,10 @@ jobs:
     name: Build and analyze
     runs-on: windows-latest
     steps:
+      - name: Detect files
+        shell: powershell
+        run: |
+          dir
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -37,15 +41,11 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-      - name: Detect files
-        shell: powershell
-        run: |
-          dir
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Showlaser_Docker-api-s" /o:"showlaser" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Docker-api-s" /o:"showlaser" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
           dotnet build
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
