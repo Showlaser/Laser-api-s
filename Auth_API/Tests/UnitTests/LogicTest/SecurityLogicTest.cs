@@ -33,7 +33,7 @@ namespace Auth_API.Tests.UnitTests.LogicTest
         [TestMethod]
         public void HashEmptyPasswordTest()
         {
-            Assert.ThrowsException<NoNullAllowedException>(() => SecurityLogic.HashPassword("", Array.Empty<byte>()));
+            Assert.Throws<NoNullAllowedException>(() => SecurityLogic.HashPassword("", Array.Empty<byte>()));
         }
 
         [TestMethod]
