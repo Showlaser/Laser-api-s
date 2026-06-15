@@ -2,6 +2,7 @@
 using Auth_API.Models.Dto.Tokens;
 using Auth_API.Models.ToFrontend;
 using System.Data;
+using System.Net.Http.Headers;
 using System.Security;
 using System.Text;
 
@@ -15,11 +16,12 @@ namespace Auth_API.Logic
         private const string AuthEndpoint = "https://accounts.spotify.com/authorize";
         private readonly string _redirectUrl;
         private readonly string[] _scopes = { "user-read-currently-playing", "user-read-playback-state", "user-modify-playback-state", "user-read-private", "playlist-read-private" };
-        private readonly HttpClient _client = new();
+        private readonly HttpClient _client;
 
-        public SpotifyTokenLogic(ISpotifyTokenDal spotifyTokenDal)
+        public SpotifyTokenLogic(ISpotifyTokenDal spotifyTokenDal, HttpClient client)
         {
             _spotifyTokenDal = spotifyTokenDal;
+            _client = client;
             _clientId = Environment.GetEnvironmentVariable("SPOTIFYCLIENTID") ?? throw new NoNullAllowedException(
                 "Environment variable SPOTIFYCLIENTID was empty. Set it using the SPOTIFYCLIENTID environment variable");
             _clientSecret = Environment.GetEnvironmentVariable("SPOTIFYCLIENTSECRET") ?? throw new NoNullAllowedException(
@@ -62,15 +64,26 @@ namespace Auth_API.Logic
             byte[] clientDataBytes = Encoding.UTF8.GetBytes($"{_clientId}:{_clientSecret}");
             string clientDataBase64 = Convert.ToBase64String(clientDataBytes);
 
-            _client.DefaultRequestHeaders.Add("Authorization", $"Basic {clientDataBase64}");
             FormUrlEncodedContent urlEncodedParameters = new(parameters);
-            HttpRequestMessage req = new(HttpMethod.Post, "https://accounts.spotify.com/api/token") { Content = urlEncodedParameters };
+            HttpRequestMessage req = new(HttpMethod.Post, "https://accounts.spotify.com/api/token")
+            {
+                Content = urlEncodedParameters,
+                Headers = { Authorization = new AuthenticationHeaderValue("Basic", clientDataBase64) }
+            };
 
-            req.Content = urlEncodedParameters;
             HttpResponseMessage response = await _client.SendAsync(req);
-            SpotifyTokensViewmodel? tokens = await response.Content.ReadFromJsonAsync<SpotifyTokensViewmodel>();
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new SecurityException("Could not exchange the authorization code with Spotify");
+            }
 
-            await UpdateSpotifyRefreshToken(userUuid, tokens?.refresh_token);
+            SpotifyTokensViewmodel? tokens = await response.Content.ReadFromJsonAsync<SpotifyTokensViewmodel>();
+            if (tokens == null || string.IsNullOrEmpty(tokens.access_token) || string.IsNullOrEmpty(tokens.refresh_token))
+            {
+                throw new SecurityException("Spotify returned an invalid token response");
+            }
+
+            await UpdateSpotifyRefreshToken(userUuid, tokens.refresh_token);
             return tokens;
         }
 
@@ -91,10 +104,14 @@ namespace Auth_API.Logic
             FormUrlEncodedContent urlEncodedParameters = new(parameters);
             HttpRequestMessage req = new(HttpMethod.Post, "https://accounts.spotify.com/api/token") { Content = urlEncodedParameters };
 
-            req.Content = urlEncodedParameters;
             HttpResponseMessage response = await _client.SendAsync(req);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new SecurityException("Could not refresh the Spotify access token");
+            }
+
             SpotifyTokensViewmodel? tokens = await response.Content.ReadFromJsonAsync<SpotifyTokensViewmodel>();
-            if (string.IsNullOrEmpty(tokens.access_token) || string.IsNullOrEmpty(tokens.refresh_token))
+            if (tokens == null || string.IsNullOrEmpty(tokens.access_token) || string.IsNullOrEmpty(tokens.refresh_token))
             {
                 throw new SecurityException("Invalid refresh token");
             }

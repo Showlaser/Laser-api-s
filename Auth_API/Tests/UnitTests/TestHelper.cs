@@ -18,6 +18,7 @@
             Environment.SetEnvironmentVariable("PASSWORD", "qwerty");
             Environment.SetEnvironmentVariable("SPOTIFYCLIENTID", "123");
             Environment.SetEnvironmentVariable("SPOTIFYCLIENTSECRET", "123");
+            Environment.SetEnvironmentVariable("SPOTIFYREDIRECTURL", "https://localhost/spotify-callback");
             Environment.SetEnvironmentVariable("FRONTENDURL", "localhost/");
         }
     }

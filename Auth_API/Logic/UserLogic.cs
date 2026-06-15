@@ -70,7 +70,7 @@ namespace Auth_API.Logic
 
         private async Task ThrowExceptionIfEmailExists(UserDto user, UserDto? dbUser = null)
         {
-            dbUser ??= await _userDal.FindByEmail(user.Username);
+            dbUser ??= await _userDal.FindByEmail(user.Email);
             if (dbUser != null &&
                 dbUser.Email == user.Email &&
                 dbUser.Uuid != user.Uuid)
@@ -138,7 +138,7 @@ namespace Auth_API.Logic
             }
 
             bool refreshTokenValid = dbTokens.RefreshToken == tokens.RefreshToken &&
-                               dbTokens.RefreshTokenExpireDate > DateTime.Now &&
+                               dbTokens.RefreshTokenExpireDate > DateTime.UtcNow &&
                                Equals(dbTokens.ClientIp, ipAddress);
             if (!refreshTokenValid)
             {
@@ -160,7 +160,9 @@ namespace Auth_API.Logic
         {
             ValidateUser(user);
             UserDto dbUser = await _userDal.Find(user.Uuid) ?? throw new KeyNotFoundException();
-            await ThrowExceptionIfUsernameExists(user, dbUser);
+            // Look the username up fresh (don't pass dbUser) so a username already taken by
+            // another user is detected; passing the current user would always skip the check.
+            await ThrowExceptionIfUsernameExists(user);
             dbUser.Username = user.Username;
 
             SecurityLogic.ValidatePassword(dbUser.Password, dbUser.Salt, user.Password);
@@ -237,10 +239,20 @@ namespace Auth_API.Logic
 
         public async Task ResetPassword(Guid code, string newPassword)
         {
+            if (string.IsNullOrEmpty(newPassword))
+            {
+                throw new InvalidDataException();
+            }
+
             UserActivationDto? passwordReset = await _userActivationDal.Find(code);
             if (passwordReset == null)
             {
                 throw new KeyNotFoundException();
+            }
+
+            if (passwordReset.ExpirationDate < DateTime.UtcNow)
+            {
+                throw new SecurityTokenExpiredException();
             }
 
             UserDto? userToReset = await _userDal.Find(passwordReset.UserUuid);
@@ -260,20 +272,20 @@ namespace Auth_API.Logic
             UserDto? user = await _userDal.FindByEmail(email);
             if (user == null)
             {
-                throw new KeyNotFoundException();
+                // Do not reveal whether the email is registered (prevents user enumeration)
+                return;
             }
 
-            UserActivationDto? existingPasswordReset = await _userActivationDal.Find(user.Uuid);
-            if (existingPasswordReset != null)
-            {
-                await _userActivationDal.Remove(existingPasswordReset.Uuid);
-            }
+            // Remove any previous activation/reset for this user. Remove() matches on UserUuid
+            // and is a no-op when nothing exists.
+            await _userActivationDal.Remove(user.Uuid);
 
             UserActivationDto userActivation = new()
             {
                 Code = Guid.NewGuid(),
                 UserUuid = user.Uuid,
-                Uuid = Guid.NewGuid()
+                Uuid = Guid.NewGuid(),
+                ExpirationDate = DateTime.UtcNow.AddHours(2)
             };
 
             await _userActivationDal.Add(userActivation);
@@ -291,7 +303,7 @@ namespace Auth_API.Logic
             }
             catch (Exception)
             {
-                await _userActivationDal.Remove(userActivation.Uuid);
+                await _userActivationDal.Remove(userActivation.UserUuid);
                 throw;
             }
         }

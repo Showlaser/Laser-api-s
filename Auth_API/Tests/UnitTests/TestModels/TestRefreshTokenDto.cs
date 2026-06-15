@@ -11,7 +11,7 @@ namespace Auth_API.Tests.UnitTests.TestModels
             UserUuid = new TestUserDto().UserDto.Uuid,
             RefreshToken = "YgFEPbi9VHayH85TwaQe4+ld0PIjgfYQAM3P6nNXkE1KyHXyQs76IyekCzB8WD5pAwV6iixxMc8IY0GXDTM5Ow==",
             ClientIp = IPAddress.Parse("127.0.0.1"),
-            RefreshTokenExpireDate = DateTime.Now.AddDays(7)
+            RefreshTokenExpireDate = DateTime.UtcNow.AddDays(7)
         };
     }
 }
