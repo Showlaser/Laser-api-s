@@ -1,7 +1,9 @@
-﻿using Auth_API.Interfaces.Dal;
+﻿using Auth_API.CustomExceptions;
+using Auth_API.Interfaces.Dal;
 using Auth_API.Models.Dto.Tokens;
 using Auth_API.Models.ToFrontend;
 using System.Data;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Security;
 using System.Text;
@@ -15,7 +17,7 @@ namespace Auth_API.Logic
         private readonly string _clientId;
         private const string AuthEndpoint = "https://accounts.spotify.com/authorize";
         private readonly string _redirectUrl;
-        private readonly string[] _scopes = { "user-read-currently-playing", "user-read-playback-state", "user-modify-playback-state", "user-read-private", "playlist-read-private" };
+        private readonly string[] _scopes = { "user-read-currently-playing", "user-read-playback-state", "user-modify-playback-state", "user-read-private", "playlist-read-private", "user-library-read", "user-library-modify" };
         private readonly HttpClient _client;
 
         public SpotifyTokenLogic(ISpotifyTokenDal spotifyTokenDal, HttpClient client)
@@ -107,7 +109,18 @@ namespace Auth_API.Logic
             HttpResponseMessage response = await _client.SendAsync(req);
             if (!response.IsSuccessStatusCode)
             {
-                throw new SecurityException("Could not refresh the Spotify access token");
+                string errorBody = await response.Content.ReadAsStringAsync();
+                if (response.StatusCode == HttpStatusCode.BadRequest && errorBody.Contains("invalid_grant"))
+                {
+                    // De refresh token is verlopen of ingetrokken. De gebruiker moet
+                    // opnieuw inloggen, dus geef een 401 terug zodat de frontend de
+                    // opgeslagen token weggooit.
+                    throw new SecurityException("The Spotify refresh token is no longer valid");
+                }
+
+                // Tijdelijke fout bij Spotify (rate limiting, storing). De refresh token
+                // niet weggooien zodat een latere poging alsnog kan slagen.
+                throw new SpotifyUnavailableException("Could not refresh the Spotify access token");
             }
 
             SpotifyTokensViewmodel? tokens = await response.Content.ReadFromJsonAsync<SpotifyTokensViewmodel>();
