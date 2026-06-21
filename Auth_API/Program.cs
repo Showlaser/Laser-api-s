@@ -12,7 +12,9 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<UserLogic>();
-builder.Services.AddScoped<SpotifyTokenLogic>();
+// Typed client: IHttpClientFactory manages the underlying connection pool, preventing
+// socket exhaustion that "new HttpClient()" per scope would cause.
+builder.Services.AddHttpClient<SpotifyTokenLogic>();
 builder.Services.AddTransient<ControllerResultHelper>();
 builder.Services.AddScoped<IUserDal, UserDal>();
 builder.Services.AddScoped<IUserTokenDal, UserTokenDal>();
@@ -31,9 +33,12 @@ builder.Services.AddDbContextPool<DataContext>(dbContextOptions => dbContextOpti
     .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 WebApplication app = builder.Build();
+string[] allowedOrigins = GetAllowedOrigins();
 app.UseCors(b =>
 {
-    b.SetIsOriginAllowed(o => true)
+    // Reflecting every origin while allowing credentials lets any website make authenticated
+    // requests with the user's cookies. Restrict to an explicit allow-list instead.
+    b.WithOrigins(allowedOrigins)
         .AllowCredentials()
         .AllowAnyHeader()
         .AllowAnyMethod();
@@ -44,6 +49,26 @@ app.MapControllers();
 CreateDatabaseIfNotExist(app);
 
 app.Run();
+
+static string[] GetAllowedOrigins()
+{
+    // Explicit, comma-separated list takes precedence (e.g. "https://app.example.com,https://localhost:3000")
+    string? configured = Environment.GetEnvironmentVariable("ALLOWEDORIGINS");
+    if (!string.IsNullOrWhiteSpace(configured))
+    {
+        return configured.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    }
+
+    // Fall back to the origin (scheme + host + port) derived from FRONTENDURL
+    string? frontEndUrl = Environment.GetEnvironmentVariable("FRONTENDURL");
+    if (!string.IsNullOrWhiteSpace(frontEndUrl) && Uri.TryCreate(frontEndUrl, UriKind.Absolute, out Uri? uri))
+    {
+        return [uri.GetLeftPart(UriPartial.Authority)];
+    }
+
+    throw new NoNullAllowedException("No CORS origins configured. Set the ALLOWEDORIGINS environment variable " +
+                                     "(comma-separated) or provide an absolute FRONTENDURL.");
+}
 
 static string GetConnectionString()
 {

@@ -33,9 +33,9 @@ namespace Auth_API.Controllers
             return new CookieOptions
             {
                 HttpOnly = true,
-                Secure = !_debugModeActive,
-                SameSite = _debugModeActive ? SameSiteMode.Strict : SameSiteMode.None,
-                Domain = _debugModeActive ? "localhost" : "vdarwinkel.nl",
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Domain = _debugModeActive ? null : "vdarwinkel.nl",
                 Path = "/",
                 Expires = DateTime.Now.AddMinutes(15)
             };
@@ -94,33 +94,33 @@ namespace Auth_API.Controllers
         }
 
         [HttpPost("request-password-reset")]
-        public async Task<ActionResult> RequestPasswordReset([FromQuery] string email)
+        public async Task<ActionResult> RequestPasswordReset([FromBody] ForgotPasswordRequest request)
         {
             async Task Action()
             {
-                await _userLogic.RequestPasswordReset(email);
+                await _userLogic.RequestPasswordReset(request.Email);
             }
 
             return await _controllerResultHelper.Execute(Action());
         }
 
         [HttpPost("reset-password")]
-        public async Task<ActionResult> ResetUserPassword([FromQuery] Guid code, [FromQuery] string newPassword)
+        public async Task<ActionResult> ResetUserPassword([FromBody] ResetPasswordRequest request)
         {
             async Task Action()
             {
-                await _userLogic.ResetPassword(code, newPassword);
+                await _userLogic.ResetPassword(request.Code, request.NewPassword);
             }
 
             return await _controllerResultHelper.Execute(Action());
         }
 
         [HttpPost("activate")]
-        public async Task<ActionResult> ActivateUser([FromQuery] Guid code)
+        public async Task<ActionResult> ActivateUser([FromBody] AccountActivationRequest request)
         {
             async Task Action()
             {
-                await _userLogic.ActivateUserAccount(code);
+                await _userLogic.ActivateUserAccount(request.Code);
             }
 
             return await _controllerResultHelper.Execute(Action());
@@ -179,6 +179,10 @@ namespace Auth_API.Controllers
             {
                 UserDto userDto = ControllerHelper.GetUserModelFromJwtClaims(this);
                 await _userLogic.Remove(userDto);
+
+                CookieOptions cookieOptions = GetCookieOptions();
+                Response.Cookies.Delete("jwt", cookieOptions);
+                Response.Cookies.Delete("refreshToken", cookieOptions);
             }
 
             return await _controllerResultHelper.Execute(Action());

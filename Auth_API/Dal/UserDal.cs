@@ -17,7 +17,7 @@ namespace Auth_API.Dal
         {
             _context.User.Add(user);
             await _context.SaveChangesAsync();
-        }
+        } 
 
         public async Task<UserDto?> Find(Guid userUuid)
         {

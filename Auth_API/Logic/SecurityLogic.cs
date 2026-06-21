@@ -37,11 +37,11 @@ namespace Auth_API.Logic
         public static string GenerateNonce()
         {
             const string chars = "abcdefghijklmnopqrstuvwxyz123456789";
-            Random random = new();
             char[] nonce = new char[128];
             for (int i = 0; i < nonce.Length; i++)
             {
-                nonce[i] = chars[random.Next(chars.Length)];
+                // Cryptographically secure RNG: the nonce is used as the PKCE code verifier
+                nonce[i] = chars[RandomNumberGenerator.GetInt32(chars.Length)];
             }
 
             return new string(nonce);
@@ -79,7 +79,7 @@ namespace Auth_API.Logic
                 UserUuid = userUuid,
                 ClientIp = clientIp,
                 RefreshToken = Convert.ToBase64String(randomBytes),
-                RefreshTokenExpireDate = DateTime.Now.AddDays(30),
+                RefreshTokenExpireDate = DateTime.UtcNow.AddDays(30),
             };
         }
 

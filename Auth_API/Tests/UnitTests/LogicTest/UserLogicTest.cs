@@ -37,7 +37,7 @@ namespace Auth_API.Tests.UnitTests.LogicTest
         [TestMethod]
         public void LoginWrongPasswordTest()
         {
-            Assert.ThrowsExceptionAsync<SecurityException>(async () => await _userLogic.Login(_testUser.UserDto, IPAddress.Parse("127.0.0.1")));
+            Assert.ThrowsAsync<SecurityException>(async () => await _userLogic.Login(_testUser.UserDto, IPAddress.Parse("127.0.0.1")));
         }
 
         [TestMethod]
@@ -65,7 +65,7 @@ namespace Auth_API.Tests.UnitTests.LogicTest
         public async Task RefreshTokenWrongIpTest()
         {
             UserTokensViewmodel tokens = await GetTokens(IPAddress.Parse("127.0.0.2"));
-            await Assert.ThrowsExceptionAsync<SecurityException>(async () => await _userLogic.RefreshToken(new UserTokensViewmodel
+            await Assert.ThrowsAsync<SecurityException>(async () => await _userLogic.RefreshToken(new UserTokensViewmodel
             {
                 Jwt = tokens.Jwt,
                 RefreshToken = tokens.RefreshToken
@@ -76,7 +76,7 @@ namespace Auth_API.Tests.UnitTests.LogicTest
         public async Task RefreshTokenWrongRefreshTokenTest()
         {
             UserTokensViewmodel tokens = await GetTokens();
-            await Assert.ThrowsExceptionAsync<SecurityException>(async () => await _userLogic.RefreshToken(new UserTokensViewmodel
+            await Assert.ThrowsAsync<SecurityException>(async () => await _userLogic.RefreshToken(new UserTokensViewmodel
             {
                 Jwt = tokens.Jwt,
                 RefreshToken = tokens.RefreshToken
