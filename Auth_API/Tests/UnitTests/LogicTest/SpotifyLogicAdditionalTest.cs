@@ -1,8 +1,11 @@
+using Auth_API.CustomExceptions;
 using Auth_API.Logic;
 using Auth_API.Tests.UnitTests.MockedLogics;
 using Auth_API.Tests.UnitTests.TestModels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
+using System.Net;
+using System.Security;
 
 namespace Auth_API.Tests.UnitTests.LogicTest
 {
@@ -35,6 +38,28 @@ namespace Auth_API.Tests.UnitTests.LogicTest
         {
             await Assert.ThrowsAsync<InvalidDataException>(async () =>
                 await _spotifyTokenLogic.RefreshSpotifyAccessToken("short", _testTokens.SpotifyTokensDto.UserUuid));
+        }
+
+        [TestMethod]
+        public async Task RefreshWithExpiredTokenThrowsSecurityExceptionTest()
+        {
+            FakeHttpMessageHandler handler = new(HttpStatusCode.BadRequest, "{\"error\":\"invalid_grant\"}");
+            SpotifyTokenLogic spotifyTokenLogic = new MockedUserTokenLogic(handler).SpotifyTokenLogic;
+
+            await Assert.ThrowsAsync<SecurityException>(async () =>
+                await spotifyTokenLogic.RefreshSpotifyAccessToken(_testTokens.SpotifyTokensDto.SpotifyRefreshToken!,
+                    _testTokens.SpotifyTokensDto.UserUuid));
+        }
+
+        [TestMethod]
+        public async Task RefreshWithTransientSpotifyErrorThrowsUnavailableExceptionTest()
+        {
+            FakeHttpMessageHandler handler = new(HttpStatusCode.ServiceUnavailable);
+            SpotifyTokenLogic spotifyTokenLogic = new MockedUserTokenLogic(handler).SpotifyTokenLogic;
+
+            await Assert.ThrowsAsync<SpotifyUnavailableException>(async () =>
+                await spotifyTokenLogic.RefreshSpotifyAccessToken(_testTokens.SpotifyTokensDto.SpotifyRefreshToken!,
+                    _testTokens.SpotifyTokensDto.UserUuid));
         }
     }
 }

@@ -47,6 +47,10 @@ namespace Auth_API.Models.Helper
             {
                 return new StatusCodeResult(StatusCodes.Status410Gone);
             }
+            catch (SpotifyUnavailableException)
+            {
+                return new StatusCodeResult(StatusCodes.Status503ServiceUnavailable);
+            }
             catch (Exception exception)
             {
                 Console.WriteLine(exception);
@@ -92,6 +96,10 @@ namespace Auth_API.Models.Helper
             catch (SecurityTokenExpiredException)
             {
                 return new StatusCodeResult(StatusCodes.Status410Gone);
+            }
+            catch (SpotifyUnavailableException)
+            {
+                return new StatusCodeResult(StatusCodes.Status503ServiceUnavailable);
             }
             catch (Exception exception)
             {

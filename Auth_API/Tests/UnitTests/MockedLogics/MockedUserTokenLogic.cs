@@ -7,10 +7,11 @@ namespace Auth_API.Tests.UnitTests.MockedLogics
     {
         public readonly SpotifyTokenLogic SpotifyTokenLogic;
 
-        public MockedUserTokenLogic()
+        public MockedUserTokenLogic(HttpMessageHandler? httpMessageHandler = null)
         {
             MockedSpotifyTokenDal spotifyTokenDal = new();
-            SpotifyTokenLogic = new SpotifyTokenLogic(spotifyTokenDal.SpotifyTokenDal, new HttpClient());
+            HttpClient client = httpMessageHandler == null ? new HttpClient() : new HttpClient(httpMessageHandler);
+            SpotifyTokenLogic = new SpotifyTokenLogic(spotifyTokenDal.SpotifyTokenDal, client);
         }
     }
 }

@@ -25,7 +25,7 @@ services:
         SMTPPORT: 587
         EMAILADDRESS: vincentswebmail@gmail.com
         EMAILPASSWORD: muomdyzhvoisokzi
-        FRONTENDURL: https://localhost:3000/
+        FRONTENDURL: https://127.0.0.1:3000/
         ALLOWEDORIGINS: "https://localhost:3000, https://127.0.0.1:3000"
 
   mariadb:
@@ -43,7 +43,7 @@ services:
     container_name: phpmyadmin
     image: phpmyadmin/phpmyadmin:latest
     ports:
-      - 8000:80
+      - 8200:80
     environment:
       - PMA_ARBITRARY=1
       - PMA_HOST=mariadb

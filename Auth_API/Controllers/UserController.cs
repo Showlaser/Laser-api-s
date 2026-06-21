@@ -179,6 +179,10 @@ namespace Auth_API.Controllers
             {
                 UserDto userDto = ControllerHelper.GetUserModelFromJwtClaims(this);
                 await _userLogic.Remove(userDto);
+
+                CookieOptions cookieOptions = GetCookieOptions();
+                Response.Cookies.Delete("jwt", cookieOptions);
+                Response.Cookies.Delete("refreshToken", cookieOptions);
             }
 
             return await _controllerResultHelper.Execute(Action());
